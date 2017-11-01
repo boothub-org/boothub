@@ -1,0 +1,27 @@
+<!--
+  Copyright 2017 the original author or authors.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  For details, see http://www.apache.org/licenses/LICENSE-2.0.
+-->
+<configuration>
+  <appender name="STDOUT"
+    class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>
+        %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+     </pattern>
+    </encoder>
+  </appender>
+  <root level="WARN">
+    <appender-ref ref="STDOUT" />
+  </root>
+  <logger name="org.beryx.textio" level="trace" additivity="false">
+    <appender-ref ref="STDOUT" />
+  </logger>
+  <logger name="org.boothub" level="trace" additivity="false">
+    <appender-ref ref="STDOUT" />
+  </logger>
+  <logger name="spark" level="trace" additivity="false">
+    <appender-ref ref="STDOUT" />
+  </logger>
+</configuration>

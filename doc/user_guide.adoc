@@ -1,0 +1,9 @@
+[[user_guide]]
+= User Guide
+
+The main components of {project-name} are shown in the figure below:
+
+image::design.png[]
+
+Fasten the trichotrometric indicator support with the ambihelical hexnuts and place the rectabular extrusion bracket on a flat surface.
+

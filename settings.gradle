@@ -1,0 +1,12 @@
+rootProject.name = 'boothub-root'
+
+String[] modules = [
+    'boothub-core',
+    'boothub-gradle-test',
+    'boothub-web',
+    'boothub-db',
+    'boothub-postgres',
+    'boothub-heroku',
+]
+
+include modules

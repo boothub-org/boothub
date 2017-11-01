@@ -1,0 +1,30 @@
+# directory names ending with / will be excluded from all IDEA modules (see ide.gradle)
+
+**/node_modules/
+**/resources/static/
+gradle-local.properties
+boothub-oauth.cfg
+gpg/
+.gradle/
+build/
+classes/
+*.class
+*.log
+*.settings.xml
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# IDEA
+*.iml
+*.ipr
+*.iws
+.idea/
+out/
+
+.env
+hs_err_pid*
+_ignore*

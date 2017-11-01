@@ -1,0 +1,4 @@
+[[introduction]]
+= Introduction
+
+{project-name} is a great project. Once you start using it, your life will change forever.

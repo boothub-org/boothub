@@ -1,0 +1,9 @@
+--- !!org.boothub.context.SourceContext
+artifact: {{appModule.artifact}}
+fileContexts:
+    - !!org.boothub.context.GameSourceFileContext
+      fileName: JavaMain.java
+      targetBaseDir: src/main/java
+      targetPackage: {{appModule.basePackage}}
+      targetFileClass: {{appModule.artifactAsClassName}}Main
+      moduleName: {{platform}} {{#if multiplayer}}multiplayer{{else}}single-player{{/if}} {{lower genre}} game

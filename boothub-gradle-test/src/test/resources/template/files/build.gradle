@@ -1,0 +1,40 @@
+{{~def 'prjId' (asJavaId ghProjectId)~}}
+
+plugins {
+    id "com.github.ethankhall.semantic-versioning" version "1.1.0"
+}
+
+project.version.with {
+    major = {{prjId}}VersionMajor as int
+    minor= {{prjId}}VersionMinor as int
+    patch = {{prjId}}VersionPatch as int
+    if (project.hasProperty('{{prjId}}VersionLabel')) {
+        preRelease = {{prjId}}VersionLabel
+    }
+    releaseBuild = Boolean.valueOf({{prjId}}ReleaseBuild)
+}
+ext.{{prjId}}Version = project.version as String
+
+apply plugin: 'java'
+{{~#if appMainClass}}
+apply plugin: 'application'
+{{~/if}}
+
+sourceCompatibility = 1.8
+group = '{{group}}'
+version = {{prjId}}Version
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': "{{appModule.artifact}}",
+{{~#if appMainClass}}
+                'Main-Class': '{{appModule.basePackage}}.{{appMainClass}}',
+{{~/if}}
+                'Implementation-Version': {{prjId}}Version
+    }
+}
+{{~#if appMainClass}}
+mainClassName = '{{appModule.basePackage}}.{{appMainClass}}'
+{{~/if}}

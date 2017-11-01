@@ -1,0 +1,16 @@
+--- !!org.boothub.context.GameProjectContext
+group: org.bizarre-soft
+
+versionMajor: 1
+
+ghProjectId: weirdo
+
+appModule: !!org.boothub.context.StandardModuleContext
+    artifact: weird-app
+    basePackage: org.bizarre_soft.weird_app
+
+appMainClass: WeirdAppMain
+
+multiplayer: true
+genre: STRATEGY
+platform: XBox

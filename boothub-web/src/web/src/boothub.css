@@ -1,0 +1,44 @@
+#textterm {
+    height: 400px;
+    resize: both;
+    overflow: auto;
+    margin: 0px;
+}
+
+.textterm-prompt {
+    color:          #2fe040;
+    font-weight:    normal;
+}
+
+.boothub-title {
+    color: #00a020;
+}
+
+.gen-message-error {
+    color:          red;
+    font-weight:    bolder;
+}
+
+.gen-message-success {
+    color:          #00e000;
+    font-weight:    bold;
+}
+
+.link-button {
+    background:none!important;
+    border:none;
+    padding:0!important;
+    color:#069;
+    cursor:pointer;
+}
+.link-button:hover{
+    text-decoration:underline;
+}
+.link-button.disabled {
+    cursor:not-allowed;
+    opacity: 0.5;
+}
+.link-button:hover{
+    text-decoration:none;
+    cursor:not-allowed;
+}

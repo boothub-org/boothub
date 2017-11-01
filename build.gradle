@@ -1,0 +1,501 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+import org.apache.tools.ant.taskdefs.condition.Os
+
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+        classpath "gradle.plugin.io.ratpack:ratpack-gradle:1.4.6"
+        classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
+    }
+}
+plugins {
+    id 'java'
+    id 'groovy'
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id "com.github.ethankhall.semantic-versioning" version "1.1.0"
+    id "com.github.ben-manes.versions" version "0.13.0"
+    id "com.jfrog.bintray" version "1.7.2"
+    id "org.asciidoctor.convert" version "1.5.3"
+    id "org.ajoberstar.git-publish" version "0.1.0"
+    id "com.github.hierynomus.license" version "0.14.0"
+    id "net.saliman.properties" version "1.4.6"
+    id 'com.github.jk1.dependency-license-report' version '0.3.8'
+    id "com.dorongold.task-tree" version "1.3"
+}
+
+project.version.with {
+    major = boothubVersionMajor as int
+    minor = boothubVersionMinor as int
+    patch = boothubVersionPatch as int
+    if (project.hasProperty('boothubVersionLabel')) {
+        preRelease = boothubVersionLabel
+    }
+    releaseBuild = Boolean.valueOf(boothubReleaseBuild)
+}
+ext.boothubVersion = project.version as String
+ext.boothubTag = Boolean.valueOf(boothubReleaseBuild) ? "v$ext.boothubVersion" : 'master'
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+def pomConfig = {
+    url "https://github.com/boothub/boothub"
+    developers {
+        developer {
+            id "siordache"
+            name "Serban Iordache"
+        }
+    }
+    scm {
+        connection "https://github.com/boothub/boothub.git"
+        developerConnection "https://github.com/boothub/boothub.git"
+        url "https://github.com/boothub/boothub"
+    }
+}
+
+ext.groovyVersion = '2.4.11'
+
+allprojects {
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:all,-syntax,-missing', '-quiet')
+    }
+}
+
+dependencies.compile subprojects
+
+subprojects {
+    apply plugin: 'groovy'
+    apply plugin: 'java'
+    apply plugin: 'findbugs'
+    apply plugin: 'com.github.ben-manes.versions'
+    apply plugin: 'signing'
+    apply plugin: 'com.github.hierynomus.license'
+    apply plugin: 'com.github.jk1.dependency-license-report'
+
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    sourceCompatibility = 1.8
+    group = 'org.boothub'
+    version = boothubVersion
+
+    def defaultEncoding = 'UTF-8'
+    [compileJava, compileTestJava]*.options*.encoding = defaultEncoding
+
+    [compileGroovy, compileTestGroovy]*.options*.encoding = defaultEncoding
+    [compileGroovy, compileTestGroovy]*.groovyOptions*.encoding = defaultEncoding
+
+    sourceSets.main.java.srcDirs = []
+    sourceSets.main.groovy.srcDirs = ["src/main/java", "src/main/groovy"]
+
+    configurations {
+      provided
+      compile {transitive = true}
+    }
+
+    license {
+        header rootProject.file("license-header.txt")
+        skipExistingHeaders true
+        ignoreFailures false
+
+        excludes (["**/*.zip", "**/*.yml", "**/*.properties", 'template/**', "templates/**", "definer/**", "static/**", "public/**"])
+    }
+
+
+    signing {
+        sign configurations.archives
+    }
+
+    signArchives {
+      onlyIf { gradle.taskGraph.allTasks.findAll {task -> isPublishTask(task)} }
+    }
+
+    dependencies {
+      compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+      compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
+      provided 'com.google.code.findbugs:findbugs-annotations:3.0.1'
+
+      testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
+          exclude module: 'groovy-all'
+      }
+      testCompile 'cglib:cglib-nodep:3.2.5'
+      testCompile 'org.objenesis:objenesis:2.5.1'
+      testCompile('com.athaydes:spock-reports:1.3.0') { transitive = false}
+    }
+
+    sourceSets.main.compileClasspath += configurations.provided
+
+    findbugs {
+        effort = "max"
+        excludeFilter = file("$rootProject.projectDir/findbugsExclude.xml")
+    }
+
+    jar {
+        manifest {
+            attributes 'Implementation-Title': "${project.archivesBaseName}",
+                    'Implementation-Version': boothubVersion
+        }
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task groovydocJar(type: Jar, dependsOn: classes) {
+        classifier "javadoc"
+        from groovydoc
+    }
+
+    artifacts {
+        (System.getenv("TRAVIS") == "true") ? archives(sourcesJar) : archives(sourcesJar, groovydocJar)
+    }
+
+    publishing {
+        publications {
+            "$project.name"(MavenPublication) {
+                from components.java
+                artifact sourcesJar { classifier "sources" }
+                artifact groovydocJar { classifier "javadoc" }
+                groupId 'org.boothub'
+                artifactId project.name
+                version boothubVersion
+                pom.withXml {
+                    def root = asNode()
+                    root.appendNode('name', "Module $project.name")
+                    root.appendNode('description', "The $project.name artifact")
+                    root.children().last() + pomConfig
+
+                    // We cannot configure the licenses in pomConfig due to a name conflict with the 'license' extension defined by the com.github.hierynomus.license plugin
+                    def licenseNode = root.appendNode('licenses').appendNode('license')
+                    licenseNode.appendNode('name', 'The Apache Software License, Version 2.0')
+                    licenseNode.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+                    licenseNode.appendNode('distribution', 'repo')
+                }
+            }
+        }
+    }
+
+    task "create-dirs" {
+        doLast {
+          sourceSets*.java.srcDirs*.each { it.mkdirs() }
+          sourceSets*.groovy.srcDirs*.each { it.mkdirs() }
+          sourceSets*.resources.srcDirs*.each { it.mkdirs() }
+        }
+    }
+
+    eclipse {
+        classpath {
+            plusConfigurations << configurations.provided
+        }
+        project {
+            file.beforeMerged { project ->
+                project.natures.clear()
+            }
+        }
+    }
+
+    idea {
+        module {
+            scopes.PROVIDED.plus += [configurations.provided]
+        }
+    }
+}
+
+def gitIgnore = file(".gitignore").readLines()
+def gitIgnoreDirs = gitIgnore*.trim().findAll { !it.startsWith("#") && it.endsWith("/") }
+
+asciidoctor {
+  sourceDir = file("doc")
+  sources {include 'index.adoc'}
+  logDocuments = true
+  attributes 'source-highlighter': 'coderay',
+             'coderay-linenums-mode': 'table',
+             icons: 'font',
+             imagesdir: 'img',
+             'data-uri': '',
+             linkattrs: true,
+             linkcss: true,
+             'git-tag': boothubTag,
+             'blob-root': "https://github.com/boothub-org/boothub/blob/$boothubTag"
+}
+
+gitPublish {
+    System.properties['org.ajoberstar.grgit.auth.username'] = System.getenv('GH_PAGES_ACCESS_TOKEN') ?: ''
+    System.properties['org.ajoberstar.grgit.auth.password'] = ''
+
+    repoUri = 'https://github.com/boothub-org/boothub.git'
+    branch = 'gh-pages'
+
+    contents {
+        def pgType = project.hasProperty('ghPageType') ? ghPageType : 'latest'
+        if(pgType == 'init') {
+            from file("ghpages")
+        } else {
+            from file("${asciidoctor.outputDir.path}/html5")
+            from file("build/docs")
+        }
+        def docDir = Boolean.valueOf(boothubReleaseBuild) ? 'releases' : 'snapshots'
+        if(pgType == 'init') {
+            into "."
+        } else if(pgType == 'version') {
+            gitPublishPush.enabled = (docDir != 'snapshots')
+            into "$docDir/$boothubVersion"
+
+            preserve {
+                include '**'
+                exclude "$docDir/$boothubVersion"
+            }
+        } else {
+            into "$docDir/latest"
+
+            preserve {
+                include '**'
+                exclude "$docDir/latest"
+            }
+        }
+    }
+}
+
+project('boothub-core') {
+    apply plugin: 'application'
+    dependencies {
+      compile 'com.google.code.gson:gson:2.8.0'
+      compile 'org.apache.ant:ant:1.9.7'
+      compile 'com.github.jknack:handlebars:4.0.6'
+      compile ('org.beryx:handlebars-java-helpers:0.3.0') {
+          exclude module: 'groovy-all'
+      }
+      compile 'org.yaml:snakeyaml:1.18'
+      compile 'org.beryx:text-io:2.8.0'
+      compile 'org.kohsuke:github-api:1.89'
+      compile 'org.ajoberstar:grgit:1.7.1'
+      runtime ('ch.qos.logback:logback-classic:1.1.7')
+      testCompile('ch.qos.logback:logback-classic:1.1.7')
+    }
+
+    jar {
+        manifest {
+            attributes 'Main-Class': 'org.boothub.BootHubCli'
+        }
+    }
+    mainClassName = 'org.boothub.BootHubCli'
+
+    applicationName = "boothub"
+
+    startScripts {
+        defaultJvmOpts = ['-Dlogback.configurationFile=logback.xml']
+    }
+
+    applicationDistribution.from("${rootProject.projectDir}/dist") {
+        exclude 'xbin'
+        filter(ReplaceTokens, tokens:[boothubVersion : boothubVersion])
+    }
+
+    applicationDistribution.from("${rootProject.projectDir}/dist/xbin") {
+        into 'bin'
+    }
+
+    applicationDistribution.from("${rootProject.projectDir}/..") {
+        include('LICENSE', 'NOTICE')
+    }
+}
+
+project('boothub-db') {
+    dependencies {
+        compile(project(':boothub-core'))
+    }
+}
+
+project('boothub-postgres') {
+    dependencies {
+        compile(project(':boothub-db'))
+        compile 'org.postgresql:postgresql:42.1.2'
+    }
+}
+
+project('boothub-heroku') {
+    dependencies {
+        compile(project(':boothub-db'))
+        compile "com.heroku.sdk:heroku-jdbc:0.1.1"
+    }
+}
+
+project('boothub-web') {
+    apply plugin: "io.ratpack.ratpack-groovy"
+    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: "com.moowork.node"
+
+    dependencies {
+        compile project(':boothub-postgres')
+        compile project(':boothub-heroku')
+        compile 'org.beryx:text-io-web:2.8.0'
+        compile ratpack.dependency('session')
+        compile ratpack.dependency('handlebars')
+        compile ratpack.dependency('pac4j')
+
+        compile 'org.pac4j:pac4j-core:1.8.6'
+        compile 'org.pac4j:pac4j-oauth:1.8.6'
+
+        testCompile ratpack.dependency('test')
+    }
+
+    mainClassName = "org.boothub.web.BootHubWebApp"
+
+    node {
+        version = '7.8.0'
+        download = true
+        workDir = file("$project.buildDir/nodejs")
+        nodeModulesDir = file("$project.projectDir/src/web")
+    }
+
+    task runBuildWeb(type: NpmTask, dependsOn: 'npmInstall') {
+        inputs.dir("$project.projectDir/src/web")
+        outputs.dir("$project.projectDir/src/main/resources/static")
+        outputs.file("$project.projectDir/src/main/resources/static/app.html")
+
+        def buildScript = Boolean.valueOf(boothubReleaseBuild) ? 'build-prod' : 'build-dev'
+        args = ['run', buildScript]
+    }
+
+    processResources.dependsOn runBuildWeb
+
+
+    task getDbUrl(type:Exec) {
+        def herokuExecutable = (Os.isFamily(Os.FAMILY_WINDOWS)) ? 'heroku.exe' : 'heroku'
+        commandLine herokuExecutable, 'config:get', 'DATABASE_URL', '-a', herokuAppName
+
+        standardOutput = new ByteArrayOutputStream()
+        ext.output = {
+            // the first line of the output is the DATABASE_URL
+            return standardOutput.toString().split('\\n')[0]
+        }
+    }
+
+    task runLocal(type:Exec) {
+        workingDir '..'
+        dependsOn installShadowDist, getDbUrl
+
+        doFirst {
+            def url = getDbUrl.output()
+            environment('DATABASE_URL', url)
+        }
+
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'heroku.exe', 'local', '-f', 'Procfile.windows', 'web'
+        } else {
+            commandLine 'heroku', 'local', 'web'
+        }
+    }
+
+    task stage {
+        dependsOn clean, installShadowDist
+    }
+}
+
+project('boothub-gradle-test') {
+    dependencies {
+        compile(project(':boothub-core')) {
+            exclude module: 'logback-classic'
+        }
+        compile gradleTestKit()
+        compile 'org.beryx:streamplify:1.1.0'
+    }
+}
+
+configureGroovydoc(groovydoc)
+
+def configureGroovydoc(task) {
+  configure(task) {
+    docTitle "BootHub Documentation ($boothubVersion)"
+    windowTitle "BootHub Documentation ($boothubVersion)"
+    destinationDir file("build/docs/groovydoc")
+    source subprojects.groovydoc.source
+    classpath = files(subprojects.groovydoc.classpath)
+    groovyClasspath = files(subprojects.groovydoc.groovyClasspath)
+    if(project.configurations.hasProperty('provided')) {
+        classpath += project.configurations.provided
+    }
+    link "http://docs.oracle.com/javase/8/docs/api/", 'java'
+    link "http://docs.groovy-lang.org/docs/groovy-$groovyVersion/html/gapi/", "groovy"
+  }
+}
+
+def readFromConsole(prompt) {
+    readFromConsole('', prompt)
+}
+def readFromConsole(header, prompt) {
+    readFromConsole(header, prompt, false)
+}
+def readPasswordFromConsole(prompt) {
+    readPasswordFromConsole(prompt, true)
+}
+def readPasswordFromConsole(header, prompt) {
+    readFromConsole(header, prompt, true)
+}
+def readFromConsole(header, prompt, isPassword) {
+    def console = System.console()
+    if (console) {
+        if(header) {
+            console.printf "\n\n# $header\n"
+        }
+        String value = null;
+        while(!value?.trim()) {
+            def val = console."read${isPassword ? 'Password' : 'Line'}"("> $prompt: ")
+            if(val) {
+                value = new String(val)
+            }
+        }
+        return value
+    } else {
+        throw new GradleException("Cannot get console. Try running gradle with the '--no-daemon' option")
+    }
+}
+
+def isPublishTask(task) {
+  task.name.startsWith('publish') && (task.name != 'publishGhPages')
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+    if (gradle.taskGraph.allTasks.findAll {task -> isPublishTask(task)}) {
+        def password = readPasswordFromConsole('Please enter your signing credentials', 'PGP Private Key Password')
+        allprojects { ext."signing.keyId" = signingKeyId }
+        allprojects { ext."signing.secretKeyRingFile" = signingSecretKeyRingFile }
+        allprojects { ext."signing.password" = password }
+    }
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.getProperty('bintrayUser') : "unknownUser"
+    key =  project.hasProperty('bintrayKey') ? project.getProperty('bintrayKey') : "unknownKey"
+    publications = subprojects.name
+    pkg {
+        repo = 'maven'
+        name = 'boothub'
+        userOrg = 'boothub'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/boothub/boothub.git'
+
+        version {
+                name = boothubVersion
+                desc = "BootHub $boothubVersion"
+                released  = new Date().format("yyyy-MM-dd'T'HH:mm:ss.SSSZZ")
+                vcsTag = boothubVersion
+                gpg {
+                    sign = true
+                }
+        }
+    }
+}
