@@ -1,7 +1,7 @@
 [[user_guide]]
 = User Guide
 
-NOTE: The JavaDoc is available link:javadoc/[here].
+NOTE: The GroovyDoc is available link:groovydoc/[here].
 
 The following section describes the steps required to start using boothub:
 
