@@ -1,6 +1,6 @@
 #!/bin/bash
 set -ev
-./gradlew --no-daemon -i -s build javadoc asciidoc
+./gradlew --no-daemon -i -s build groovydoc asciidoc
 
 
 if [ "${TRAVIS_PULL_REQUEST}" == "false" -a "${TRAVIS_BRANCH}" == "master" ]; then
