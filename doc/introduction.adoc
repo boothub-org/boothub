@@ -1,4 +1,13 @@
 [[introduction]]
 = Introduction
 
-{project-name} is a great project. Once you start using it, your life will change forever.
+NOTE: The source code is available on https://github.com/boothub-org/boothub[GitHub].
+
+boothub is licensed under the Apache-2.0 license.
+Click on the icon below to read the license file:
+
+image::license.png[role="thumb" link="{blob-root}/LICENSE"]
+
+A few words about boothub:
+
+*TBD*

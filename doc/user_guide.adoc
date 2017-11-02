@@ -1,9 +1,8 @@
 [[user_guide]]
 = User Guide
 
-The main components of {project-name} are shown in the figure below:
+NOTE: The JavaDoc is available link:javadoc/[here].
 
-image::design.png[]
+The following section describes the steps required to start using boothub:
 
-Fasten the trichotrometric indicator support with the ambihelical hexnuts and place the rectabular extrusion bracket on a flat surface.
-
+*TBD*

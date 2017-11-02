@@ -1,0 +1,39 @@
+[[dev_guide]]
+= Developer Guide
+
+*Command Line Build*
+
+boothub is built with http://www.gradle.org[Gradle] and requires JDK 8 or higher.
+Clone the GitHub repository, `cd` into the top directory and start the build:
+
+[source]
+----
+git clone https://github.com/boothub-org/boothub.git
+cd boothub
+./gradlew clean build            (On Windows: gradlew clean build)
+----
+
+
+*IntelliJ Idea*
+
+- start the IntelliJ Idea IDE
+- make sure that the Groovy plugin is enabled
+- open _build.gradle_
+
+
+*Eclipse*
+
+- start the Eclipse IDE
+- install the Groovy plugin; update site: http://dist.springsource.org/snapshot/GRECLIPSE/e4.6/
+- install a recent version of https://projects.eclipse.org/projects/tools.buildship[Buildship].
+- import the project using the Gradle Project wizard
+
+
+
+*Upload to Bintray*
+
+The Bintray credentials must be available in a file called _gradle-local.properties_.
+You can use link:{blob-root}/gradle-local.template.properties[gradle-local.template.properties] as template and adjust it accordingly.
+
+
+*TBD*
