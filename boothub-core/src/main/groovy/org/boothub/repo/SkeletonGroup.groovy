@@ -32,7 +32,7 @@ class SkeletonGroup {
 
     void keepOnlyLastEntry() {
         if(entries.size() > 1) {
-            def lastEntry = entries.lastEntry()
+            def lastEntry = entries.firstEntry()
             entries.clear()
             entries[lastEntry.key] = lastEntry.value
         }
