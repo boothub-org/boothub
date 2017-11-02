@@ -99,6 +99,7 @@ class GradleTemplateBuilder {
         def modulePath = getModulePath(module, gradleResult.projectPath)
         def libsPath = modulePath.resolve('build/libs').toFile().absolutePath
         def artifacts = new FileNameFinder().getFileNames(libsPath, "*.jar").collect{new JarFile(it)}
+        logPrint("artifacts created by $taskName: $artifacts.name")
         new GradleBuildResult(
                 projectPath: gradleResult.projectPath,
                 buildResult: gradleResult.buildResult,
