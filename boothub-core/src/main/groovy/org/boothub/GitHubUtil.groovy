@@ -56,9 +56,8 @@ class GitHubUtil {
     }
 
     static void addContentWithGrgit(ProjectContext ctx, String workingCopyPath) {
-//        String url = getGitHttpUrl(ctx)
         Grgit.init(dir: workingCopyPath)
-        def credentials = new Credentials(username: ctx.ghUserId, password: getGitHubPassword(ctx))
+        def credentials = new Credentials(ctx.ghUserId, getGitHubPassword(ctx))
         Grgit grgit = Grgit.open(dir: workingCopyPath, creds: credentials)
         grgit.remote.add(name: 'origin', url: getGitHttpUrl(ctx))
         grgit.add(patterns: ['.'], update: false)
