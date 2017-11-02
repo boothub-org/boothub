@@ -30,7 +30,7 @@ import static LogUtil.logPrint
 class GradleTemplateBuilder {
     final String templateDir
     ProjectContext context
-    List<String> gradleOptions = ['--info', '--stacktrace', '-Dorg.gradle.daemon=false ']
+    List<String> gradleOptions = ['--info', '--stacktrace']
     boolean inProcess = false
     EnumSet<TaskOutcome> loggedOutcomes = EnumSet.of(TaskOutcome.FAILED, TaskOutcome.SKIPPED, TaskOutcome.UP_TO_DATE)
     String gradleVersion = null
