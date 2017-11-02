@@ -465,7 +465,7 @@ def readFromConsole(header, prompt, isPassword) {
 }
 
 def isPublishTask(task) {
-  task.name.startsWith('publish') && (task.name != 'publishGhPages')
+  task.name.startsWith('publish')
 }
 
 gradle.taskGraph.whenReady { taskGraph ->
