@@ -484,7 +484,7 @@ bintray {
     pkg {
         repo = 'maven'
         name = 'boothub'
-        userOrg = 'boothub'
+        userOrg = 'boothub-org'
         licenses = ['Apache-2.0']
         vcsUrl = 'https://github.com/boothub/boothub.git'
 
