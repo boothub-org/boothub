@@ -170,7 +170,7 @@ abstract class BootHub implements HierarchicalConfigurator<ProjectContext> {
                 zipPath.toFile().delete()
                 outputPath = zipPath.toAbsolutePath().toFile().absolutePath
                 def ant = new AntBuilder()
-                ant.zip(destfile: outputPath, basedir: outputDir)
+                ant.zip(destfile: outputPath, basedir: outputDir, defaultexcludes: 'no')
             }
             new GenerationResult(done: true, resultData: new GenerationResultData(ghProjectId: ctx.ghProjectId, outputPath: outputPath))
         } catch(Exception e) {
