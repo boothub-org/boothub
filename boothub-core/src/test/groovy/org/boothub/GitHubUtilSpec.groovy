@@ -20,6 +20,23 @@ import spock.lang.Unroll
 
 @Unroll
 class GitHubUtilSpec extends Specification {
+    def "isMaybeExecutable(#fileName) should be #exec"() {
+        expect:
+        GitHubUtil.isMaybeExecutable(fileName) == exec
+
+        where:
+        fileName     | exec
+        '.sh'        | true
+        'aaa.sh'     | true
+        'aaa.bbb.sh' | true
+        'x.py'       | true
+        'x.tcl'      | true
+        'a.txt'      | false
+        'a.sh.txt'   | false
+        '.sh.'       | false
+        'a.ssh'      | false
+    }
+
     def "isMaybeBinary(#file) should be #binary"() {
         expect:
         GitHubUtil.isMaybeBinary {getClass().getResourceAsStream(file)} == binary

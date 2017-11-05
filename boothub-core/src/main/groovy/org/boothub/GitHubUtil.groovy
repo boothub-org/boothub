@@ -16,6 +16,7 @@
 package org.boothub
 
 import groovy.io.FileType
+import groovy.util.logging.Slf4j
 import org.ajoberstar.grgit.Credentials
 import org.ajoberstar.grgit.Grgit
 import org.boothub.context.ProjectContext
@@ -24,7 +25,9 @@ import org.kohsuke.github.*
 
 import static org.boothub.context.ExtUtil.*
 
+@Slf4j
 class GitHubUtil {
+    static executableExtensions = ['.bat', '.cmd', '.pl', '.py', '.sh', '.tcl']
     static GHRepository createRepo(ProjectContext ctx) {
         if(!ctx.ghApiUsed) throw new IllegalArgumentException("GitHub usage not enabled")
         GitHub github = getGitHubApi(ctx)
@@ -79,7 +82,7 @@ class GitHubUtil {
         def workingCopyUri = workingCopyDir.toURI()
         workingCopyDir.eachFileRecurse(FileType.FILES) { f ->
             def relPath = workingCopyUri.relativize(f.toURI()).path
-            boolean executable = false // TODO
+            boolean executable = isMaybeExecutable(f.name)
             if(isMaybeBinary {f.newInputStream()}) {
                 String sha = new GHBlobBuilder(repo)
                         .binaryContent(f.bytes)
@@ -98,6 +101,33 @@ class GitHubUtil {
                 .create()
                 .SHA1
         masterRef.updateTo(commitSha)
+    }
+
+    static boolean updateContent(GHRepository repo, String content, String commitMessage, String path, boolean executable) {
+        String currentContent = repo.getFileContent(path).read().text
+        if(currentContent == content) {
+            log.debug("No content change. Skipping update of $path")
+            return false
+        }
+        GHRef masterRef = repo.getRef("heads/master")
+        String masterTreeSha = repo
+                .getTreeRecursive("master", 1)
+                .sha
+        GHTreeBuilder treeBuilder = new GHTreeBuilder(repo).baseTree(masterTreeSha)
+        treeBuilder.textEntry(path, content, executable)
+        String treeSha = treeBuilder.create().sha
+        String commitSha = new GHCommitBuilder(repo)
+                .message(commitMessage)
+                .tree(treeSha)
+                .parent(masterRef.getObject().getSha())
+                .create()
+                .SHA1
+        masterRef.updateTo(commitSha)
+        true
+    }
+
+    static boolean isMaybeExecutable(String fileName) {
+        executableExtensions.any { ext -> fileName.endsWith(ext) }
     }
 
     static boolean isMaybeBinary(Closure<InputStream> streamProvider) {

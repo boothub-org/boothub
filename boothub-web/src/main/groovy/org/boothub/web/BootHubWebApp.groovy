@@ -25,11 +25,13 @@ import groovy.util.logging.Slf4j
 import org.beryx.textio.web.RatpackTextIoApp
 import org.beryx.textio.web.WebTextTerminal
 import org.boothub.BootHub
+import org.boothub.GitHubUtil
 import org.boothub.Result
 import org.boothub.Result.Type
 import org.boothub.repo.*
 import org.boothub.repo.heroku.HerokuDBApi
 import org.boothub.repo.postgresql.PGJobDAO
+import org.kohsuke.github.GitHub
 import org.pac4j.core.context.Pac4jConstants
 import org.pac4j.core.profile.UserProfile
 import org.pac4j.oauth.client.GitHubClient
@@ -46,6 +48,8 @@ import ratpack.session.SessionData
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.function.Function
 
 import static org.boothub.Result.Type.*
@@ -65,6 +69,10 @@ class BootHubWebApp {
     static final String ENV_OAUTH_CALLBACK_URL = "BOOTHUB_OAUTH_CALLBACK_URL"
     static final String ENV_OAUTH_KEY = "BOOTHUB_OAUTH_KEY"
     static final String ENV_OAUTH_SECRET = "BOOTHUB_OAUTH_SECRET"
+
+    static final long BOT_DELAY_MINUTES = (System.getenv('BOOTHUB_DELAY_MINUTES') ?: '2') as long
+    static final String BOT_USER = System.getenv('BOOTHUB_BOT_USER')
+    static final String BOT_PASSWORD = System.getenv('BOOTHUB_BOT_PASSWORD')
 
     final RepoManager repoManager
 
@@ -187,6 +195,7 @@ class BootHubWebApp {
             sessionData
         }
 
+        Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay({ -> updateJsonRepo()}, 1, BOT_DELAY_MINUTES, TimeUnit.MINUTES)
 
         app.server.bindings << ({binding -> binding.module(HandlebarsModule, {cfg -> cfg.templatesPath('static')})} as Action)
 
@@ -297,6 +306,35 @@ class BootHubWebApp {
 
         } as Action)
         webTextIoExecutor.execute(app)
+    }
+
+
+    private void updateJsonRepo() {
+        try {
+            log.debug("updateJsonRepo: start")
+            if(!BOT_USER || !BOT_PASSWORD) {
+                log.warn("updateJsonRepo: bot credentials not set.")
+                return
+            }
+            def result = repoManager.getSkeletons(SkeletonSearchOptions.ALL)
+            if(!result.successful) {
+                log.warn("updateJsonRepo: getSkeletons() returned: $result")
+                return
+            }
+            def jsonText = gson.toJson(result.value)
+            def ghApi = GitHub.connectUsingPassword(BOT_USER, BOT_PASSWORD)
+            def ghRepo = ghApi.getRepository('boothub-org/boothub-repo')
+            if(!ghRepo) {
+                log.warn("updateJsonRepo: cannot retrieve boothub-repo")
+                return
+            }
+            boolean updated = GitHubUtil.updateContent(ghRepo, jsonText, "updated by $BOT_USER", 'repo.json', false)
+            if(updated) {
+                log.info("boothub-repo updated")
+            }
+        } catch (Exception e) {
+            log.error("Failed to update boothub-repo.", e)
+        }
     }
 
     private void handleQuerySkeletons(Context ctx, SkeletonSearchOptions searchOpts) {
