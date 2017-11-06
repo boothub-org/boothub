@@ -94,6 +94,20 @@ class DBRepoManager extends DBSkeletonRepo implements RepoManager {
     }
 
     @Override
+    Result<Integer> incrementUsageCounter(String skeletonId, String version) {
+        Result.onFailure("Cannot increment the usage counter of skeleton $skeletonId version $version") {
+            dbApi.dbExecute(dbJobDAO.incrementUsageCounter(skeletonId, version))
+        }
+    }
+
+    @Override
+    Result<Integer> addRating(String skeletonId, String version, long rating) {
+        Result.onFailure("Cannot add rating $rating to skeleton $skeletonId version $version") {
+            dbApi.dbExecute(dbJobDAO.addRating(skeletonId, version, rating))
+        }
+    }
+
+    @Override
     Result<Integer> addOwner(String skeletonId, String ownerId) {
         Result.onFailure("Cannot add owner $ownerId to skeleton $skeletonId") {
             dbApi.dbExecute(dbJobDAO.addOwner(skeletonId, ownerId))

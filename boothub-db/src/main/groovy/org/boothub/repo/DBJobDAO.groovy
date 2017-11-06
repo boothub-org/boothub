@@ -30,6 +30,9 @@ abstract trait DBJobDAO {
     abstract DBJob<Integer> addOrReplaceEntry(String skeletonId, String version, String url, long size, String sha)
     abstract DBJob<Integer> deleteEntry(String skeletonId, String version)
 
+    abstract DBJob<Integer> incrementUsageCounter(String skeletonId, String version)
+    abstract DBJob<Integer> addRating(String skeletonId, String version, long rating)
+
     abstract DBJob<Integer> addOwner(String skeletonId, String ownerId)
     abstract DBJob<Integer> deleteOwner(String skeletonId, String ownerId)
     abstract DBJob<ResultSet> getOwnerIds(String skeletonId)

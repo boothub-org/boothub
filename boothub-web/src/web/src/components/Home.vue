@@ -209,11 +209,7 @@ export default {
     },
 
     initTextTerm() {
-      console.log('### skeletonTable = ' + this.$refs.skeletonTable);
-
-      // var textTermElem = document.getElementById('textterm');
       var textTermElem = this.$refs.textterm;
-      console.log('### textTermElem = ' + textTermElem);
       var tt = createTextTerm(textTermElem);
       tt.setLogLevelTrace();
       tt.onDispose = this.onTextTermDispose;

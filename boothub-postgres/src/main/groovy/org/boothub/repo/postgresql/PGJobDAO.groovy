@@ -90,6 +90,14 @@ class PGJobDAO implements DBJobDAO, StatementApi {
         delete from ta_entry where skeleton_id=? and version=?
         """
 
+    private static final String SQL_INCREMENT_USAGE_COUNTER = """
+        update ta_entry set usage_count=usage_count+1 where skeleton_id=? and version=?
+        """
+
+    private static final String SQL_ADD_RATING = """
+        update ta_entry set rating_count=rating_count+1, rating_sum=rating_sum+? where skeleton_id=? and version=?
+        """
+
     private static final String SQL_INSERT_INTO_TA_OWNER = """
         insert into ta_owner(skeleton_id, owner) values(?, ?)
         on conflict on constraint uq_owner do nothing
@@ -166,6 +174,21 @@ class PGJobDAO implements DBJobDAO, StatementApi {
         new DBJob.PreparedUpdate(SQL_DELETE_TA_ENTRY)
                 .configure {stmt -> stmt.setString(1, skeletonId)}
                 .configure {stmt -> stmt.setString(2, version)}
+    }
+
+    @Override
+    DBJob<Integer> incrementUsageCounter(String skeletonId, String version) {
+        new DBJob.PreparedUpdate(SQL_INCREMENT_USAGE_COUNTER)
+                .configure {stmt -> stmt.setString(1, skeletonId)}
+                .configure {stmt -> stmt.setString(2, version)}
+    }
+
+    @Override
+    DBJob<Integer> addRating(String skeletonId, String version, long rating) {
+        new DBJob.PreparedUpdate(SQL_ADD_RATING)
+                .configure {stmt -> stmt.setLong(1, rating)}
+                .configure {stmt -> stmt.setString(2, skeletonId)}
+                .configure {stmt -> stmt.setString(3, version)}
     }
 
     @Override

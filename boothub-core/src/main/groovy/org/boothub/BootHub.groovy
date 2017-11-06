@@ -22,6 +22,7 @@ import org.boothub.context.HierarchicalConfigurator
 import org.boothub.context.ProjectContext
 import org.boothub.repo.RepoCache
 import org.boothub.repo.RepoKey
+import org.boothub.repo.RepoManager
 import org.boothub.repo.SkeletonRepo
 import org.kohsuke.github.GitHub
 
@@ -83,11 +84,12 @@ abstract class BootHub implements HierarchicalConfigurator<ProjectContext> {
     GenerationResultData execute() {
         ProjectContext ctx = null
         try {
+            def key = repoKey
             Initializr initializr
             try {
-                initializr = Initializr.ofRepoKey(repoKey, repoCache)
+                initializr = Initializr.ofRepoKey(key, repoCache)
             } catch (Exception e) {
-                throw new Exception("Cannot initialize skeleton from $repoKey.url: $e.message")
+                throw new Exception("Cannot initialize skeleton from $key.url: $e.message")
             }
             def config = initializr.createConfiguration()
             log.debug "contextClass: $config.contextClass"
@@ -102,7 +104,15 @@ abstract class BootHub implements HierarchicalConfigurator<ProjectContext> {
 
             textIO.textTerminal.println "\nGenerating project. Please wait..."
 
-            generateProject(ctx, initializr)
+            def result = generateProject(ctx, initializr)
+            if(skeletonRepo instanceof RepoManager) {
+                try {
+                    skeletonRepo.incrementUsageCounter(key.id, key.version.toString())
+                } catch (Exception e) {
+                    log.error("Cannot increment the usage counter.", e)
+                }
+            }
+            result
         } catch (Exception e) {
             log.error("Errors occurred.", e)
             new GenerationResultData(ghProjectId: ctx?.ghProjectId, errorMessage: "Errors occurred: $e.message")
