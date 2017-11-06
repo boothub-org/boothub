@@ -16,6 +16,7 @@
 package org.boothub
 
 import groovy.io.FileType
+import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import org.ajoberstar.grgit.Credentials
 import org.ajoberstar.grgit.Grgit
@@ -104,8 +105,10 @@ class GitHubUtil {
     }
 
     static boolean updateContent(GHRepository repo, String content, String commitMessage, String path, boolean executable) {
-        String currentContent = repo.getFileContent(path).read().text
-        if(currentContent?.trim() == content?.trim()) {
+        def currentJsonContent = new JsonSlurper().parse(repo.getFileContent(path).read())
+        def jsonContent = new JsonSlurper().parseText(content)
+
+        if(currentJsonContent == jsonContent) {
             log.debug("No content change. Skipping update of $path")
             return false
         }
