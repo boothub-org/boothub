@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-default/index.css'
+import 'element-ui/lib/theme-chalk/index.css'
 import Router from 'vue-router'
 import Home from '@/components/Home'
 import CLI from '@/components/CLI'

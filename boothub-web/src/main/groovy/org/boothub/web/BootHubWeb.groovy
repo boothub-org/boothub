@@ -38,9 +38,7 @@ class BootHubWeb extends BootHub {
             .withZipOutput(true)
 
         this.sessionData = runnerData.sessionData
-
         this.initData = new Gson().fromJson(runnerData.initData, InitData);
-        println("##### initData: $initData")
     }
 
     @Override
@@ -67,8 +65,6 @@ class BootHubWeb extends BootHub {
 
     void configureGhApi(ProjectContext ctx, TextIO textIO) {
         waitForSessionDataCompletion(10000);
-        println "##### Starting configureGhApi() with accessToken $sessionData.accessToken"
-
         ctx.ghUserId = sessionData.ghUserId ?: initData.ghUserId ?: textIO.newStringInputReader().read("GitHub username")
         GitHub gitHubApi
         if(sessionData.accessToken) {
@@ -85,6 +81,5 @@ class BootHubWeb extends BootHub {
                         .read("Add the generated project to GitHub?")
             }
         }
-//        if(gitHubApi) textIO.textTerminal.println "Logged as $gitHubApi.myself.login"
     }
 }

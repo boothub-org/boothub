@@ -24,23 +24,25 @@ import static org.boothub.repo.RepoCache.EXPECTED_SIZE_INVALIDATE
 
 @Slf4j
 trait RepoCacheUtil {
-    String getValidationError(Path path, long expectedSize, String expectedSha) {
+    String getValidationError(Path path, RepoKey key, long expectedSize, String expectedSha) {
         if(!path) return "Path is null"
         def file = path.toFile()
-        if(!file.isFile()) return "$path is not a file"
+        if(!file.isFile()) return "Not a file"
         if(expectedSize == EXPECTED_SIZE_INVALIDATE) return "Cache invalidation requested"
-        if(expectedSize > 0 && file.length() != expectedSize) return "Invalid length of $path. Expected: $expectedSize. Actual: ${file.length()}"
+        if(expectedSize > 0 && file.length() != expectedSize) return "Invalid length of $key.url. Expected: $expectedSize. Actual: ${file.length()}"
         def sha = Util.getSha256(file)
-        if(expectedSha && sha != expectedSha) return "Invalid SHA of $path. Expected: $expectedSha. Actual: $sha"
+        if(expectedSha && sha != expectedSha) return "Invalid SHA of $key.url. Expected: $expectedSha. Actual: $sha"
         null
     }
 
     void downloadFile(RepoKey key, Path path, long expectedSize, String expectedSha) {
         Util.downloadFile(key.url, path)
         if(expectedSize != EXPECTED_SIZE_INVALIDATE) {
-            def err = getValidationError(path, expectedSize, expectedSha)
-            log.debug "Invalid repo entry: ${key.url}. $err"
-            if (err) throw new IOException("Cannot retrieve ${key.toStringKey()}")
+            def err = getValidationError(path, key, expectedSize, expectedSha)
+            if (err) {
+                path.toFile().delete()
+                throw new IOException(err)
+            }
         }
     }
 }

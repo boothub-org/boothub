@@ -84,6 +84,18 @@
                         label="Version"
                         prop="version">
                       </el-table-column>
+                      <el-table-column
+                        label="Valid"
+                        align="center"
+                        width="80">
+                        <template slot-scope="scope">
+                          <el-popover trigger="hover" placement="top-end" width="600" v-if="scope.row.validationError">
+                            <p class="danger-color">{{ scope.row.validationError }}</p>
+                            <div slot="reference" class="el-icon-error danger-color"/>
+                          </el-popover>
+                          <i class="el-icon-success success-color" v-if="!scope.row.validationError"/>
+                        </template>
+                      </el-table-column>
                     </el-table>
                   </el-col>
                   <el-col :span="6">
@@ -264,7 +276,7 @@
         this.ownerRows = [];
         this.selectedOwner = null;
         this.newOwner = null;
-        axios.post('/api/querySkeletons', {ownerId: this.loggedInUserId, compact: true})
+        axios.post('/api/querySkeletons', {ownerId: this.loggedInUserId, includeInvalidEntries: true})
           .then(response => {
             this.handleResult(response.data)
             this.skeletonRows = _.map(_.keys(response.data.value), key => _.merge({id: key}, response.data.value[key]));
@@ -518,4 +530,12 @@
   .space-before {
     margin-top: 40px;
   }
+
+  .danger-color {
+    color: #FA5555;
+  }
+  .success-color {
+    color: #67C23A;
+  }
+
 </style>

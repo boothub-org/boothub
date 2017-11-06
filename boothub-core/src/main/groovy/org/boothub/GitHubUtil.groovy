@@ -105,7 +105,7 @@ class GitHubUtil {
 
     static boolean updateContent(GHRepository repo, String content, String commitMessage, String path, boolean executable) {
         String currentContent = repo.getFileContent(path).read().text
-        if(currentContent == content) {
+        if(currentContent?.trim() == content?.trim()) {
             log.debug("No content change. Skipping update of $path")
             return false
         }

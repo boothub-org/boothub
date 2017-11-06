@@ -212,12 +212,10 @@ class BootHubWebApp {
                 }
 
                 .path("app") {ctx ->
-                    println "##### params: $ctx.request.queryParams"
                     setNoCache(ctx)
                     Session session = ctx.get(Session)
                     session.data.then{sessionData ->
                         def model = getModel(sessionData)
-                        println "##### model: $model"
                         sessionData.set("autoRun", false)
                         ctx.render(Paths.get(BootHubWebApp.getClass().getResource("/static/app.html").toURI()))
                     }
@@ -311,21 +309,21 @@ class BootHubWebApp {
 
     private void updateJsonRepo() {
         try {
-            log.debug("updateJsonRepo: start")
+            log.debug("Start updating boothub-repo")
             if(!BOT_USER || !BOT_PASSWORD) {
-                log.warn("updateJsonRepo: bot credentials not set.")
+                log.warn("updateJsonRepo(): bot credentials not set.")
                 return
             }
-            def result = repoManager.getSkeletons(SkeletonSearchOptions.ALL)
+            def result = repoManager.getSkeletons(SkeletonSearchOptions.ALL_COMPACT)
             if(!result.successful) {
-                log.warn("updateJsonRepo: getSkeletons() returned: $result")
+                log.warn("updateJsonRepo(): getSkeletons() returned: $result")
                 return
             }
             def jsonText = gson.toJson(result.value)
             def ghApi = GitHub.connectUsingPassword(BOT_USER, BOT_PASSWORD)
             def ghRepo = ghApi.getRepository('boothub-org/boothub-repo')
             if(!ghRepo) {
-                log.warn("updateJsonRepo: cannot retrieve boothub-repo")
+                log.warn("updateJsonRepo(): cannot retrieve boothub-repo")
                 return
             }
             boolean updated = GitHubUtil.updateContent(ghRepo, jsonText, "updated by $BOT_USER", 'repo.json', false)

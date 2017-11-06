@@ -27,6 +27,7 @@ class SkeletonSearchOptions {
     String version
 
     boolean compact
+    boolean includeInvalidEntries
     boolean lastVersionOnly
     String searchPattern
 

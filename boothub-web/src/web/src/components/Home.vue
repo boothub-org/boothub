@@ -102,7 +102,7 @@
       </div>
       <div v-show="zipDownloadLink" class="space-before">
         Project successfully generated.
-        <el-button type="success" @click="downloadZippedProject" style="margin-left:20px;">Download project</el-button>
+        <el-button type="success" @click="downloadZippedProject" class="el-icon-download" style="margin-left:20px;"><span style="font-family: Arial;">&nbsp;Download project</span></el-button>
       </div>
       <el-button type="primary" @click="goToStart" class="space-before">Back to start page</el-button>
     </div>
@@ -423,7 +423,7 @@ export default {
 }
 .msg-danger {
   color: white;
-  background: #ff4949;
+  background: #FA5555;
 }
 
 </style>

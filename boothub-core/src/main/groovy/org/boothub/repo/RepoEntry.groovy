@@ -34,6 +34,7 @@ class RepoEntry extends SkeletonInfo implements RepoKey {
     int ratingCount
     int usageCount
     int ratingSum
+    String validationError
 
     /**
      * This method does not set the {@code size} and {@code sha} attributes. It is your responsibility to subsequently set them.

@@ -62,9 +62,9 @@ class DefaultRepoCache implements RepoCache, RepoCacheUtil {
             synchronized(path.toString().intern()) {
                 long cachedLength = (checkCachedLength ? expectedSize : EXPECTED_SIZE_UNKNOWN)
                 String cachedSha =  (checkCachedSha ? expectedSha : null)
-                def cachedErr = getValidationError(path, cachedLength, cachedSha)
+                def cachedErr = getValidationError(path, key, cachedLength, cachedSha)
                 if(cachedErr) {
-                    log.debug "Invalid cache entry: $cachedErr"
+                    log.debug "Invalid cache entry $path: $cachedErr"
                     downloadFile(key, path, expectedSize, expectedSha)
                 }
             }

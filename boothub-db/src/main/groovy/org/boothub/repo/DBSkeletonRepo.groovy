@@ -54,17 +54,30 @@ class DBSkeletonRepo implements SkeletonRepo {
                 skeletons.values().each { group -> group.keepOnlyMatches(options.searchPattern) }
             }
             if(!options.compact) {
-                skeletons.values().each { group ->
-                    group.entries.each { entry ->
+                skeletons.values().removeAll{ group ->
+                    group.entries.entrySet().removeAll{ entry ->
                         def repoEntry = entry.value
                         try {
                             def entryPath = repoCache.get(repoEntry, repoEntry.size, repoEntry.sha)
                             entry.value = RepoEntry.fromZipFile(entryPath.toFile())
                             entry.value.url = repoEntry.url
+                            if(repoEntry.id != entry.value.id) {
+                                throw new IOException("Invalid skeleton id in $repoEntry.url: $entry.value.id. Expected: $repoEntry.id")
+                            }
+                            if(repoEntry.version != entry.value.version) {
+                                throw new IOException("Invalid version in $repoEntry.url: $entry.value.version. Expected: $repoEntry.version")
+                            }
+                            return false
                         } catch (Exception e) {
-                            log.error("Cannot retrieve skeleton from $repoEntry.url", e)
+                            log.error("Cannot retrieve skeleton", e)
+                            if(options.includeInvalidEntries) {
+                                entry.value.validationError = e.getMessage()
+                                return false
+                            }
+                            return true
                         }
                     }
+                    return group.entries.isEmpty()
                 }
             }
             def sortedSkeletons = skeletons.sort{a, b -> a.value.name <=> b.value.name}
