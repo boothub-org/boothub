@@ -20,6 +20,7 @@ import groovy.util.logging.Slf4j
 import org.beryx.textio.TextIO
 import org.beryx.textio.web.RunnerData
 import org.boothub.BootHub
+import org.boothub.GitHubUtil
 import org.boothub.context.ProjectContext
 import org.boothub.repo.*
 import org.kohsuke.github.GitHub
@@ -69,7 +70,7 @@ class BootHubWeb extends BootHub {
         GitHub gitHubApi
         if(sessionData.accessToken) {
             try {
-                gitHubApi = GitHub.connectUsingOAuth(sessionData.accessToken)
+                gitHubApi = GitHubUtil.connectUsingOAuth(sessionData.accessToken)
             } catch (Exception e) {
                 textIO.textTerminal.println("\n### Failed to connect to GitHub. The project will be generated offline.")
                 gitHubApi = null

@@ -55,7 +55,7 @@ class BootHubCli extends BootHub {
                 setGitHubPassword(ctx, pass)
                 String errMsg
                 try {
-                    GitHub gitHubApi = GitHub.connectUsingPassword(ctx.ghUserId, pass)
+                    GitHub gitHubApi = GitHubUtil.connectUsingPassword(ctx.ghUserId, pass)
                     if(gitHubApi.credentialValid) {
                         setGitHubApi(ctx, gitHubApi)
                         break

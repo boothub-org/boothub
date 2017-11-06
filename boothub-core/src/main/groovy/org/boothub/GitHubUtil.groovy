@@ -23,12 +23,37 @@ import org.ajoberstar.grgit.Grgit
 import org.boothub.context.ProjectContext
 import org.codehaus.groovy.runtime.IOGroovyMethods
 import org.kohsuke.github.*
+import org.kohsuke.github.extras.ImpatientHttpConnector
 
 import static org.boothub.context.ExtUtil.*
 
 @Slf4j
 class GitHubUtil {
     static executableExtensions = ['.bat', '.cmd', '.pl', '.py', '.sh', '.tcl']
+
+    static HttpConnector CONNECTOR = new ImpatientHttpConnector(new HttpConnector() {
+        public HttpURLConnection connect(URL url) throws IOException {
+            HttpURLConnection connection = url.openConnection()
+            connection.setDefaultUseCaches(false)
+            connection.setUseCaches(false)
+            connection
+        }
+    })
+
+    static GitHub connectUsingPassword(String login, String password) {
+        new GitHubBuilder()
+                .withConnector(CONNECTOR)
+                .withPassword(login, password)
+                .build()
+    }
+
+    static GitHub connectUsingOAuth(String accessToken) {
+        new GitHubBuilder()
+                .withConnector(CONNECTOR)
+                .withOAuthToken(accessToken)
+                .build()
+    }
+
     static GHRepository createRepo(ProjectContext ctx) {
         if(!ctx.ghApiUsed) throw new IllegalArgumentException("GitHub usage not enabled")
         GitHub github = getGitHubApi(ctx)

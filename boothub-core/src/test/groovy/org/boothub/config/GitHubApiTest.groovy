@@ -17,6 +17,7 @@ package org.boothub.config
 
 import org.beryx.textio.TextIO
 import org.beryx.textio.TextIoFactory
+import org.boothub.GitHubUtil
 import org.kohsuke.github.GitHub
 
 class GitHubApiTest {
@@ -26,7 +27,7 @@ class GitHubApiTest {
         String user = textIO.newStringInputReader().read("GitHub user")
         String pass = textIO.newStringInputReader().withInputMasking(true).read("password")
 
-        GitHub github = GitHub.connectUsingPassword(user, pass)
+        GitHub github = GitHubUtil.connectUsingPassword(user, pass)
         def organization = textIO.newStringInputReader().read("organization")
         def repoName = textIO.newStringInputReader().read("repository")
         textIO.dispose()

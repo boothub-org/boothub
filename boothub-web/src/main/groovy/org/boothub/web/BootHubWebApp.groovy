@@ -32,6 +32,8 @@ import org.boothub.repo.*
 import org.boothub.repo.heroku.HerokuDBApi
 import org.boothub.repo.postgresql.PGJobDAO
 import org.kohsuke.github.GitHub
+import org.kohsuke.github.HttpConnector
+import org.kohsuke.github.extras.ImpatientHttpConnector
 import org.pac4j.core.context.Pac4jConstants
 import org.pac4j.core.profile.UserProfile
 import org.pac4j.oauth.client.GitHubClient
@@ -70,7 +72,7 @@ class BootHubWebApp {
     static final String ENV_OAUTH_KEY = "BOOTHUB_OAUTH_KEY"
     static final String ENV_OAUTH_SECRET = "BOOTHUB_OAUTH_SECRET"
 
-    static final long BOT_DELAY_MINUTES = (System.getenv('BOOTHUB_DELAY_MINUTES') ?: '2') as long
+    static final long BOT_DELAY_MINUTES = (System.getenv('BOOTHUB_DELAY_MINUTES') ?: '10') as long
     static final String BOT_USER = System.getenv('BOOTHUB_BOT_USER')
     static final String BOT_PASSWORD = System.getenv('BOOTHUB_BOT_PASSWORD')
 
@@ -320,7 +322,8 @@ class BootHubWebApp {
                 return
             }
             def jsonText = gson.toJson(result.value)
-            def ghApi = GitHub.connectUsingPassword(BOT_USER, BOT_PASSWORD)
+
+            def ghApi = GitHubUtil.connectUsingPassword(BOT_USER, BOT_PASSWORD)
             def ghRepo = ghApi.getRepository('boothub-org/boothub-repo')
             if(!ghRepo) {
                 log.warn("updateJsonRepo(): cannot retrieve boothub-repo")
