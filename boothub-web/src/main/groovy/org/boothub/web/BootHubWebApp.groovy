@@ -226,7 +226,7 @@ class BootHubWebApp {
                     zipChain
                         .all{ ctx ->
                             def fName = ctx.pathTokens.fName
-                            log.trace("fname: $fName")
+                            log.debug("fname: $fName")
                             def zipFilePath = Paths.get("$zipFilesBasePath/${BootHub.ZIP_FILE_PREFIX}${fName}${BootHub.ZIP_FILE_SUFFIX}")
                             log.debug("zipFilePath: $zipFilePath")
                             def fileId = ctx.request.queryParams.ghProjectId ?: "project"
@@ -247,7 +247,7 @@ class BootHubWebApp {
                 .prefix("auth") { authChain -> authChain
                     .path("logout") { ctx ->
                         def route = ctx.pathTokens.route ?: 'home'
-                        log.trace("route: $route")
+                        log.debug("route: $route")
                         RatpackPac4j.logout(ctx).then { -> ctx.render("You have been signed out") }
                     }
                     .prefix("login/:route") { loginChain ->
@@ -269,7 +269,7 @@ class BootHubWebApp {
                                         default:
                                             break;
                                     }
-                                    log.trace("Redirecting login to: $route")
+                                    log.debug("Redirecting login to: $route")
                                     ctx.redirect("/app#/$route")
                                 }
                     }
