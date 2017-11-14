@@ -108,7 +108,12 @@ class Util {
     static void downloadFile(String url, Path filePath) {
         ensureDirExists(filePath.parent)
         new FileOutputStream(filePath.toFile()).withStream {it.channel.truncate(0)}
-        IOGroovyMethods.withCloseable(new URL(url).openConnection().getInputStream()) { istream ->
+        def conn = new URL(url).openConnection()
+        conn.setUseCaches(false)
+        conn.setDefaultUseCaches(false)
+        conn.setRequestProperty( "Pragma",  "no-cache" );
+        conn.setRequestProperty( "Cache-Control",  "no-cache" );
+        IOGroovyMethods.withCloseable(conn.getInputStream()) { istream ->
             filePath << istream
         }
     }

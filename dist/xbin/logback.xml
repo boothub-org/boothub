@@ -11,8 +11,11 @@
         <appender-ref ref="STDOUT"/>
     </root>
 <!--
-    <logger name="org.boothub" level="trace" additivity="false">
-        <appender-ref ref="STDOUT"/>
+    <logger name="org.beryx.textio" level="trace" additivity="false">
+        <appender-ref ref="STDOUT" />
     </logger>
 -->
+    <logger name="org.boothub" level="trace" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
 </configuration>

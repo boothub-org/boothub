@@ -31,9 +31,6 @@ import org.boothub.Result.Type
 import org.boothub.repo.*
 import org.boothub.repo.heroku.HerokuDBApi
 import org.boothub.repo.postgresql.PGJobDAO
-import org.kohsuke.github.GitHub
-import org.kohsuke.github.HttpConnector
-import org.kohsuke.github.extras.ImpatientHttpConnector
 import org.pac4j.core.context.Pac4jConstants
 import org.pac4j.core.profile.UserProfile
 import org.pac4j.oauth.client.GitHubClient
@@ -164,6 +161,8 @@ class BootHubWebApp {
 
     void execute() {
         def webTextTerminal = new WebTextTerminal()
+        webTextTerminal.setTimeoutNotEmpty(1000)
+        webTextTerminal.setTimeoutHasAction(100)
         webTextTerminal.registerUserInterruptHandler({textTerm -> textTerm.abort()}, true)
         WebTextIoExecutor webTextIoExecutor = new WebTextIoExecutor()
                 .withPort(port)
@@ -201,6 +200,7 @@ class BootHubWebApp {
 
         app.server.bindings << ({binding -> binding.module(HandlebarsModule, {cfg -> cfg.templatesPath('static')})} as Action)
 
+        def oldJessionId = '';
         app.server.handlers << ({ chain ->
             chain
                 .all(RatpackPac4j.authenticator("callback", gitHubClient))
@@ -214,7 +214,6 @@ class BootHubWebApp {
                 }
 
                 .path("app") {ctx ->
-                    setNoCache(ctx)
                     Session session = ctx.get(Session)
                     session.data.then{sessionData ->
                         def model = getModel(sessionData)
@@ -244,7 +243,8 @@ class BootHubWebApp {
                     }
                 }
 
-                .prefix("auth") { authChain -> authChain
+                .prefix("auth") { authChain ->
+                    authChain
                     .path("logout") { ctx ->
                         def route = ctx.pathTokens.route ?: 'home'
                         log.debug("route: $route")
@@ -255,6 +255,7 @@ class BootHubWebApp {
                                 .all(RatpackPac4j.requireAuth(GitHubClient))
                                 .all{ ctx ->
                                     def route = ctx.pathTokens.route ?: 'home'
+                                    log.info("### initial route: $route")
                                     switch(route) {
                                         case 'home':
                                             def skeletonUrl = ctx.request.queryParams.skeletonUrl
@@ -535,15 +536,6 @@ class BootHubWebApp {
                 .findAll {k,v -> v}
         log.debug("model: $model")
         model
-    }
-
-
-    private static Context setNoCache(Context ctx) {
-        ctx.response.headers.add("Cache-Control", "no-cache")
-        ctx.response.headers.add("Cache-Control", "no-store")
-        ctx.response.headers.add("Cache-Control", "must-revalidate")
-        ctx.response.headers.add("Pragma", "no-cache")
-        ctx
     }
 
     private static GitHubClient createGitHubClient() {
