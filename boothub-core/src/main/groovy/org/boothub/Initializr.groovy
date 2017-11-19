@@ -95,6 +95,13 @@ class Initializr {
         outputPath
     }
 
+    String getMergedContent(Path relFilePath, ProjectContext ctx) {
+        def projectTemplatePath = Paths.get(projectTemplateDir).toRealPath()
+        SkeletonBuilder builder = new SkeletonBuilder(projectTemplatePath)
+        def filePath = projectTemplatePath.resolve(relFilePath)
+        builder.getMergedContent(filePath, ctx)
+    }
+
     ProjectContext createContext(String contextFile) {
         ProjectContext ctx = null
         GroovyClassDefiner.ofTemplateDir(projectTemplateDir).withCustomClasses {

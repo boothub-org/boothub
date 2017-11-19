@@ -125,6 +125,7 @@ abstract class BootHub implements HierarchicalConfigurator<ProjectContext> {
             def onGitHub = ctx.ghApiUsed && gitHub && gitHub.isCredentialValid()
             GenerationResult result = onGitHub ? generateOnGitHub(initializr, ctx) : generateLocally(initializr, ctx)
             if(result.done) {
+                result.resultData.instructions = initializr.getMergedContent(Paths.get('instructions.md'), ctx)
                 return result.resultData
             }
         }

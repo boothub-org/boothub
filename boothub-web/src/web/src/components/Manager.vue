@@ -527,10 +527,6 @@
     font-weight: bold;
   }
 
-  .space-before {
-    margin-top: 40px;
-  }
-
   .danger-color {
     color: #FA5555;
   }

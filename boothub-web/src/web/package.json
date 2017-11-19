@@ -16,6 +16,7 @@
     "axios": "0.16.2",
     "commonmark": "0.28.1",
     "element-ui": "2.0.3",
+    "font-awesome": "4.7.0",
     "text-io": "2.8.0",
     "valid-url": "1.0.9",
     "vue": "2.5.3",

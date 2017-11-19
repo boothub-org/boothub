@@ -3,5 +3,5 @@
 [![Build Status](https://img.shields.io/travis/boothub-org/boothub/master.svg?label=Build)](https://travis-ci.org/boothub-org/boothub)
 ## BootHub ##
 
-https://boothub.org
+http://boothub.org
 

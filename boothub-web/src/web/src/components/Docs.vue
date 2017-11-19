@@ -1,6 +1,6 @@
 <template>
   <div class="docs">
-    <h2>Docs</h2>
+    <h2>TBD</h2>
   </div>
 </template>
 

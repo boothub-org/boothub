@@ -1,7 +1,7 @@
 <template>
   <div class="cli">
     <h2>CLI</h2>
-    <div class="space-before">
+    <div class="space-top">
       Download the CLI.
       <el-button type="success" @click="downloadCLI" style="margin-left:20px;">Download CLI</el-button>
     </div>
@@ -25,7 +25,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-.space-before {
+.space-top {
   margin-top: 40px;
 }
 

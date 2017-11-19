@@ -6,7 +6,6 @@ import Home from '@/components/Home'
 import CLI from '@/components/CLI'
 import Docs from '@/components/Docs'
 import Manager from '@/components/Manager'
-import About from '@/components/About'
 import Generate from '@/components/Generate'
 
 Vue.use(ElementUI)
@@ -18,7 +17,6 @@ export default new Router({
     {path: '/cli', name: 'cli', component: CLI},
     {path: '/docs', name: 'docs', component: Docs},
     {path: '/manager', name: 'manager', component: Manager},
-    {path: '/about', name: 'about', component: About},
 
     { path: '/generate/:skeletonUrl', component: Generate },
   ]

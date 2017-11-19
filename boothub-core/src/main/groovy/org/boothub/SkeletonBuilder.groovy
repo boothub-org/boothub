@@ -131,6 +131,14 @@ class SkeletonBuilder {
         }
     }
 
+    String getMergedContent(Path filePath, ProjectContext projectContext) {
+        def file = filePath.toFile()
+        if(!file.isFile()) return null
+        Handlebars handlebars = Util.createHandlebars(filePath.parent)
+        Template template = handlebars.compile(filePath.fileName.toString())
+        template.apply(projectContext)
+    }
+
     def copySourceTemplates(ProjectContext projectContext) {
         if(projectContext instanceof MavenCompatible) {
             def srcContextReader = new SourceContextReader(baseProjectTemplatePath)

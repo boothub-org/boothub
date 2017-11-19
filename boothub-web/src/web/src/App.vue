@@ -14,7 +14,7 @@
           <el-menu-item index="cli" :route="{path:'/cli'}">CLI</el-menu-item>
           <el-menu-item index="manager" :route="{path:'/manager'}">Skeleton Manager</el-menu-item>
           <el-menu-item index="docs" :route="{path:'/docs'}">Tutorials and documentation</el-menu-item>
-          <el-menu-item index="about" :route="{path:'/about'}">About</el-menu-item>
+          <el-menu-item index="github"><a href="https://github.com/boothub-org/boothub"><i class="fa fa-github" aria-hidden="true" style="font-size: 24px;"></i></a></el-menu-item>
         </el-menu>
       <td><div style="width: 10px;">&nbsp;</div></td>
       <td style="vertical-align: middle; white-space: nowrap;">
@@ -44,6 +44,7 @@
 <script>
 import { mapState } from 'vuex'
 import axios from 'axios';
+require('font-awesome/css/font-awesome.css');
 
 export default {
   name: 'app',

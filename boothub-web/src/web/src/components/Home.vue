@@ -79,7 +79,7 @@
               <span class="info-homepage" v-if="selectedSkeleton.homepage"><a :href="selectedSkeleton.homepage" target="_blank">Homepage</a></span>
             </div>
             <p>&nbsp;</p>
-            <div v-html="md2html(selectedSkeleton.description)"></div>
+            <div v-html="md2html(selectedSkeleton.description, 'No description')"></div>
           </el-card>
         </el-col>
       </el-row>
@@ -95,16 +95,25 @@
       <el-button type="danger" v-loading="waitingForAbort" @click="abortGeneration" style="margin-top:10px;">Abort</el-button>
     </div>
     <div v-show="page == 'result'">
-      <div v-show="generationErrorMessage" class="msg-danger space-before">&nbsp;<p style="margin-left:20px;margin-right:20px;">{{generationErrorMessage}}</p>&nbsp;</div>
-      <div v-show="gitHubRepoLink" class="space-before">
-        Your project is now available on GitHub:
-        <el-button type="success" @click="openGitHubProject" style="margin-left:20px;">Open project page</el-button>
-      </div>
-      <div v-show="zipDownloadLink" class="space-before">
-        Project successfully generated.
-        <el-button type="success" @click="downloadZippedProject" class="el-icon-download" style="margin-left:20px;"><span style="font-family: Arial;">&nbsp;Download project</span></el-button>
-      </div>
-      <el-button type="primary" @click="goToStart" class="space-before">Back to start page</el-button>
+      <div v-show="generationErrorMessage" class="msg-danger space-top">&nbsp;<p style="margin-left:20px;margin-right:20px;">{{generationErrorMessage}}</p>&nbsp;</div>
+      <el-container class="space-top">
+        <el-header>
+          <div>
+            <span v-show="gitHubRepoLink" class="space-top">
+              Your project is now available on GitHub:
+              <el-button type="success" @click="openGitHubProject" style="margin-left:20px;">Open project page <i class="fa fa-external-link" aria-hidden="true"></i></el-button>
+            </span>
+            <span v-show="zipDownloadLink" class="space-top">
+              Your project has been successfully generated.
+              <el-button type="success" @click="downloadZippedProject" class="el-icon-download" style="margin-left:20px;"><span style="font-family: Arial;">&nbsp;Download project</span></el-button>
+            </span>
+            <el-button type="primary" @click="goToStart" style="margin-left: 80px;">Back to start page</el-button>
+          </div>
+        </el-header>
+        <el-main>
+          <div v-show="instructions" v-html="md2html(instructions, 'NO INSTRUCTIONS')"></div>
+        </el-main>
+      </el-container>
     </div>
   </div>
 </template>
@@ -136,6 +145,7 @@ export default {
       generationErrorMessage: null,
       gitHubRepoLink: null,
       zipDownloadLink: null,
+      instructions: null,
       waitingForAbort: false,
     }
   },
@@ -171,13 +181,13 @@ export default {
         this.setSelectedRow(selectedRow);
       }
     },
-    md2html(md) {
+    md2html(md, defaultHtml) {
+      console.log('Transforming to HTML. Markdown: ' + md);
       if(md) {
         var parsed = mdReader.parse(md);
         return mdWriter.render(parsed);
       } else {
-        console.log('No description for skeleton ' + JSON.stringify(this.selectedSkeleton));
-        return 'No description';
+        return defaultHtml;
       }
     },
     getSkeletons() {
@@ -224,6 +234,7 @@ export default {
       var res = JSON.parse(resultData);
       this.generationErrorMessage = res.errorMessage;
       this.gitHubRepoLink = res.gitHubRepoLink
+      this.instructions = res.instructions;
       if (res.outputPath) {
         var zipLoc = 'zip/' + res.outputPath;
         if (res.ghProjectId) {
@@ -274,6 +285,7 @@ export default {
       this.generationErrorMessage = null;
       this.gitHubRepoLink = null;
       this.zipDownloadLink = null;
+      this.instructions = null;
       console.log('EXIT discardTextTerm()');
     },
 
@@ -414,12 +426,19 @@ export default {
   vertical-align: bottom;
 }
 
-.space-before {
+.space-top {
   margin-top: 40px;
 }
+
 .msg-danger {
   color: white;
   background: #FA5555;
 }
+
+.pre {
+  color: #400060;
+  background: #F0F0F0;
+}
+
 
 </style>

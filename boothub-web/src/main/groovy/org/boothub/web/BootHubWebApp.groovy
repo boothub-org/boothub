@@ -200,7 +200,6 @@ class BootHubWebApp {
 
         app.server.bindings << ({binding -> binding.module(HandlebarsModule, {cfg -> cfg.templatesPath('static')})} as Action)
 
-        def oldJessionId = '';
         app.server.handlers << ({ chain ->
             chain
                 .all(RatpackPac4j.authenticator("callback", gitHubClient))

@@ -23,4 +23,5 @@ class GenerationResultData {
     String gitHubRepoLink
     String outputPath
     String errorMessage
+    String instructions
 }
