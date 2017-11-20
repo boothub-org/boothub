@@ -44,6 +44,7 @@ class ProjectInfoConfigurator extends TextIOConfigurator {
         } else {
             ctx.ghProjectOwner = textIO.newStringInputReader()
                     .withDefaultValue(ctx.ghUserId)
+                    .withPattern(Util.GITHUB_USERNAME_REGEX)
                     .read("Project owner (GitHub user or organization)")
         }
 

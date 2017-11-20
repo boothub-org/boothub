@@ -39,7 +39,8 @@ import java.util.zip.ZipInputStream
 import static org.boothub.Constants.*
 
 class Util {
-    public static final String MAVEN_ID_REGEX = "[A-Za-z0-9_\\-.]+";
+    public static final String MAVEN_ID_REGEX = '[A-Za-z0-9_\\-.]+'
+    public static final String GITHUB_USERNAME_REGEX = '\\p{Alnum}(?:\\p{Alnum}|-(?=\\p{Alnum})){0,38}'
 
     static InputReader.ValueChecker<String> mavenIdChecker = {id, prop ->
         isValidMavenId(id) ? null : ['Not a valid Maven ID']

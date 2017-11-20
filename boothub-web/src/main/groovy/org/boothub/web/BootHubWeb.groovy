@@ -21,6 +21,7 @@ import org.beryx.textio.TextIO
 import org.beryx.textio.web.RunnerData
 import org.boothub.BootHub
 import org.boothub.GitHubUtil
+import org.boothub.Util
 import org.boothub.context.ProjectContext
 import org.boothub.repo.*
 import org.kohsuke.github.GitHub
@@ -66,7 +67,8 @@ class BootHubWeb extends BootHub {
 
     void configureGhApi(ProjectContext ctx, TextIO textIO) {
         waitForSessionDataCompletion(10000);
-        ctx.ghUserId = sessionData.ghUserId ?: initData.ghUserId ?: textIO.newStringInputReader().read("GitHub username")
+        ctx.ghUserId = sessionData.ghUserId ?: initData.ghUserId ?:
+                textIO.newStringInputReader().withPattern(Util.GITHUB_USERNAME_REGEX).read("GitHub username")
         GitHub gitHubApi
         if(sessionData.accessToken) {
             try {
