@@ -166,12 +166,12 @@ abstract class BootHub implements HierarchicalConfigurator<ProjectContext> {
             } else {
                 while (true) {
                     outputDir = textIO.newStringInputReader().read("Output dir")
-                    if (createDir(outputDir)) break
+                    if (createDir("$outputDir/$ctx.ghProjectId")) break
                 }
             }
-            initializr.withOutputDir(outputDir).generateWithContext(ctx)
-//            textIO.textTerminal.println("Output written to $outputPath" as String)
-            def outputPath = outputDir
+            String prjOutputDir = "$outputDir/$ctx.ghProjectId"
+            initializr.withOutputDir(prjOutputDir).generateWithContext(ctx)
+            def outputPath = prjOutputDir
             if(zipOutput) {
                 def zipBasePath = basePath
                 if(zipFilesBasePath) {
