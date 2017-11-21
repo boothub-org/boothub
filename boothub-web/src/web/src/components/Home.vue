@@ -2,7 +2,7 @@
   <div class="home" style="margin-left:10px;margin-right:10px;">
     <div v-show="page == 'init'">
       <p>&nbsp;</p>
-      <p><b>Choose a skeleton from the table below.</b></p>
+      <p><b>Choose a skeleton type from the table below.</b></p>
       <el-row :gutter="8">
         <el-col :span="14">
           <el-table
@@ -40,7 +40,7 @@
                     <td class="dialog-card">
                       <table class="dialog-table">
                         <tr><td class="dialog-top">
-                          If you sign in, you can choose whether the generated project should be created on GitHub or offered as a zip file to download.
+                          If you sign in, you can choose whether the generated project should be created on GitHub or offered as a zip file for download.
                           <p/>Signing in is helpful even if you choose that your project should not be created on GitHub,
                           because the program will no longer ask you to enter information about your account.
                         </td></tr>
@@ -111,7 +111,7 @@
           </div>
         </el-header>
         <el-main>
-          <div v-show="instructions" v-html="md2html(instructions, 'NO INSTRUCTIONS')"></div>
+          <div v-show="instructions" v-html="md2html(instructions, '')"></div>
         </el-main>
       </el-container>
     </div>
@@ -435,10 +435,11 @@ export default {
   background: #FA5555;
 }
 
-.pre {
-  color: #400060;
-  background: #F0F0F0;
+>>> code {
+  position: relative;
+  left: 40px;
+  background-color: #EEEEEE;
+  font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
 }
-
 
 </style>

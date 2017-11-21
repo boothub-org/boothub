@@ -104,6 +104,7 @@ class BootHubCli extends BootHub {
 
     static void main(String[] args) {
         def textIO = TextIoFactory.textIO
+        textIO.textTerminal.registerUserInterruptHandler({textTerm -> textTerm.abort(); System.exit(1)}, true)
 
 //        def repoClass = textIO.<Class<? extends SkeletonRepo>> newGenericInputReader(null)
 //                .withNumberedPossibleValues([LocalSkeletonRepo, JsonSkeletonRepo])

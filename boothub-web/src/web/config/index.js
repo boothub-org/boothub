@@ -31,14 +31,14 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api': {
-        target: 'http://www.boothub.org',
+        target: 'http://boothub.org',
         changeOrigin: true,
         pathRewrite: {
           '^/api': '/api'
         }
       },
       '/auth': {
-        target: 'http://www.boothub.org',
+        target: 'http://boothub.org',
         changeOrigin: true,
         pathRewrite: {
           '^/auth': '/auth'
