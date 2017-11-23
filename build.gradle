@@ -279,7 +279,7 @@ project('boothub-core') {
           exclude module: 'groovy-all'
       }
       compile 'org.yaml:snakeyaml:1.19'
-      compile 'org.beryx:text-io:2.8.0'
+      compile 'org.beryx:text-io:3.0.0-alpha-1'
       compile 'org.kohsuke:github-api:1.90'
       compile 'org.ajoberstar:grgit:2.1.0'
       runtime ('ch.qos.logback:logback-classic:1.2.3')
@@ -341,7 +341,7 @@ project('boothub-web') {
     dependencies {
         compile project(':boothub-postgres')
         compile project(':boothub-heroku')
-        compile 'org.beryx:text-io-web:2.8.0'
+        compile 'org.beryx:text-io-web:3.0.0-alpha-1'
         compile ratpack.dependency('session')
         compile ratpack.dependency('handlebars')
         compile ratpack.dependency('pac4j')

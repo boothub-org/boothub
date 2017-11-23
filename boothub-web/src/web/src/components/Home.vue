@@ -229,6 +229,7 @@ export default {
 
 
     onTextTermDispose (resultData) {
+      this.textTerm.terminate();
       this.page = 'result';
       console.log('RESULT_DATA: ' + resultData);
       var res = JSON.parse(resultData);
@@ -245,6 +246,7 @@ export default {
     },
 
     onTextTermAbort () {
+      this.textTerm.terminate();
       this.waitingForAbort = false;
       this.generationErrorMessage = 'Project generation aborted.';
       this.page = 'result';
