@@ -1,5 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.apache.tools.ant.taskdefs.condition.Os
+import groovy.text.SimpleTemplateEngine
+import org.kohsuke.github.*
 
 buildscript {
     repositories {
@@ -12,6 +14,7 @@ buildscript {
         classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
         classpath "gradle.plugin.io.ratpack:ratpack-gradle:1.5.0"
         classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
+        classpath 'org.kohsuke:github-api:1.90'
     }
 }
 plugins {
@@ -63,7 +66,7 @@ def pomConfig = {
     }
 }
 
-ext.groovyVersion = '2.4.11'
+ext.groovyVersion = '2.4.12'
 
 allprojects {
     tasks.withType(Javadoc) {
@@ -243,6 +246,8 @@ gitPublish {
         def pgType = project.hasProperty('ghPageType') ? ghPageType : 'latest'
         if(pgType == 'init') {
             from file("ghpages")
+        } else if(pgType == 'list') {
+            from file("build/release-list")
         } else {
             from file("${asciidoctor.outputDir.path}/html5")
             from file("build/docs")
@@ -250,6 +255,12 @@ gitPublish {
         def docDir = Boolean.valueOf(boothubReleaseBuild) ? 'releases' : 'snapshots'
         if(pgType == 'init') {
             into "."
+        } else if(pgType == 'list') {
+            into "."
+            preserve {
+                include '**'
+                exclude "releases.md"
+            }
         } else if(pgType == 'version') {
             gitPublishPush.enabled = (docDir != 'snapshots')
             into "$docDir/$boothubVersion"
@@ -275,11 +286,11 @@ project('boothub-core') {
       compile 'com.google.code.gson:gson:2.8.2'
       compile 'org.apache.ant:ant:1.10.1'
       compile 'com.github.jknack:handlebars:4.0.6'
-      compile ('org.beryx:handlebars-java-helpers:0.3.0') {
+      compile ('org.beryx:handlebars-java-helpers:0.4.0') {
           exclude module: 'groovy-all'
       }
       compile 'org.yaml:snakeyaml:1.19'
-      compile 'org.beryx:text-io:3.0.0-alpha-1'
+      compile 'org.beryx:text-io:3.1.0'
       compile 'org.kohsuke:github-api:1.90'
       compile 'org.ajoberstar:grgit:2.1.0'
       runtime ('ch.qos.logback:logback-classic:1.2.3')
@@ -341,7 +352,7 @@ project('boothub-web') {
     dependencies {
         compile project(':boothub-postgres')
         compile project(':boothub-heroku')
-        compile 'org.beryx:text-io-web:3.0.0-alpha-1'
+        compile 'org.beryx:text-io-web:3.1.0'
         compile ratpack.dependency('session')
         compile ratpack.dependency('handlebars')
         compile ratpack.dependency('pac4j')
@@ -431,6 +442,55 @@ def configureGroovydoc(task) {
     link "http://docs.oracle.com/javase/8/docs/api/", 'java'
     link "http://docs.groovy-lang.org/docs/groovy-$groovyVersion/html/gapi/", "groovy"
   }
+}
+
+task "update-release-list" {
+    doLast {
+        def docBaseUrl = 'http://doc.boothub.org'
+        updateReleaseList(docBaseUrl)
+    }
+}
+
+def updateReleaseList(String docBaseUrl) {
+    List<String> releases = getReleases()
+    def markdown = getReleasesMarkdown(releases, docBaseUrl)
+    def releaseListDir = new File('build/release-list')
+    releaseListDir.mkdirs()
+    new File(releaseListDir, 'releases.md').write(markdown)
+}
+
+def getReleases() {
+    GitHub gitHubApi = GitHub.connectUsingPassword(System.getenv('GH_PAGES_ACCESS_TOKEN') ?: '', '')
+    def releases = gitHubApi.getOrganization("boothub-org")
+            .getRepository("boothub")
+            .getDirectoryContent("releases", "gh-pages")*.name
+    releases.removeAll { !it || it == 'latest' }
+    releases.reverse()
+}
+
+def getReleasesMarkdown(List<String> releases, String docBaseUrl) {
+    def releasesTemplate = '''
+            ## List of all releases ##
+            
+            **Latest snapshot**
+            - [documentation]($docBaseUrl/snapshots/latest)
+            - [javadoc]($docBaseUrl/snapshots/latest/javadoc)
+            
+            <% releases.each { %>**Release $it**
+              - [documentation]($docBaseUrl/releases/$it)
+              - [javadoc]($docBaseUrl/releases/$it/javadoc)
+              
+            <% } %>
+        '''.stripIndent()
+
+    def engine = new SimpleTemplateEngine()
+    def template = engine.createTemplate(releasesTemplate)
+    def binding = [
+            docBaseUrl: docBaseUrl,
+            releases  : releases
+    ]
+
+    template.make(binding).toString()
 }
 
 def readFromConsole(prompt) {

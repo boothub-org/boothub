@@ -10,3 +10,9 @@ BootHub provides both a web interface and a command-line interface (CLI) for boo
 It scaffolds out a new project based on the skeleton type of your choice.
 
 You can choose whether the generated project should be created on GitHub or offered as a zip file for download.
+
+**Useful links**
+ - [Documentation](http://doc.boothub.org/releases/latest/)
+ - [javadoc](http://doc.boothub.org/releases/latest/groovydoc/)
+ - [List of all releases](https://github.com/boothub-org/boothub/blob/gh-pages/releases.md)
+
