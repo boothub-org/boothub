@@ -4,7 +4,7 @@
       <tr>
       <td>
         <el-badge value="BETA" style="margin-right: 10px;">
-          <img src="./assets/logo-text.png">
+          <img height="60" src="./assets/logo-text.png">
         </el-badge>
       </td>
       <td><div style="width: 20px;">&nbsp;</div></td>
