@@ -5,6 +5,10 @@
 - [documentation](http://doc.boothub.org/snapshots/latest)
 - [javadoc](http://doc.boothub.org/snapshots/latest/javadoc)
 
+**Release 0.3.2**
+  - [documentation](http://doc.boothub.org/releases/0.3.2)
+  - [javadoc](http://doc.boothub.org/releases/0.3.2/javadoc)
+
 **Release 0.3.0**
   - [documentation](http://doc.boothub.org/releases/0.3.0)
   - [javadoc](http://doc.boothub.org/releases/0.3.0/javadoc)
