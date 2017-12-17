@@ -72,9 +72,11 @@ class BuildChecker {
 
     boolean checkRequiredClassFiles(Path classesPath, String sourceSet, List<String> fileNames) {
         fileNames.each { fileName ->
-            assert srcDirSets.any { srcDir ->
-                classesPath.resolve("$srcDir/$sourceSet/$pathInModule/${fileName}.class").toFile().isFile()
-            } : "File not found: ${fileName}.class"
+            if(!classesPath.resolve("$sourceSet/$pathInModule/${fileName}.class").toFile().isFile()) {
+                assert srcDirSets.any { srcDir ->
+                    classesPath.resolve("$srcDir/$sourceSet/$pathInModule/${fileName}.class").toFile().isFile()
+                } : "File not found: ${fileName}.class"
+            }
         }
         true
     }
