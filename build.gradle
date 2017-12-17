@@ -561,4 +561,10 @@ bintray {
                 }
         }
     }
+
+  task groovydoc(overwrite: true) {
+      doLast {
+          println('groovydoc - ignored for root')
+      }
+  }
 }
