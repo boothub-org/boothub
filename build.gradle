@@ -126,7 +126,9 @@ subprojects {
     }
 
     dependencies {
-      compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+      if(project.name != 'boothub-gradle-test') {
+          compile "org.codehaus.groovy:groovy-all:$groovyVersion"
+      }
       compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
       provided 'com.google.code.findbugs:findbugs-annotations:3.0.1'
 
@@ -420,6 +422,7 @@ project('boothub-gradle-test') {
     dependencies {
         compile(project(':boothub-core')) {
             exclude module: 'logback-classic'
+            exclude module: 'groovy-all'
         }
         compile gradleTestKit()
         compile 'org.beryx:streamplify:1.1.0'
