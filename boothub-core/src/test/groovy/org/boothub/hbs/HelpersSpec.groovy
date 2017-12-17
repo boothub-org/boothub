@@ -103,4 +103,13 @@ class HelpersSpec extends Specification implements HandlebarsUtil {
             }
         ''')
     }
+
+    def "should create badge URL"() {
+        when:
+        def merged = merge("{{badgeUrl 'license' license 'blue' }}", 'license: Apache 2.0')
+        println "merged:\n$merged"
+
+        then:
+        merged == 'https://img.shields.io/badge/license-Apache_2.0-blue.svg'
+    }
 }

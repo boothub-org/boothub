@@ -43,7 +43,17 @@ enum Helpers implements Helper {
         }
         buffer
 
-    })
+    }),
+
+    BADGE_URL ("badgeUrl", { subject, options ->
+        Options.Buffer buffer = options.buffer()
+        subject = asBadgePart(from(subject))
+        def status = asBadgePart(options.prm(0))
+        def color = asBadgePart(options.prm(1))
+        def url = "https://img.shields.io/badge/$subject-$status-${color}.svg"
+        buffer.append(url)
+        buffer
+    }),
 
 
     final String helperName
@@ -61,5 +71,21 @@ enum Helpers implements Helper {
 
     static void register(Handlebars handlebars) {
         Helpers.values().each { helper -> handlebars.registerHelper(helper.helperName, helper)}
+    }
+
+    private static from(param) {
+        if(param instanceof Options.NativeBuffer) {
+            param.writer.toString()
+        } else {
+            param
+        }
+    }
+
+    private static String asBadgePart(String s) {
+        s = s.replaceAll('-', '--')
+            .replaceAll('_', '__')
+            .replaceAll(' ', '_')
+        def uri = new URI(null, null, s, null, null)
+        uri.toString()
     }
 }
