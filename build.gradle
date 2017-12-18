@@ -565,19 +565,4 @@ bintray {
                 }
         }
     }
-
-//  task groovydoc(overwrite: true) {
-//      doLast {
-//          println('groovydoc - ignored for root')
-//      }
-//  }
-
-    configurations.each{
-        resolutionStrategy {
-            force "org.codehaus.groovy:groovy-all:$groovyVersion"
-        }
-    }
-    groovydoc.doFirst {
-        println "##### start groovydoc"
-    }
 }
