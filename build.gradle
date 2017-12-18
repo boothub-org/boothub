@@ -12,7 +12,9 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
-        classpath "gradle.plugin.io.ratpack:ratpack-gradle:1.5.0"
+//        classpath("gradle.plugin.io.ratpack:ratpack-gradle:1.5.0") {
+//            exclude module: 'groovy-all'
+//        }
         classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
         classpath 'org.kohsuke:github-api:1.90'
     }
@@ -66,7 +68,9 @@ def pomConfig = {
     }
 }
 
-ext.groovyVersion = '2.4.12'
+// should be in sync with with the groovy version used by the gradle distribution configured in gradle/wrapper/gradle-wrapper.properties
+ext.groovyVersion = '2.4.10'
+ext.ratpackVersion = '1.5.0'
 
 allprojects {
     tasks.withType(Javadoc) {
@@ -347,7 +351,7 @@ project('boothub-heroku') {
 }
 
 project('boothub-web') {
-    apply plugin: "io.ratpack.ratpack-groovy"
+    apply plugin: 'application'
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: "com.moowork.node"
 
@@ -355,14 +359,14 @@ project('boothub-web') {
         compile project(':boothub-postgres')
         compile project(':boothub-heroku')
         compile 'org.beryx:text-io-web:3.1.3'
-        compile ratpack.dependency('session')
-        compile ratpack.dependency('handlebars')
-        compile ratpack.dependency('pac4j')
+        compile("io.ratpack:ratpack-session:$ratpackVersion") {exclude module: 'groovy-all'}
+        compile("io.ratpack:ratpack-handlebars:$ratpackVersion") {exclude module: 'groovy-all'}
+        compile("io.ratpack:ratpack-pac4j:$ratpackVersion") {exclude module: 'groovy-all'}
 
         compile 'org.pac4j:pac4j-core:1.8.8'
         compile 'org.pac4j:pac4j-oauth:1.8.8'
 
-        testCompile ratpack.dependency('test')
+        testCompile("io.ratpack:ratpack-test:$ratpackVersion") {exclude module: 'groovy-all'}
     }
 
     mainClassName = "org.boothub.web.BootHubWebApp"
@@ -562,9 +566,18 @@ bintray {
         }
     }
 
-  task groovydoc(overwrite: true) {
-      doLast {
-          println('groovydoc - ignored for root')
-      }
-  }
+//  task groovydoc(overwrite: true) {
+//      doLast {
+//          println('groovydoc - ignored for root')
+//      }
+//  }
+
+    configurations.each{
+        resolutionStrategy {
+            force "org.codehaus.groovy:groovy-all:$groovyVersion"
+        }
+    }
+    groovydoc.doFirst {
+        println "##### start groovydoc"
+    }
 }
