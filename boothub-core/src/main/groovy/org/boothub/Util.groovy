@@ -171,6 +171,11 @@ class Util {
         sb.toString()
     }
 
+    static String asPackageFragment(String text, boolean compact) {
+        def parts = text.replaceAll("[-_]", compact ? '' : '.').split('\\.');
+        parts.collect {asJavaId(it, false, true)}.join('.')
+    }
+
     static boolean isValidPackageName(String pkgName) {
         return pkgName && !pkgName.split('\\.').any { !Utilities.isJavaIdentifier(it) }
     }

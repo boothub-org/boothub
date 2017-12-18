@@ -81,10 +81,17 @@ abstract class ModularizableConfigurator<MC extends ModuleContext<MC>, M extends
 
     private static String getDefaultBasePackage(ProjectContext ctx, String artifact, boolean compact) {
         String pkg = getDefaultBasePackage(ctx)
-        String artf = Util.asJavaId(artifact)
+        String artf = Util.asPackageFragment(artifact, compact)
         String prjId = ctx.ghProjectId.toLowerCase()
-        if(artf.toLowerCase().startsWith(prjId)) {
-            int pos = prjId.length()
+        if(tight(artf).startsWith(tight(prjId))) {
+            def tightId = tight(prjId)
+            int pos = 0, cnt = 0
+            while(cnt < tightId.length()) {
+                def ch = artf.charAt(pos) as String
+                pos++
+                if('-_.'.contains(ch)) continue
+                cnt++
+            }
             while(pos < artf.length()) {
                 if(Character.isJavaIdentifierStart(artf.charAt(pos))) break
                 pos++
@@ -95,11 +102,16 @@ abstract class ModularizableConfigurator<MC extends ModuleContext<MC>, M extends
         }
         if(compact) {
             String lastPkgPart = pkg ? (pkg.substring(pkg.lastIndexOf('.') + 1)) : ''
-            if(lastPkgPart && (lastPkgPart.toLowerCase() == artf.toLowerCase())) {
+            if(tight(lastPkgPart) == tight(artf)) {
                 return pkg
             }
         }
         return pkg ? (pkg + '.' + artf) : artf
+    }
+
+    private static String tight(String s) {
+        if(!s) return s
+        s.replaceAll('[-_.]', '').toLowerCase()
     }
 
     void configureSingleModuleName(ProjectContext context, TextIO textIO) {
