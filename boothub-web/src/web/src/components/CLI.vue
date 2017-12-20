@@ -20,7 +20,7 @@ export default {
   methods: {
     downloadCLI() {
       // TODO - retrieve the version from gradle.properties
-      window.location.href = 'https://github.com/boothub-org/boothub/releases/download/v0.2.0/boothub-0.2.0.zip';
+      window.location.href = 'https://github.com/boothub-org/boothub/releases/download/v0.3.4/boothub-0.3.4.zip';
     },
   },
 }
