@@ -69,7 +69,7 @@ def pomConfig = {
 }
 
 // should be in sync with with the groovy version used by the gradle distribution configured in gradle/wrapper/gradle-wrapper.properties
-ext.groovyVersion = '2.4.10'
+ext.groovyVersion = '2.4.12'
 ext.ratpackVersion = '1.5.0'
 
 allprojects {
