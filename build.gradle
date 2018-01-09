@@ -2,6 +2,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import org.apache.tools.ant.taskdefs.condition.Os
 import groovy.text.SimpleTemplateEngine
 import org.kohsuke.github.*
+import javax.swing.*
+
 
 buildscript {
     repositories {
@@ -12,9 +14,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
-//        classpath("gradle.plugin.io.ratpack:ratpack-gradle:1.5.0") {
-//            exclude module: 'groovy-all'
-//        }
         classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
         classpath 'org.kohsuke:github-api:1.90'
     }
@@ -500,35 +499,17 @@ def getReleasesMarkdown(List<String> releases, String docBaseUrl) {
     template.make(binding).toString()
 }
 
-def readFromConsole(prompt) {
-    readFromConsole('', prompt)
-}
-def readFromConsole(header, prompt) {
-    readFromConsole(header, prompt, false)
-}
-def readPasswordFromConsole(prompt) {
-    readPasswordFromConsole(prompt, true)
-}
-def readPasswordFromConsole(header, prompt) {
-    readFromConsole(header, prompt, true)
-}
-def readFromConsole(header, prompt, isPassword) {
-    def console = System.console()
-    if (console) {
-        if(header) {
-            console.printf "\n\n# $header\n"
-        }
-        String value = null;
-        while(!value?.trim()) {
-            def val = console."read${isPassword ? 'Password' : 'Line'}"("> $prompt: ")
-            if(val) {
-                value = new String(val)
-            }
-        }
-        return value
-    } else {
-        throw new GradleException("Cannot get console. Try running gradle with the '--no-daemon' option")
-    }
+def readPasswordFromConsole(title, prompt) {
+    JPanel panel = new JPanel()
+    JLabel label = new JLabel(prompt)
+    JPasswordField pass = new JPasswordField(24)
+    panel.add(label)
+    panel.add(pass)
+    def options = ["OK", "Cancel"] as Object[]
+    int option = JOptionPane.showOptionDialog(null, panel, title,
+            JOptionPane.NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, null)
+    if(option != 0) throw new InvalidUserDataException("Operation cancelled by the user.")
+    new String(pass.password)
 }
 
 def isPublishTask(task) {
@@ -537,7 +518,7 @@ def isPublishTask(task) {
 
 gradle.taskGraph.whenReady { taskGraph ->
     if (gradle.taskGraph.allTasks.findAll {task -> isPublishTask(task)}) {
-        def password = readPasswordFromConsole('Please enter your signing credentials', 'PGP Private Key Password')
+        def password = readPasswordFromConsole('Please enter your signing credentials:', 'PGP Private Key Password')
         allprojects { ext."signing.keyId" = signingKeyId }
         allprojects { ext."signing.secretKeyRingFile" = signingSecretKeyRingFile }
         allprojects { ext."signing.password" = password }
