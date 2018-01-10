@@ -19,8 +19,7 @@ export default {
   name: 'cli',
   methods: {
     downloadCLI() {
-      // TODO - retrieve the version from gradle.properties
-      window.location.href = 'https://github.com/boothub-org/boothub/releases/download/v0.3.4/boothub-0.3.4.zip';
+      window.location.href = 'http://doc.boothub.org/cli.html';
     },
   },
 }
