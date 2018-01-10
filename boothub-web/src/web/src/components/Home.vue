@@ -197,7 +197,6 @@ export default {
               this.handleResult(response.data)
               this.skeletons = _.flatMap(_.toArray(response.data.value), item => _.toArray(item.entries));
               console.log('Successfully loaded ' + this.skeletons.length + ' skeletons.');
-              // this.skeletons = _.shuffle(_.flatMap(this.skeletons, item => [item, item, item, item, item, item, item, item, item, item]));
             }
           )
           .then(response => this.selectSkeletonUrl(this.skeletonUrl))

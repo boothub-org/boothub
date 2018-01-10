@@ -31,6 +31,7 @@ import org.boothub.Result.Type
 import org.boothub.repo.*
 import org.boothub.repo.heroku.HerokuDBApi
 import org.boothub.repo.postgresql.PGJobDAO
+import org.kohsuke.github.GitHub
 import org.pac4j.core.context.Pac4jConstants
 import org.pac4j.core.profile.UserProfile
 import org.pac4j.oauth.client.GitHubClient
@@ -69,7 +70,8 @@ class BootHubWebApp {
     static final String ENV_OAUTH_KEY = "BOOTHUB_OAUTH_KEY"
     static final String ENV_OAUTH_SECRET = "BOOTHUB_OAUTH_SECRET"
 
-    static final long BOT_DELAY_MINUTES = (System.getenv('BOOTHUB_DELAY_MINUTES') ?: '10') as long
+    static final long CLI_URL_DELAY_MINUTES = (System.getenv('BOOTHUB_CLI_URL_DELAY_MINUTES') ?: '11') as long
+    static final long BOT_DELAY_MINUTES = (System.getenv('BOOTHUB_BOT_DELAY_MINUTES') ?: '10') as long
     static final String BOT_USER = System.getenv('BOOTHUB_BOT_USER')
     static final String BOT_PASSWORD = System.getenv('BOOTHUB_BOT_PASSWORD')
 
@@ -81,6 +83,8 @@ class BootHubWebApp {
     String zipFilesBasePath = DEFAULT_BASE_PATH
 
     private boolean browserAutoStart
+
+    private String cliDownloadUrl = ''
 
     private static final JsonSlurper jsonSlurper = new JsonSlurper().setType(JsonParserType.INDEX_OVERLAY);
     private static final Gson gson = new GsonBuilder()
@@ -196,6 +200,7 @@ class BootHubWebApp {
             sessionData
         }
 
+        Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay({ -> updateCliUrl()}, 0, CLI_URL_DELAY_MINUTES, TimeUnit.MINUTES)
         Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay({ -> updateJsonRepo()}, 1, BOT_DELAY_MINUTES, TimeUnit.MINUTES)
 
         app.server.bindings << ({binding -> binding.module(HandlebarsModule, {cfg -> cfg.templatesPath('static')})} as Action)
@@ -276,22 +281,23 @@ class BootHubWebApp {
                 }
 
 
+            .prefix("api") { apiChain -> apiChain
+                    .get("cliDownloadUrl") { ctx -> log.error("############ cliDownloadUrl: $cliDownloadUrl"); renderSuccessValue(ctx, cliDownloadUrl) }
 //########################################################
 //#############  REPO MANAGER  ###########################
 
-                .prefix("api") { apiChain -> apiChain
-                    .get("skeletons", { ctx ->
+                    .get("skeletons") { ctx ->
                         def searchOpts = SkeletonSearchOptions.fromParameterMap(ctx.request.queryParams)
                         handleQuerySkeletons(ctx, searchOpts)
-                    })
+                    }
 
-                    .post("querySkeletons", { ctx ->
+                    .post("querySkeletons") { ctx ->
                         ctx.request.body.map{it.text}.then{ bodyText ->
                             log.debug("bodyText: $bodyText")
                             def searchOpts = jsonSlurper.parseText(bodyText) as SkeletonSearchOptions
                             handleQuerySkeletons(ctx, searchOpts)
                         }
-                    })
+                    }
 
                     .post("addSkeleton") { ctx -> handleAddSkeleton(ctx) }
                     .post("deleteSkeleton") { ctx -> handleDeleteSkeleton(ctx) }
@@ -335,6 +341,34 @@ class BootHubWebApp {
             }
         } catch (Exception e) {
             log.error("Failed to update boothub-repo.", e)
+        }
+    }
+
+    private void updateCliUrl() {
+        def url = retrieveCliUrl()
+        log.info("CLI download URL: $url")
+        if(url) cliDownloadUrl = url
+    }
+
+    private String retrieveCliUrl() {
+        try {
+            def github = GitHub.connectAnonymously()
+            def repo = github.getRepository('boothub-org/boothub')
+            def zipAsset = {it.name.matches("boothub-.+\\.zip")}
+
+            def asset = repo.latestRelease.assets.find(zipAsset)
+            if(asset) return asset.browserDownloadUrl
+
+            log.warn("Latest release has no downloadable zip.")
+
+            repo.listReleases().find {it.assets.find {it.name.matches("boothub-.+\\.zip")}}
+            for(def rel : repo.listReleases()) {
+                asset = rel.assets.find(zipAsset)
+                if(asset) return asset.browserDownloadUrl
+            }
+            null
+        } catch (Exception e) {
+            log.error("Failed to retrieve the CLI URL.", e)
         }
     }
 

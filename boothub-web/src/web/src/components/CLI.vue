@@ -11,16 +11,18 @@
     </div>
   </div>
 </template>
-
 <script>
+
+import axios from 'axios';
 require('../boothub.css');
 
 export default {
   name: 'cli',
   methods: {
     downloadCLI() {
-      // TODO - retrieve the version from gradle.properties
-      window.location.href = 'https://github.com/boothub-org/boothub/releases/download/v0.3.5/boothub-0.3.5.zip';
+      axios.get('/api/cliDownloadUrl')
+        .then(response => {window.location.href = response.data.value;})
+        .catch(error => {console.log('Error retrieving CLI URL: ' + error);});
     },
   },
 }
