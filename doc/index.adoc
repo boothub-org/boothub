@@ -1,5 +1,5 @@
 = boothub
-:author: 
+:author: Serban Iordache
 :revnumber: {project-version}
 :toc: left
 :toclevels: 3
