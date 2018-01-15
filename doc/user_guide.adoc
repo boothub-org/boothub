@@ -15,6 +15,7 @@ BootHub will then start collecting the information needed to configure your proj
 While most of the required pieces of information depend on the chosen template, BootHub will always ask for the following data:
 
 ++++
+<a name="template-independent-data"/>
 <div class="black-background">
 <pre class="lime" style="margin-left: 20px;">
 
