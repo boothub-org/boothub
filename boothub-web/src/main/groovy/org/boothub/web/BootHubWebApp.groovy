@@ -280,12 +280,11 @@ class BootHubWebApp {
                     }
                 }
 
-
             .prefix("api") { apiChain -> apiChain
-                    .get("cliDownloadUrl") { ctx -> log.error("############ cliDownloadUrl: $cliDownloadUrl"); renderSuccessValue(ctx, cliDownloadUrl) }
+                    .get("cliDownloadUrl") { renderSuccessValue(ctx, cliDownloadUrl) }
+
 //########################################################
 //#############  REPO MANAGER  ###########################
-
                     .get("skeletons") { ctx ->
                         def searchOpts = SkeletonSearchOptions.fromParameterMap(ctx.request.queryParams)
                         handleQuerySkeletons(ctx, searchOpts)

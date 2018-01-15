@@ -1,0 +1,4 @@
+[[Templates]]
+= Writing BootHub Templates
+
+**TBD**

@@ -1,13 +1,13 @@
 [[introduction]]
 = Introduction
 
+With BootHub you can bootstrap your projects by generating skeletons based on various templates.
+
+BootHub provides both a http://boothub.org[web interface, role="external"] and a http://boothub.org/app#/cli[command-line interface (CLI), role="external"].
+
 NOTE: The source code is available on https://github.com/boothub-org/boothub[GitHub].
 
-boothub is licensed under the Apache-2.0 license.
+BootHub is licensed under the Apache-2.0 license.
 Click on the icon below to read the license file:
 
 image::license.png[role="thumb" link="{blob-root}/LICENSE"]
-
-A few words about boothub:
-
-*TBD*

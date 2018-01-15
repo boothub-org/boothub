@@ -1,4 +1,4 @@
-= boothub
+= BootHub
 :author: Serban Iordache
 :revnumber: {project-version}
 :toc: left
@@ -7,14 +7,18 @@
 :data-uri:
 :caption:
 :last-update-label!:
+:linkattrs:
 
 :leveloffset: +1
 
 :toc!:
 
 include::introduction.adoc[]
-include::getting_started.adoc[]
+
 include::user_guide.adoc[]
+
 include::dev_guide.adoc[]
+
+include::templates.adoc[]
 
 :leveloffset: -1

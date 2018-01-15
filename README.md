@@ -5,9 +5,9 @@
 
 http://boothub.org
 
-BootHub provides both a web interface and a command-line interface (CLI) for bootstrapping your projects.
+With BootHub you can bootstrap your projects by generating skeletons based on various templates.
 
-It scaffolds out a new project based on the skeleton type of your choice.
+BootHub provides both a [web interface](http://boothub.org) and a [command-line interface (CLI)](http://boothub.org/app#/cli).
 
 You can choose whether the generated project should be created on GitHub or offered as a zip file for download.
 

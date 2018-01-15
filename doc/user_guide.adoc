@@ -1,8 +1,78 @@
 [[user_guide]]
 = User Guide
 
-NOTE: The GroovyDoc is available link:groovydoc/[here].
+The following guidelines apply to both the http://boothub.org[web interface, role="external"] and the http://boothub.org/app#/cli[CLI, role="external"].
 
-The following section describes the steps required to start using boothub:
+After selecting the template on which your project should be based, you can choose whether the generated project should be created on GitHub or offered as a zip file for download.
 
-*TBD*
+In both cases, you will also have to provide the name of your GitHub account and the owner of the project (which can be either your user account or one of your GitHub organizations).
+However, if you opted for having a zip file, BootHub will not ask for your GitHub credentials and will not verify the existence of the provided GitHub account and/or organization.
+
+If you want your project on GitHub but don't want to give BootHub access to your account, just choose the zip file option.
+Later, you can easily add yourself the project to GitHub.
+
+BootHub will then start collecting the information needed to configure your project.
+While most of the required pieces of information depend on the chosen template, BootHub will always ask for the following data:
+
+++++
+<div class="black-background">
+<pre class="lime" style="margin-left: 20px;">
+
+Repository name: <span class="yellow">my-project</span>
+Project name [my-project]:
+Project page URL [https://github.com/myuser/my-project]: <span class="yellow">https://myproject.example.org</span>
+
+</pre>
+</div>
+++++
+By default, the project name is the same as the name you provide for the GitHub repository.
+For the project page URL, the default value suggested by BootHub links to the corresponding GitHub project page.
+
+Most templates require to specify a license for your project:
+
+++++
+<div class="black-background">
+<pre class="lime" style="margin-left: 20px;">
+
+License:
+   1: The Apache Software License, Version 2.0
+   2: The BSD 2-Clause License
+   3: The BSD 3-Clause License
+   4: The Common Development and Distribution License
+   5: The Do WTF You Want To Public License, Version 2
+   6: The Eclipse Public License v1.0
+   7: The GNU General Public License Version 2
+   8: The GNU General Public License Version 3
+   9: The GNU Lesser General Public License Version 2.1
+  10: The GNU Lesser General Public License Version 3.0
+  11: The MIT License
+  12: The Mozilla Public License Version 2.0
+  13: The Unlicense
+Enter your choice: <span class="yellow">1</span>
+
+</pre>
+</div>
+<pre>
+
+</pre>
+++++
+
+
+Also, most templates require to specify the version of your project:
+
+++++
+<div class="black-background">
+<pre class="lime" style="margin-left: 20px;">
+
+Major version number [1]: <span class="yellow">0</span>
+Minor version number [0]: <span class="yellow">1</span>
+Patch version number [0]: <span class="yellow">2</span>
+
+</pre>
+</div>
+<pre>
+
+</pre>
+++++
+
+The remaining data required to configure the project are template-specific and are usually described in the template documentation.
