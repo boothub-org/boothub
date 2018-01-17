@@ -5,20 +5,20 @@
               type="info"
               :closable="false"
               title="Sign in required"
-              description="Please sign in with GitHub in order to manage your project skeletons."
+              description="Please sign in with GitHub in order to manage your project templates."
               show-icon>
     </el-alert>
     <div v-if="loggedInUserId && skeletonRowsLoaded && skeletonRows.length === 0">
       <el-alert v-if="!skeletonRowsError"
                 type="info"
                 :closable="false"
-                title="You currently don't own any skeletons."
+                title="You currently don't own any templates."
                 show-icon>
       </el-alert>
       <el-alert v-if="skeletonRowsError"
                 type="error"
                 :closable="false"
-                title="Cannot load skeletons. Please try again later."
+                title="Cannot load templates. Please try again later."
                 show-icon>
       </el-alert>
     </div>
@@ -29,7 +29,7 @@
           ref="skeletonTable"
           :data="skeletonRows"
           v-loading="!skeletonRowsLoaded"
-          element-loading-text="Loading project skeletons..."
+          element-loading-text="Loading project templates..."
           highlight-current-row
           @current-change="setSelectedRow"
           empty-text=" "
@@ -53,10 +53,10 @@
         </el-table>
         <el-row :gutter="8" v-if="loggedInUserId" style="margin-top:60px;">
           <el-col :span="18">
-            <el-input placeholder="Enter the URL of a new skeleton (accepted protocols: http and https)" v-model="newSkeletonUrl"></el-input>
+            <el-input placeholder="Enter the URL of a new template (accepted protocols: http and https)" v-model="newSkeletonUrl"></el-input>
           </el-col>
           <el-col :span="6">
-            <el-button type="primary" :disabled="isAddSkeletonDisabled()" v-loading="busyAddSkeleton" @click="addSkeleton">Add skeleton</el-button>
+            <el-button type="primary" :disabled="isAddSkeletonDisabled()" v-loading="busyAddSkeleton" @click="addSkeleton">Add template</el-button>
           </el-col>
         </el-row>
       </el-col>
@@ -261,7 +261,7 @@
         console.log('setSelectedOwner(' + this.selectedOwner + ')');
       },
       getSkeletons() {
-        console.log('Loading skeletons of user ' + this.loggedInUserId + '...');
+        console.log('Loading templates of user ' + this.loggedInUserId + '...');
         let prevSelectedSkeletonId = this.selectedRow ? this.selectedRow.id : null;
         console.log('prevSelectedSkeletonId: ' + prevSelectedSkeletonId);
         this.skeletonRowsLoaded = false;
@@ -281,7 +281,7 @@
             this.handleResult(response.data)
             this.skeletonRows = _.map(_.keys(response.data.value), key => _.merge({id: key}, response.data.value[key]));
             this.skeletonRowsLoaded = true;
-            console.log('Found ' + this.skeletonRows.length + ' skeletons owned by user ' + this.loggedInUserId);
+            console.log('Found ' + this.skeletonRows.length + ' templates owned by user ' + this.loggedInUserId);
             if(prevSelectedSkeletonId) {
               this.setSelectedRow(this.getSkeletonRow(prevSelectedSkeletonId));
             }
@@ -290,7 +290,7 @@
             this.skeletonRows = [];
             this.skeletonRowsLoaded = true;
             this.skeletonRowsError = true;
-            console.log('Error loading skeletons: ' + error);
+            console.log('Error loading templates: ' + error);
           });
       },
       getSkeletonRow(skeletonId) {
@@ -300,7 +300,7 @@
       getOwners() {
         if(this.selectedRow) {
           let skeletonId = this.selectedRow.id;
-          console.log('Loading owners of skeleton ' + skeletonId + '...');
+          console.log('Loading owners of template ' + skeletonId + '...');
           this.ownerRowsLoaded = false;
           this.ownerRowsError = false;
           this.ownerRows = [];
@@ -341,7 +341,7 @@
       getTags() {
         if(this.selectedRow) {
           let skeletonId = this.selectedRow.id;
-          console.log('Loading tags of skeleton ' + skeletonId + '...');
+          console.log('Loading tags of template ' + skeletonId + '...');
           this.tagRowsLoaded = false;
           this.tagRowsError = false;
           this.tagRows = [];
@@ -421,7 +421,7 @@
             this.handleResult(response.data)
           })
           .catch(error => {
-            console.log('Error adding skeleton' + this.newSkeletonUrl + ': ' + error);
+            console.log('Error adding template' + this.newSkeletonUrl + ': ' + error);
           })
           .then(() => {this.finalizeAddSkeleton()}, () => {this.finalizeAddSkeleton()});
       },

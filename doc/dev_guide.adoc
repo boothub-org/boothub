@@ -77,8 +77,8 @@ cd boothub
 *Eclipse*
 
 - start the Eclipse IDE
-- install the Groovy plugin; update site: http://dist.springsource.org/snapshot/GRECLIPSE/e4.6/
-- install a recent version of https://projects.eclipse.org/projects/tools.buildship[Buildship].
+- install the https://github.com/groovy/groovy-eclipse/wiki#releases[Groovy plugin]
+- install a recent version of https://projects.eclipse.org/projects/tools.buildship[Buildship]
 - import the project using the Gradle Project wizard
 
 

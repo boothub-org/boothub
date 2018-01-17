@@ -2,14 +2,14 @@
   <div class="home" style="margin-left:10px;margin-right:10px;">
     <div v-show="page == 'init'">
       <p>&nbsp;</p>
-      <p><b>Choose a skeleton type from the table below.</b></p>
+      <p><b>Choose a template from the table below.</b></p>
       <el-row :gutter="8">
         <el-col :span="14">
           <el-table
               ref="skeletonTable"
               :data="skeletons"
               v-loading="skeletons.length === 0"
-              element-loading-text="Loading project skeletons..."
+              element-loading-text="Loading project templates..."
               highlight-current-row
               @current-change="setSelectedRow"
               empty-text=" "
@@ -85,7 +85,7 @@
       </el-row>
     </div>
     <div v-show="page == 'textTerm'">
-      <div style="margin-top:10px;margin-bottom: 10px;"><b>Skeleton: {{skeletonName}}</b></div>
+      <div style="margin-top:10px;margin-bottom: 10px;"><b>Template: {{skeletonName}}</b></div>
       <div id="textterm" ref="textterm" class="textterm-pane">
         <span class="textterm-pair">
             <span class="textterm-prompt"></span>
@@ -191,16 +191,16 @@ export default {
       }
     },
     getSkeletons() {
-      console.log('Loading skeletons...');
+      console.log('Loading templates...');
       axios.post('/api/querySkeletons', {lastVersionOnly: true})
           .then(response => {
               this.handleResult(response.data)
               this.skeletons = _.flatMap(_.toArray(response.data.value), item => _.toArray(item.entries));
-              console.log('Successfully loaded ' + this.skeletons.length + ' skeletons.');
+              console.log('Successfully loaded ' + this.skeletons.length + ' templates.');
             }
           )
           .then(response => this.selectSkeletonUrl(this.skeletonUrl))
-          .catch(error => {console.log('Error loading skeletons: ' + error); this.skeletons = [];});
+          .catch(error => {console.log('Error loading templates: ' + error); this.skeletons = [];});
     },
 
     handleResult(result) {
