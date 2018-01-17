@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.6.1">
+<meta name="author" content="Serban Iordache">
+<title>BootHub</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="./asciidoctor.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+<link rel="stylesheet" href="./coderay-asciidoctor.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>BootHub</h1>
+<div class="details">
+<span id="author" class="author">Serban Iordache</span><br>
+<span id="revnumber">version 0.3.6</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#user_guide">User Guide</a></li>
+<li><a href="#dev_guide">Developer Guide</a></li>
+<li><a href="#Templates">Writing BootHub Templates</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="introduction">Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>With BootHub you can bootstrap your projects by generating skeletons based on various templates.</p>
+</div>
+<div class="paragraph">
+<p>BootHub provides both a <a href="http://boothub.org" class="external">web interface</a> and a <a href="http://boothub.org/app#/cli" class="external">command-line interface (CLI)</a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The source code is available on <a href="https://github.com/boothub-org/boothub">GitHub</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>BootHub is licensed under the Apache-2.0 license.
+Click on the icon below to read the license file:</p>
+</div>
+<div class="imageblock thumb">
+<div class="content">
+<a class="image" href="https://github.com/boothub-org/boothub/blob/v0.3.6/LICENSE"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAALQklEQVR42tWbe3BU9RXHv/vMO+RJHuQFCSYkqDC+oIAPLEzFx1gcrA+sTm1prXW67TDWttgiRWFs/UMt43RkrLRgR2grVUFh2mrDQzCJmGQxCXk/SMiLvPZ9793t+d3cDZu7G7LZX7IxZ+bk7r279+79fu4553d+9240CNL6+/szaVFAriELdrdpM6fTic7OTlRUVPRs2bKlZrqOG5QSEv9LWuwk14Zducp27NhhI7vrzTffLA0LAOXKt2vJdDrdbOvHCy+8gOrq6iG9Xr/+6NGjn4cDwG20+JSJlyRptvXjlVdegdlshsvlGqJzWn/kyBEuCEEBoJz/1OPxzLZ22fbs2YOamhoIgiBDoMBcf/jw4ZAhBB0Bsy3ca5T7qK+vlwF4IbBIOHjwYEgQ5hyAffv2obGxEaIoyk4AGAgZwoEDB6YMYVIAfX19cgrMtnCvvfPOO2hpaRkDwFyJBjkdCNCUIMw5AIcOHUJra6tckJl475JBoKUMYe/evUFDCAoAAqTAhxcG0WUREGXUhxWApfI/cPV3ysLdbvc4CIrL6fDGG28EBWFSAL29vX4R0GMVsau0DZlJMbA6hLACiOiuw7y+Olm8FwJbet0LITMzc/22bdsmhRASgI5hJ3Z92kxfGP6hUeNxI3OkAQmOXnhIvEASGISU2ChqUz1g/QobsikVhoqLi+9Yt27dOW4AUKUAA7D9eF3YxV/Ntq8vRFZ8xLhtw8PDpvz8/Fe5APT09PhFQPuQA9s+Oj/bmsfZzrtKkD0vctw2SglTeno6PwCoIoABeO6DytnWPM5233u9HwAy0/z58/kAdHd3+0VA26AdWw9XzLbmcfaH+29ATkLUuG1UC0xpaWn8AKCKgCGnhO8dOImvy/xAq9HgrUdXIz7Cb7bKD+DSpUt+EUAVFpWdA2gbsMy2dtlyEuNwfWaCPBr4GosA7hrQ1dUVsBOcjbtCV7NA0cgAZGRk8APA12gyNEXjB9DZ2fm1mgtMxVgEUEfIB+DixYtzGsCCBQv4AHR0dMxZAGTTAwBzuAZkZWXxAWhvbw8IYMRqh8PlmnEFRr0e8+JiQgaQnZ3NB6Ctrc0vBYYtVhw/Hb5OcNXyEmSkJk95P1YDcnJy+AC0trb6AbA7XTj5RTXsjjBEgFGPFdcVIyGEKGAAcnNz+QC0tLQELIJs3h2OZog1OKE+j2AA8vLy+AA0NzfP6VGAG0BTU9OcBrBw4UI+AI2NjXMawKJFi/gANDQ0+AFwU162dfXA6QrvDdGJTKfTIjstFRFGgx8A7lti9fX1fgCGaBgsrTDPuLCk4x/BvjAf9sXXsIqG9P1vo/f+ByDFxft9dlnhImSnp/oBKCgo4ANw4cIFPwCi5EZdy0UIkjitgqW2NjjLyhC9cSObbwM7fwe3IEDz/G8hln2OyL/ug/iDH0KzfDmc7R3QnPkMxk2bSIQGBdkZiImKUB/StHjxYj4AdXV1AWsAuyky3cOgta4OF556Gin33YuMxx+H+TsPwSOKSFq7FiNVlRD6+jH/wU1I+uadaHj2OUQXFSL/pRfloVJ9M4QZGwYLCwv5ANTW1s5oEXSw53zDI4i97lqIg4Mwb3pIIaxhxSbwTsp7Kffdg6xnfgLJYsHw52VIXHuHH4CioiI+ADU1NTMKwFJVjfqtz9LVLJIh9Bw8dAUOibR53BA9oydqpIiLJfE6JfKiCvLlffqPfozowkIs/v1uPwBLlizhA/DVV1/N+GywzvRz2Gprx9ZHSPgI1Zk4SrNYnQYGEszueDnoz5A0CiRZr6XtV46RT/Ui/sYb1Ic2FRcX8wE4f/58QABsCOS5Kyx1UBGjvNWlJKP3n++h+9A/aKsH/ZIH0XSVk0n8RGcn0PdeEt3y56IIjtagx7VUICWbHa7eXsQUXgNtpPyMwFRSUsIHwGw2+wGw2p04XVU72a5XtcjSTxD133+P2zZIVzeehDNhk5sH3QQhij5r9CnGhuQkFL/+GgyJCTKApUuX8gGoqqoKOBs8VckHgMV01JH3YSwffYDL8p3pjg1K/Ngh0CdD08gjkj4+DkW7X0JUXt7o+5Jkum7ZMj4AlZWVfgDYl0WwEON8LiIMDeKzjQ+SEDesBCBBN/WfIbqIgotGwAjaNe2eu5H34x+NvSfZ7ablt9zCB+DLL7+c9iLYuvctDFdWwd7eLo/zEonw0KlEhthXWKiWRCqRY0hMRPTCPGQ98jBFQq7phhUr+ACcO3du2gEMlleg9a23YW9rl9cl9lwfo4+4QjEWBTq5HyRBej3S7lpPAB6BxqA33bhyJR+AioqKgH2AzeGCSwy9Fab8RPvre2A5e1bOJJ7f4Ppm4rI/voro3JxRsDab6abVq/kAlJeX+wGwOZwor23mOGM65eoqaI8dhWZkWBbPmr5QS4qONYbK69Tbb0PudzcjIiVFrgE38wIoKyvzSwE2GTI3Xwx5Oizu/RM8jQ1j6+xnVpLioVikhqXBlXWt0YjiXz+HuKJC04o1a/gAnD17NuAoEB0djVB/PG3r6UW/+Tz6q6tx8V8fjLW51gATmsmM7RtLvYOdoiqGQj9jw7cQS8NgLLXJbpdgWnnbrXwAzpw5M2NzAUtTM77Y+gs5JWIJwCABmCoCth+7+CwWk1fcjOJnt47NUmkqbVrJmwKnT5+eEQD2zi6c+9XzEIaH5XWWBjF0JXuk4BGw+z9J1DsM+kTOgrs3oODJJ7yrppW8o8CpU6cCPxmyO7gaoea/vQsLTYUjU1PhaGqCQHMD1tcb6YxYizvZoSPoc/P1OlwmYG7aL/n226EXBTj7+1H49FOITJsvA1i1ahUfgBMnTvgBsFPxO9/SFbp6lTmPfAjx9En5NYMQT2W9hyDYAky22Amn6EbnC32ikjK0vmDniygoyFV/3LSGtwgGAiDRmFXf2TctvxESbTb07dgOj8sFncEASRDkYTFRN9oZsqmvKPeJkKfFbDlEM0YrfTfLdQ0VYjf1Ixn33Ysljz0cHgDM4uPjJ9s1KOv45H9o+PAI8h/4NlKXFOHoQ5vHvc9g6JX7AYIqMRbes4FEP4qag3/H5SozbnppR/gAzITZui7h5DM/gyEuDumrVqL94+N+n4nNyUF0Rhp6zpYhY81qXPvTp692SH4ApaWlYXswwnqDqtf24EbWxNCY/sn3n4LLMoJvvLwLTe+9j64TJ1Gy5UlkrbsTtX/+C4ZbWnHLjt9MeDx2S+zWWzn7gGPHjhVS08M5+Q/ORIcDErXZEQnz5PXynbvpaqej+Mkn4KDqXkrRcfP255FwzWL5fVt3N6LT0iY8niAIj61du3b/lADs37/fu43qi05jMBg0iYmJ7xqNxo3hgOBrg3UXEJOZSSkRK6/30RQ6qaQYWv3k/6MgSZJ5YGBgNUGwuFxyoywXkM2bN48rJBpFNOtpjYpHKD72mlIgkqJgg16vz6GwYt+uU7nWZ+l1jeK+r6di3pN2q177uqR2OlfR7XZftlqt79NykLY5yV3K0umz7iIYkkYRz54psX+LzVFesxtqceQMfZTiXijMGQSDItoXyHQCgI/QQAB8hbN5uaAsXT6CqVuDjdxKzlpOBqSPvI2czcZ6GQCjIn41+VLyBeSJivhoH+H6AGLVAsfSZ4LlVM1zlaWvq6GIPjAYCDv5CPkAeSc5e7DJOq8GBkCrCGZXn/2bLPsxzjwlAmIUCCwCInElLQyKq6GoI2GiCPDdDowPdV/xvtu9Ar1iRZVYQXHfq2/3iQAGYIj8sgKBRcGAtwZocSWs1W6cYLte5ROlg/e1r6m3exQR6pmQWrQ67NUuBHDXBNtFqgHuCUPTdzTA+FAO1hFgXQ3B18YqdYBtE4X+RO63r7r6e+3/+8xnXoRehmAAAAAASUVORK5CYII=" alt="license"></a>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="user_guide">User Guide</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following guidelines apply to both the <a href="http://boothub.org" class="external">web interface</a> and the <a href="http://boothub.org/app#/cli" class="external">CLI</a>.</p>
+</div>
+<div class="paragraph">
+<p>After selecting the template on which your project should be based, you can choose whether the generated project should be created on GitHub or offered as a zip file for download.</p>
+</div>
+<div class="paragraph">
+<p>In both cases, you will also have to provide the name of your GitHub account and the owner of the project (which can be either your user account or one of your GitHub organizations).
+However, if you opted for having a zip file, BootHub will not ask for your GitHub credentials and will not verify the existence of the provided GitHub account and/or organization.</p>
+</div>
+<div class="paragraph">
+<p>If you want your project on GitHub but don&#8217;t want to give BootHub access to your account, just choose the zip file option.
+Later, you can easily add yourself the project to GitHub.</p>
+</div>
+<div class="paragraph">
+<p>BootHub will then start collecting the information needed to configure your project.
+While most of the required pieces of information depend on the chosen template, BootHub will always ask for the following data:</p>
+</div>
+<a name="template-independent-data"> </a>
+<div class="black-background">
+<pre class="lime" style="margin-left: 20px;">
+
+Repository name: <span class="yellow">my-project</span>
+Project name [my-project]:
+Project page URL [https://github.com/myuser/my-project]: <span class="yellow">https://myproject.example.org</span>
+
+</pre>
+</div>
+<div class="paragraph">
+<p>By default, the project name is the same as the name you provide for the GitHub repository.
+For the project page URL, the default value suggested by BootHub links to the corresponding GitHub project page.</p>
+</div>
+<div class="paragraph">
+<p>Most templates require to specify a license for your project:</p>
+</div>
+<div class="black-background">
+<pre class="lime" style="margin-left: 20px;">
+
+License:
+   1: The Apache Software License, Version 2.0
+   2: The BSD 2-Clause License
+   3: The BSD 3-Clause License
+   4: The Common Development and Distribution License
+   5: The Do WTF You Want To Public License, Version 2
+   6: The Eclipse Public License v1.0
+   7: The GNU General Public License Version 2
+   8: The GNU General Public License Version 3
+   9: The GNU Lesser General Public License Version 2.1
+  10: The GNU Lesser General Public License Version 3.0
+  11: The MIT License
+  12: The Mozilla Public License Version 2.0
+  13: The Unlicense
+Enter your choice: <span class="yellow">1</span>
+
+</pre>
+</div>
+<pre>
+
+</pre>
+<div class="paragraph">
+<p>Also, most templates require to specify the version of your project:</p>
+</div>
+<div class="black-background">
+<pre class="lime" style="margin-left: 20px;">
+
+Major version number [1]: <span class="yellow">0</span>
+Minor version number [0]: <span class="yellow">1</span>
+Patch version number [0]: <span class="yellow">2</span>
+
+</pre>
+</div>
+<pre>
+
+</pre>
+<div class="paragraph">
+<p>The remaining data required to configure the project are template-specific and are usually described in the template documentation.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="dev_guide">Developer Guide</h2>
+<div class="sectionbody">
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+You need Java 8 or newer in order to use BootHub.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>BootHub is available in Maven Central and JCenter.</p>
+</div>
+<div class="listingblock">
+<div class="title">Maven</div>
+<div class="content">
+<pre class="nowrap">&lt;dependency&gt;
+    &lt;groupId&gt;&lt;/groupId&gt;
+    &lt;artifactId&gt;boothub-core&lt;/artifactId&gt;
+    &lt;version&gt;0.3.6&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;&lt;/groupId&gt;
+    &lt;artifactId&gt;boothub-db&lt;/artifactId&gt;
+    &lt;version&gt;0.3.6&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;&lt;/groupId&gt;
+    &lt;artifactId&gt;boothub-gradle-test&lt;/artifactId&gt;
+    &lt;version&gt;0.3.6&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;&lt;/groupId&gt;
+    &lt;artifactId&gt;boothub-heroku&lt;/artifactId&gt;
+    &lt;version&gt;0.3.6&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;&lt;/groupId&gt;
+    &lt;artifactId&gt;boothub-postgres&lt;/artifactId&gt;
+    &lt;version&gt;0.3.6&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;&lt;/groupId&gt;
+    &lt;artifactId&gt;boothub-web&lt;/artifactId&gt;
+    &lt;version&gt;0.3.6&lt;/version&gt;
+&lt;/dependency&gt;</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="nowrap">compile ':boothub-core:0.3.6'
+compile ':boothub-db:0.3.6'
+compile ':boothub-gradle-test:0.3.6'
+compile ':boothub-heroku:0.3.6'
+compile ':boothub-postgres:0.3.6'
+compile ':boothub-web:0.3.6'</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Command Line Build</strong></p>
+</div>
+<div class="paragraph">
+<p>BootHub is built with <a href="http://www.gradle.org">Gradle</a> and requires JDK 8 or higher.
+Clone the GitHub repository, <code>cd</code> into the top directory and start the build:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>git clone https://github.com/boothub-org/boothub.git
+cd boothub
+./gradlew clean build            (On Windows: gradlew clean build)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>IntelliJ Idea</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>start the IntelliJ Idea IDE</p>
+</li>
+<li>
+<p>make sure that the Groovy plugin is enabled</p>
+</li>
+<li>
+<p>open <em>build.gradle</em></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Eclipse</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>start the Eclipse IDE</p>
+</li>
+<li>
+<p>install the <a href="https://github.com/groovy/groovy-eclipse/wiki#releases">Groovy plugin</a></p>
+</li>
+<li>
+<p>install a recent version of <a href="https://projects.eclipse.org/projects/tools.buildship">Buildship</a></p>
+</li>
+<li>
+<p>import the project using the Gradle Project wizard</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Upload to Bintray</strong></p>
+</div>
+<div class="paragraph">
+<p>The Bintray credentials must be available in a file called <em>gradle-local.properties</em>.
+You can use <a href="https://github.com/boothub-org/boothub/blob/v0.3.6/gradle-local.template.properties">gradle-local.template.properties</a> as template and adjust it accordingly.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="Templates">Writing BootHub Templates</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>TBD</strong></p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 0.3.6<br>
+</div>
+</div>
+</body>
+</html>
