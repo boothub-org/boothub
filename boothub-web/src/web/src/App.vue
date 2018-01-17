@@ -12,7 +12,7 @@
         <el-menu theme="light" :default-active="this.$router.history.current.name" class="el-menu-demo" mode="horizontal" :router="true">
           <el-menu-item index="home" :route="{path:'/home'}">Home</el-menu-item>
           <el-menu-item index="cli" :route="{path:'/cli'}">CLI</el-menu-item>
-          <el-menu-item index="manager" :route="{path:'/manager'}">Skeleton Manager</el-menu-item>
+          <el-menu-item index="manager" :route="{path:'/manager'}">Template Manager</el-menu-item>
           <el-menu-item index="docs" :route="{path:'/docs'}">Tutorials and documentation</el-menu-item>
           <el-menu-item index="github"><a href="https://github.com/boothub-org/boothub"><i class="fa fa-github" aria-hidden="true" style="font-size: 24px;"></i></a></el-menu-item>
         </el-menu>

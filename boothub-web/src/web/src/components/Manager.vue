@@ -1,6 +1,6 @@
 <template>
   <div class="manager">
-    <h2>Skeleton Manager</h2>
+    <h2>Template Manager</h2>
     <el-alert v-if="!loggedInUserId"
               type="info"
               :closable="false"
