@@ -281,7 +281,7 @@ class BootHubWebApp {
                 }
 
             .prefix("api") { apiChain -> apiChain
-                    .get("cliDownloadUrl") { renderSuccessValue(ctx, cliDownloadUrl) }
+                    .get("cliDownloadUrl") { ctx -> renderSuccessValue(ctx, cliDownloadUrl) }
 
 //########################################################
 //#############  REPO MANAGER  ###########################
