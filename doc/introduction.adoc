@@ -3,7 +3,7 @@
 
 With BootHub you can bootstrap your projects by generating skeletons based on various templates.
 
-BootHub provides both a http://boothub.org[web interface, role="external"] and a http://boothub.org/app#/cli[command-line interface (CLI), role="external"].
+BootHub provides both a https://boothub.org[web interface, role="external"] and a https://boothub.org/app#/cli[command-line interface (CLI), role="external"].
 
 NOTE: The source code is available on https://github.com/boothub-org/boothub[GitHub].
 

@@ -1,7 +1,7 @@
 [[user_guide]]
 = User Guide
 
-The following guidelines apply to both the http://boothub.org[web interface, role="external"] and the http://boothub.org/app#/cli[CLI, role="external"].
+The following guidelines apply to both the https://boothub.org[web interface, role="external"] and the https://boothub.org/app#/cli[CLI, role="external"].
 
 After selecting the template on which your project should be based, you can choose whether the generated project should be created on GitHub or offered as a zip file for download.
 
