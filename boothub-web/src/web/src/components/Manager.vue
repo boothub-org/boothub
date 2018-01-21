@@ -238,7 +238,6 @@
     methods: {
       setSelectedRow(row) {
         console.log('setSelectedRow(' + (row ? row.id : null) + ')');
-        this.$refs.skeletonTable.setCurrentRow(row);
         this.selectedRow = row;
         this.versionRows = row ? _.values(row.entries) : [];
         this.selectedVersion = null;
@@ -282,9 +281,8 @@
             this.skeletonRows = _.map(_.keys(response.data.value), key => _.merge({id: key}, response.data.value[key]));
             this.skeletonRowsLoaded = true;
             console.log('Found ' + this.skeletonRows.length + ' templates owned by user ' + this.loggedInUserId);
-            if(prevSelectedSkeletonId) {
-              this.setSelectedRow(this.getSkeletonRow(prevSelectedSkeletonId));
-            }
+            let selRow = prevSelectedSkeletonId ? this.getSkeletonRow(prevSelectedSkeletonId) : this.skeletonRows[0];
+            this.$refs.skeletonTable.setCurrentRow(selRow);
           })
           .catch(error => {
             this.skeletonRows = [];

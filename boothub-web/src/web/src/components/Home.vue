@@ -178,8 +178,11 @@ export default {
             break;
           }
         }
-        this.setSelectedRow(selectedRow);
+      } else if(this.skeletons.length > 0) {
+        console.log('Selecting first row');
+        selectedRow = this.skeletons[0];
       }
+      this.setSelectedRow(selectedRow);
     },
     md2html(md, defaultHtml) {
       console.log('Transforming to HTML. Markdown: ' + md);
