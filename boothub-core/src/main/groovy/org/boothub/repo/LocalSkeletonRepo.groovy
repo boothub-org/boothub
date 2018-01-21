@@ -46,6 +46,7 @@ class LocalSkeletonRepo implements SkeletonRepo {
         if(options.searchPattern) {
             skeletons.values().each { group -> group.keepOnlyMatches(options.searchPattern) }
         }
-        new Result(type: Result.Type.SUCCESS, value: skeletons)
+        def sortedSkeletons = skeletons.sort{a, b -> a.value.name <=> b.value.name}
+        new Result(type: Result.Type.SUCCESS, value: sortedSkeletons)
     }
 }
