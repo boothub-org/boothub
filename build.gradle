@@ -222,9 +222,6 @@ subprojects {
     }
 }
 
-def gitIgnore = file(".gitignore").readLines()
-def gitIgnoreDirs = gitIgnore*.trim().findAll { !it.startsWith("#") && it.endsWith("/") }
-
 asciidoctor {
   sourceDir = file("doc")
   sources {include 'index.adoc'}
