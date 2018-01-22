@@ -72,6 +72,8 @@ class BootHubWebApp {
 
     static final long CLI_URL_DELAY_MINUTES = (System.getenv('BOOTHUB_CLI_URL_DELAY_MINUTES') ?: '11') as long
     static final long BOT_DELAY_MINUTES = (System.getenv('BOOTHUB_BOT_DELAY_MINUTES') ?: '10') as long
+    static final long HOUSEKEEPING_DELAY_MINUTES = (System.getenv('BOOTHUB_HOUSEKEEPING_DELAY_MINUTES') ?: '17') as long
+    static final long HOUSEKEEPING_AGE_MINUTES = (System.getenv('BOOTHUB_HOUSEKEEPING_AGE_MINUTES') ?: '120') as long
     static final String BOT_USER = System.getenv('BOOTHUB_BOT_USER')
     static final String BOT_PASSWORD = System.getenv('BOOTHUB_BOT_PASSWORD')
 
@@ -202,6 +204,7 @@ class BootHubWebApp {
 
         Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay({ -> updateCliUrl()}, 0, CLI_URL_DELAY_MINUTES, TimeUnit.MINUTES)
         Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay({ -> updateJsonRepo()}, 1, BOT_DELAY_MINUTES, TimeUnit.MINUTES)
+        Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay({ -> performHousekeeping()}, HOUSEKEEPING_DELAY_MINUTES, HOUSEKEEPING_DELAY_MINUTES, TimeUnit.MINUTES)
 
         app.server.bindings << ({binding -> binding.module(HandlebarsModule, {cfg -> cfg.templatesPath('static')})} as Action)
 
@@ -340,6 +343,28 @@ class BootHubWebApp {
             }
         } catch (Exception e) {
             log.error("Failed to update boothub-repo.", e)
+        }
+    }
+
+    private void performHousekeeping() {
+        try {
+            log.debug("Start performing housekeeping")
+            String tmpDir = System.properties['java.io.tmpdir'] ?: '/tmp'
+            long maxTime = System.currentTimeMillis() - 60000L * HOUSEKEEPING_AGE_MINUTES
+            String[] toDelete = new File(tmpDir).list({f ->
+                if(!f.name.startsWith('boothub-')) return false
+                if(f.name.startsWith('boothub-cache')) return false
+                return (f.lastModified() < maxTime)
+            } as FileFilter)
+            if(toDelete) {
+                toDelete.each {fpath ->
+                    def f = new File(tmpDir, fpath)
+                    boolean deleted = f.file ? f.delete() : f.directory ? f.deleteDir() : false
+                    log.info("Housekeeping: $f deleted: $deleted")
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to perform housekeeping.", e)
         }
     }
 
