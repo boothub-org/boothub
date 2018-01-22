@@ -70,6 +70,7 @@ class BootHubWebApp {
     static final String ENV_OAUTH_KEY = "BOOTHUB_OAUTH_KEY"
     static final String ENV_OAUTH_SECRET = "BOOTHUB_OAUTH_SECRET"
 
+    static final String ROOT_REDIRECT = (System.getenv('BOOTHUB_ROOT_REDIRECT') ?: 'app')
     static final long CLI_URL_DELAY_MINUTES = (System.getenv('BOOTHUB_CLI_URL_DELAY_MINUTES') ?: '11') as long
     static final long BOT_DELAY_MINUTES = (System.getenv('BOOTHUB_BOT_DELAY_MINUTES') ?: '10') as long
     static final long HOUSEKEEPING_DELAY_MINUTES = (System.getenv('BOOTHUB_HOUSEKEEPING_DELAY_MINUTES') ?: '17') as long
@@ -216,11 +217,11 @@ class BootHubWebApp {
                 .all(RatpackPac4j.authenticator("callback", gitHubClient))
 
                 .path("") {ctx ->
-                    ctx.redirect("app")
+                    ctx.redirect(ROOT_REDIRECT)
                 }
 
                 .path("index.html") {ctx ->
-                    ctx.redirect("app")
+                    ctx.redirect(ROOT_REDIRECT)
                 }
 
                 .path("app") {ctx ->
