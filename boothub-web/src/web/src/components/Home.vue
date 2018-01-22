@@ -187,11 +187,25 @@ export default {
     md2html(md, defaultHtml) {
       console.log('Transforming to HTML. Markdown: ' + md);
       if(md) {
-        var parsed = mdReader.parse(md);
-        return mdWriter.render(parsed);
+        let parsed = mdReader.parse(md);
+        let html = mdWriter.render(parsed);
+        return this.blankLinkTarget(html);
       } else {
         return defaultHtml;
       }
+    },
+    blankLinkTarget(html) {
+      var frag = document.createRange().createContextualFragment(html);
+      var links = frag.querySelectorAll('a');
+      if(links) {
+        for (var i = 0; i < links.length; i++) {
+          var href = links[i].href;
+          links[i].target = '_blank';
+        }
+      }
+      var holder = document.createElement("div");
+      holder.appendChild(frag);
+      return holder.innerHTML;
     },
     getSkeletons() {
       console.log('Loading templates...');
