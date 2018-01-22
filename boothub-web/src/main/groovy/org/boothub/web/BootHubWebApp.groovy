@@ -104,14 +104,17 @@ class BootHubWebApp {
         def cfgFile = new File(cfgFileName)
         ConfigObject cfg = null
         if(cfgFile.isFile()) {
+            log.debug("Reading configuration file: $cfgFile")
             cfg = new ConfigSlurper().parse(cfgFile.toURI().toURL())
         } else {
             def cfgResource = BootHubWebApp.getClass().getResource("/$cfgFileName")
             if(cfgResource) {
+                log.debug("Reading configuration resource: $cfgResource")
                 cfg = new ConfigSlurper().parse(cfgResource)
             }
         }
         if(cfg) {
+            log.debug("Using configuration: $cfg")
             if(cfg.port) withPort(cfg.port)
             if(cfg.outputDirBasePath) withOutputDirBasePath(cfg.outputDirBasePath)
             if(cfg.zipFilesBasePath) withZipFilesBasePath(cfg.zipFilesBasePath)
@@ -351,14 +354,13 @@ class BootHubWebApp {
             log.debug("Start performing housekeeping")
             String tmpDir = System.properties['java.io.tmpdir'] ?: '/tmp'
             long maxTime = System.currentTimeMillis() - 60000L * HOUSEKEEPING_AGE_MINUTES
-            String[] toDelete = new File(tmpDir).list({f ->
+            File[] toDelete = new File(tmpDir).listFiles({f ->
                 if(!f.name.startsWith('boothub-')) return false
                 if(f.name.startsWith('boothub-cache')) return false
                 return (f.lastModified() < maxTime)
             } as FileFilter)
             if(toDelete) {
-                toDelete.each {fpath ->
-                    def f = new File(tmpDir, fpath)
+                toDelete.each {f ->
                     boolean deleted = f.file ? f.delete() : f.directory ? f.deleteDir() : false
                     log.info("Housekeeping: $f deleted: $deleted")
                 }
