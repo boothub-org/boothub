@@ -23,11 +23,11 @@ class LocalSkeletonRepo implements SkeletonRepo {
 
     LocalSkeletonRepo(String baseRepoDir = '.') {
         this.baseRepoDir = baseRepoDir
-        ['simple-java', 'simple-groovy', 'java-groovy'].each { addSkeleton(it) }
+        ['template-simple-java', 'template-simple-groovy', 'template-java-groovy', 'meta-template'].each { addSkeleton(it) }
     }
 
     private final void addSkeleton(String name) {
-        def dir = new File(baseRepoDir, "../boothub-template-$name/skeleton")
+        def dir = new File(baseRepoDir, "../boothub-$name/skeleton")
         if(!dir.directory) throw new IllegalArgumentException("Directory not found: $dir.absolutePath")
         def repoEntry = RepoEntry.fromDir(dir)
 
