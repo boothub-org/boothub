@@ -73,12 +73,11 @@ class SkeletonBuilder {
         Map<String, FileContext> fileContexts = fileContextReader.getFileContexts(projectContext)
         def srcPath = baseProjectTemplatePath.resolve(TEMPLATE_DIR_FILES).toAbsolutePath().toRealPath()
         if(!srcPath.toFile().isDirectory()) throw new IOException("Files directory not found: $srcPath")
-        Handlebars handlebars = Util.createHandlebars(srcPath)
         List<Path> disabledPaths = []
         srcPath.toFile().eachFileRecurse { f ->
             def relPath = srcPath.relativize(f.toPath().toAbsolutePath().toRealPath())
             if(disabledPaths.every {!relPath.startsWith(it)}) {
-                def relFilePath = relPath.toString()
+                def relFilePath = relPath.toString().replace('\\', '/')
                 FileContext ctx = fileContexts[relFilePath]
                 if(!ctx) {
                     Files.copy(f.toPath(), workPath.resolve(relPath))
@@ -87,11 +86,11 @@ class SkeletonBuilder {
                         if(ctx.enabled) Files.copy(f.toPath(), workPath.resolve(relPath))
                         else disabledPaths << relPath
                     } else if(ctx.enabled) {
-                        Template template = handlebars.compile(relFilePath)
-                        def mergedContent = template.apply(projectContext);
                         def relTargetPath = ctx.targetPath ?: relFilePath
                         def targetFilePath = workPath.resolve(relTargetPath)
-                        targetFilePath.write(mergedContent)
+                        def parent = targetFilePath.getParent()?.toFile()
+                        if(parent) parent.mkdirs()
+                        Files.copy(f.toPath(), targetFilePath)
                     }
                 }
             }
@@ -148,13 +147,11 @@ class SkeletonBuilder {
     }
 
     def copySourceTemplates(ProjectContext projectContext) {
-        if(projectContext instanceof MavenCompatible) {
-            def srcContextReader = new SourceContextReader(baseProjectTemplatePath)
-            Map<String, Map<String, SourceFileContext>> sourceFileContexts = srcContextReader.getSourceFileContexts(projectContext)
-            boolean multiModule = projectContext.isMultiModule()
-            sourceFileContexts.each { artifact, map ->
-                copyArtifactSourceTemplates(artifact, map, multiModule)
-            }
+        def srcContextReader = new SourceContextReader(baseProjectTemplatePath)
+        Map<String, Map<String, SourceFileContext>> sourceFileContexts = srcContextReader.getSourceFileContexts(projectContext)
+        boolean multiModule = (projectContext instanceof Modularizable) ? projectContext.isMultiModule() : false
+        sourceFileContexts.each { artifact, map ->
+            copyArtifactSourceTemplates(artifact, map, multiModule)
         }
     }
 
