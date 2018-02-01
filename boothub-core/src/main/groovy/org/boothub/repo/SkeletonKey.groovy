@@ -15,6 +15,8 @@
  */
 package org.boothub.repo
 
+import org.boothub.Version
+
 trait SkeletonKey implements Comparable<SkeletonKey> {
     abstract String getId()
     abstract Version getVersion()

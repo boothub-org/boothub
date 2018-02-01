@@ -18,6 +18,7 @@ package org.boothub.context
 import groovy.util.logging.Slf4j
 import org.beryx.textio.TextIO
 import org.boothub.Util
+import org.boothub.Version
 import org.kohsuke.github.GHRepository
 import org.kohsuke.github.GitHub
 
@@ -28,6 +29,7 @@ class ProjectInfoConfigurator extends TextIOConfigurator {
     @Override
     void configureWithTextIO(ProjectContext context, TextIO textIO) {
         def ctx = context as ProjectInfo
+        ctx.boothubVersion = Version.BOOTHUB_CURRENT.toString()
         def gitHubApi = getGitHubApi(ctx)
         def organizations = getOrganizations(gitHubApi)
         if(organizations != null) {

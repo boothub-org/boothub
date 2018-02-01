@@ -28,6 +28,7 @@ import org.boothub.BootHub
 import org.boothub.GitHubUtil
 import org.boothub.Result
 import org.boothub.Result.Type
+import org.boothub.Version
 import org.boothub.repo.*
 import org.boothub.repo.heroku.HerokuDBApi
 import org.boothub.repo.postgresql.PGJobDAO

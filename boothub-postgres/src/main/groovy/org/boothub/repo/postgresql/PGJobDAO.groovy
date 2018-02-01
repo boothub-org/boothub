@@ -16,6 +16,7 @@
 package org.boothub.repo.postgresql
 
 import groovy.util.logging.Slf4j
+import org.boothub.Version
 import org.boothub.repo.*
 
 import java.sql.ResultSet

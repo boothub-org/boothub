@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 the original author or authors.
+/**
+ * Copyright 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.boothub.repo
+package org.boothub
 
-import groovy.transform.ToString
-import groovy.transform.TupleConstructor
-import org.boothub.Version
-
-@TupleConstructor
-@ToString
-class SkeletonInfo implements SkeletonKey {
-    String id
-    Version version = new Version()
-    String name
-    String caption
-    Version minimumRequiredBootHub = new Version()
-    String homepage
-    String[] authors = []
-    String[] tags = []
-    String description
+class VersionInfo {
+    // Do not edit the values below. They are configured by gradle before the execution of the compile task, based on the values found in gradle.properties.
+    static final int MAJOR = 0
+    static final int MINOR = 4
+    static final int PATCH = 1
+    static final String LABEL = ''
+    static final boolean RELEASE_BUILD = false
 }

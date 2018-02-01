@@ -15,6 +15,8 @@
  */
 package org.boothub.repo
 
+import org.boothub.Version
+
 class NullRepoKey implements RepoKey {
     final static String NO_ID = "__no-id"
     final static Version NO_VERSION = new Version()

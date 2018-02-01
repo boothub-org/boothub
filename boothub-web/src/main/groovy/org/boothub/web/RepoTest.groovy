@@ -19,7 +19,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import org.boothub.repo.LocalSkeletonRepo
 import org.boothub.repo.SkeletonSearchOptions
-import org.boothub.repo.Version
+import org.boothub.Version
 
 class RepoTest {
     static void main(String[] args) {

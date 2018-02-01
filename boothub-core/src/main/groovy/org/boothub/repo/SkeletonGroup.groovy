@@ -16,12 +16,13 @@
 package org.boothub.repo
 
 import groovy.transform.Canonical
+import org.boothub.Version
 
 @Canonical
 class SkeletonGroup {
     String name
     String caption
-    TreeMap<Version, RepoEntry> entries = new TreeMap<>({v1,v2 -> v2 <=> v1})
+    TreeMap<Version, RepoEntry> entries = new TreeMap<>({ v1, v2 -> v2 <=> v1})
 
     void addRepoEntry(RepoEntry entry) {
         entries[entry.version] = entry

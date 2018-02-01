@@ -16,6 +16,7 @@
 package org.boothub.repo
 
 import org.boothub.Result
+import org.boothub.Version
 
 abstract trait RepoManager implements SkeletonRepo {
     abstract RepoCache getRepoCache()

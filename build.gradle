@@ -308,6 +308,19 @@ project('boothub-core') {
 
     applicationName = "boothub"
 
+    task configureVersionFile << {
+        def versionFile = file('src/main/groovy/org/boothub/VersionInfo.groovy')
+        def newText = versionFile.text
+        newText = newText.replaceAll('int MAJOR[^\\v]*', "int MAJOR = $boothubVersionMajor")
+        newText = newText.replaceAll('int MINOR[^\\v]*', "int MINOR = $boothubVersionMinor")
+        newText = newText.replaceAll('int PATCH[^\\v]*', "int PATCH = $boothubVersionPatch")
+        def label = (project.hasProperty('boothubVersionLabel')) ? boothubVersionLabel : ''
+        newText = newText.replaceAll('String LABEL[^\\v]*', "String LABEL = '$label'")
+        newText = newText.replaceAll('boolean RELEASE_BUILD[^\\v]*', "boolean RELEASE_BUILD = $boothubReleaseBuild")
+        versionFile.newWriter().withWriter {w -> w << newText}
+    }
+    compileJava.dependsOn configureVersionFile
+
     startScripts {
         defaultJvmOpts = ['-Dlogback.configurationFile=logback.xml']
     }

@@ -19,6 +19,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import org.boothub.Result
+import org.boothub.Version
 import org.codehaus.groovy.runtime.IOGroovyMethods
 
 import java.lang.reflect.Type

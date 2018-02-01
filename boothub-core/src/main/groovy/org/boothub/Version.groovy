@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.boothub.repo
+package org.boothub
 
 import com.google.gson.*
 import groovy.transform.EqualsAndHashCode
@@ -28,6 +28,13 @@ class Version implements Comparable<Version>{
     int minor
     int patch
     String label
+
+    static final Version BOOTHUB_CURRENT = new Version(
+            major: VersionInfo.MAJOR,
+            minor: VersionInfo.MINOR,
+            patch: VersionInfo.PATCH,
+            label: VersionInfo.LABEL
+    )
 
     static class GsonDeserializer implements JsonDeserializer<Version> {
         Version deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
