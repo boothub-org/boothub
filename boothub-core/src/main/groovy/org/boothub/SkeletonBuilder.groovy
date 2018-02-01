@@ -74,18 +74,26 @@ class SkeletonBuilder {
         def srcPath = baseProjectTemplatePath.resolve(TEMPLATE_DIR_FILES).toAbsolutePath().toRealPath()
         if(!srcPath.toFile().isDirectory()) throw new IOException("Files directory not found: $srcPath")
         Handlebars handlebars = Util.createHandlebars(srcPath)
+        List<Path> disabledPaths = []
         srcPath.toFile().eachFileRecurse { f ->
             def relPath = srcPath.relativize(f.toPath().toAbsolutePath().toRealPath())
-            def relFilePath = relPath.toString()
-            FileContext ctx = fileContexts[relFilePath]
-            if(!ctx) {
-                Files.copy(f.toPath(), workPath.resolve(relPath))
-            } else if(ctx.enabled) {
-                Template template = handlebars.compile(relFilePath)
-                def mergedContent = template.apply(projectContext);
-                def relTargetPath = ctx.targetPath ?: relFilePath
-                def targetFilePath = workPath.resolve(relTargetPath)
-                targetFilePath.write(mergedContent)
+            if(disabledPaths.every {!relPath.startsWith(it)}) {
+                def relFilePath = relPath.toString()
+                FileContext ctx = fileContexts[relFilePath]
+                if(!ctx) {
+                    Files.copy(f.toPath(), workPath.resolve(relPath))
+                } else {
+                    if(f.directory) {
+                        if(ctx.enabled) Files.copy(f.toPath(), workPath.resolve(relPath))
+                        else disabledPaths << relPath
+                    } else if(ctx.enabled) {
+                        Template template = handlebars.compile(relFilePath)
+                        def mergedContent = template.apply(projectContext);
+                        def relTargetPath = ctx.targetPath ?: relFilePath
+                        def targetFilePath = workPath.resolve(relTargetPath)
+                        targetFilePath.write(mergedContent)
+                    }
+                }
             }
         }
     }
