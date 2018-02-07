@@ -34,14 +34,14 @@ class BuildChecker {
     }
 
     boolean checkClassesAndJars(String artifactType, List<String> extensions,
-                                List<String> fileNames, List<String> forbiddenFileNames,
-                                List<String> testFileNames, List<String> forbiddenTestFileNames) {
+                                List<String> fileNames, List<String> forbiddenFileNames = [],
+                                List<String> testFileNames = [], List<String> forbiddenTestFileNames = []) {
         checkClasses(fileNames, forbiddenFileNames, testFileNames, forbiddenTestFileNames)
         checkJars(artifactType, extensions, fileNames, forbiddenFileNames)
         true
     }
 
-    boolean checkJars(String artifactType, List<String> extensions, List<String> fileNames, List<String> forbiddenFileNames) {
+    boolean checkJars(String artifactType, List<String> extensions, List<String> fileNames, List<String> forbiddenFileNames = []) {
         List<JarFile> jars = artifacts[artifactType]
         assert jars.size() == 1
         def jar = jars[0]
@@ -58,8 +58,8 @@ class BuildChecker {
         true
     }
 
-    boolean checkClasses(List<String> fileNames, List<String> forbiddenFileNames,
-                         List<String> testFileNames, List<String> forbiddenTestFileNames) {
+    boolean checkClasses(List<String> fileNames, List<String> forbiddenFileNames = [],
+                         List<String> testFileNames = [], List<String> forbiddenTestFileNames = []) {
         Path classesPath = modulePath.resolve("build/classes")
         checkRequiredClassFiles(classesPath, "main", fileNames)
         checkForbiddenClassFiles(classesPath, "main", forbiddenFileNames)
