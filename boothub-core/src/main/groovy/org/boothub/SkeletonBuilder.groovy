@@ -21,6 +21,7 @@ import groovy.io.FileType
 import groovy.util.logging.Slf4j
 import org.boothub.context.*
 
+import java.nio.file.CopyOption
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -80,7 +81,7 @@ class SkeletonBuilder {
                 def relFilePath = relPath.toString().replace('\\', '/')
                 FileContext ctx = fileContexts[relFilePath]
                 if(!ctx) {
-                    Files.copy(f.toPath(), workPath.resolve(relPath))
+                    Files.copy(f.toPath(), workPath.resolve(relPath), StandardCopyOption.REPLACE_EXISTING)
                 } else {
                     if(f.directory) {
                         if(ctx.enabled) Files.copy(f.toPath(), workPath.resolve(relPath))
