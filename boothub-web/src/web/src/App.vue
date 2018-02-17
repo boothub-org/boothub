@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <table border="0">
+    <table border="0" width="100%">
       <tr>
       <td>
         <el-badge value="BETA" style="margin-right: 10px;">
@@ -8,16 +8,18 @@
         </el-badge>
       </td>
       <td><div style="width: 20px;">&nbsp;</div></td>
-      <td align="right" width="100%">
+      <td style="width: 60%; white-space: nowrap;">
         <el-menu theme="light" :default-active="this.$router.history.current.name" class="el-menu-demo" mode="horizontal" :router="true">
           <el-menu-item index="home" :route="{path:'/home'}">Home</el-menu-item>
           <el-menu-item index="cli" :route="{path:'/cli'}">CLI</el-menu-item>
+          <el-menu-item index="docs" :route="{path:'/docs'}">Guides</el-menu-item>
           <el-menu-item index="manager" :route="{path:'/manager'}">Template Manager</el-menu-item>
-          <el-menu-item index="docs" :route="{path:'/docs'}">Tutorials and documentation</el-menu-item>
-          <el-menu-item index="github"><a href="https://github.com/boothub-org/boothub"><i class="fa fa-github" aria-hidden="true" style="font-size: 24px;"></i></a></el-menu-item>
         </el-menu>
+      </td>
       <td><div style="width: 10px;">&nbsp;</div></td>
-      <td style="vertical-align: middle; white-space: nowrap;">
+        <td style="vertical-align: middle; white-space: nowrap;"><div style="white-space: nowrap; width: 130px;"><gh-btns-star slug="boothub-org/boothub" show-count></gh-btns-star></div></td>
+      <td><div style="width: 10px;">&nbsp;</div></td>
+      <td align="right" style="vertical-align: middle; alignment: right; white-space: nowrap; width: 30%;">
         <el-button type="primary" v-if="!loggedInUserId" @click="login" v-loading="busyLogin">Sign In with GitHub</el-button>
         <img v-if="loggedInPictureUrl" :src="loggedInPictureUrl" style="height: 32px;"/>
         <el-dropdown v-if="loggedInUserId" @command="handleLoggedInCommand">
@@ -28,7 +30,6 @@
             <el-dropdown-item command="logout" v-loading="busyLogout">Sign Out</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
-      <td>
       </td>
       </tr>
     </table>
@@ -44,6 +45,7 @@
 <script>
 import { mapState } from 'vuex'
 import axios from 'axios';
+import 'vue-github-buttons/dist/vue-github-buttons.css';
 require('font-awesome/css/font-awesome.css');
 
 export default {

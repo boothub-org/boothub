@@ -18,6 +18,7 @@
       <li><a href="http://java-groovy.boothub.org/releases/latest/" target="_blank">The Java/Groovy template</a></li>
       <li><a href="http://simple-java.boothub.org/releases/latest/" target="_blank">The Simple-Java template</a></li>
       <li><a href="http://simple-groovy.boothub.org/releases/latest/" target="_blank">The Simple-Groovy template</a></li>
+      <li><a href="http://meta-template.boothub.org/releases/latest/" target="_blank">The Meta-Template</a></li>
     </ul>
   </div>
 </template>

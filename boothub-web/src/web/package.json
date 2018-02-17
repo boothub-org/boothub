@@ -20,6 +20,7 @@
     "text-io": "3.1.3",
     "valid-url": "1.0.9",
     "vue": "2.5.3",
+    "vue-github-buttons": "2.0.5",
     "vue-router": "3.0.1",
     "vuex": "3.0.1"
   },

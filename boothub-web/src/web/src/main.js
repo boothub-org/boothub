@@ -5,10 +5,12 @@ import Vuex from 'vuex'
 import App from './App'
 import router from './router'
 import './favicon/favicon'
+import VueGitHubButtons from 'vue-github-buttons';
 
 Vue.config.productionTip = false
 
 Vue.use(Vuex)
+Vue.use(VueGitHubButtons)
 
 const store = new Vuex.Store({
   strict: true,
