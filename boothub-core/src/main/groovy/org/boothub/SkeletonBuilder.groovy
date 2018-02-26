@@ -80,11 +80,16 @@ class SkeletonBuilder {
             if(disabledPaths.every {!relPath.startsWith(it)}) {
                 def relFilePath = relPath.toString().replace('\\', '/')
                 FileContext ctx = fileContexts[relFilePath]
+                def destPath = workPath.resolve(relPath)
                 if(!ctx) {
-                    Files.copy(f.toPath(), workPath.resolve(relPath), StandardCopyOption.REPLACE_EXISTING)
+                    if(f.directory) {
+                        destPath.toFile().mkdirs()
+                    } else {
+                        Files.copy(f.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING)
+                    }
                 } else {
                     if(f.directory) {
-                        if(ctx.enabled) Files.copy(f.toPath(), workPath.resolve(relPath))
+                        if(ctx.enabled) destPath.toFile().mkdirs()
                         else disabledPaths << relPath
                     } else if(ctx.enabled) {
                         def relTargetPath = ctx.targetPath ?: relFilePath
