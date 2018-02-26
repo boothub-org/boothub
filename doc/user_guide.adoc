@@ -1,5 +1,5 @@
 [[user_guide]]
-= User Guide
+= User guide
 
 The following guidelines apply to both the https://boothub.org[web interface, role="external"] and the https://boothub.org/app#/cli[CLI, role="external"].
 

@@ -1,4 +1,319 @@
 [[Templates]]
-= Writing BootHub Templates
+= Writing BootHub templates
 
-**TBD**
+Instead of writing a BootHub template from scratch, it is recommended to use one of the following approaches:
+
+- generate a template skeleton using the http://meta-template.boothub.org[Meta-Template].
+- copy an existing template that is somewhat similar to the one you want to write and then adjust it to your needs.
+
+
+== Template structure
+
+The structure of a BootHub template is shown in the figure below:
+
+image::template-structure.png[]
+
+The directories `files` and `files-src` contain file templates that will be processed by BootHub to generate a project skeleton.
+The generation is guided by a series of control files in accordance with the project context.
+The next sections describe this process in detail.
+
+== Template info
+
+Each template provides information about itself. The file `info.yml` contains structured information (such as name, id, version, homepage),
+while `description.md` provides a markdown description of the template's purpose and capabilities.
+
+The Boothub GUI displays this information in an aggregated form as shown in the image below:
+
+image::java-groovy-info.png[]
+
+The markdown description uses the http://commonmark.org/[CommonMark] format and should contain only 'safe' elements.
+Raw HTML and potentially unsafe URLs in links and images (those beginning with javascript:, vbscript:, file: etc.) are not rendered.
+
+== Project context
+
+Before generating a project skeleton, BootHub collects link:#template-independent-data[template-independent] and template-specific data.
+These are used to populate the project context, which contains properties needed to customize the project skeleton.
+
+A project context is an instance of `org.boothub.context.ProjectContext`.
+Simple templates can directly use this class, but usually a subclass of ProjectContext is needed.
+You specify the class required for your project context in the file `config.yml`.
+
+The standard way to extend ProjectContext or one of its existing subclasses is to implement additional
+http://docs.groovy-lang.org/next/html/documentation/core-traits.html[traits].
+Each trait adds one or more properties to the project context.
+
+The diagram below shows available traits, ProjectContext subclasses and other related classes. Traits are colored blue.
+
+[[project-context-diagram]]
+image::project-context.png[]
+
+Looking at the bottom of the above image, you can see that BootHub provides a series of ProjectContext subclasses
+(with names of the form `StandardProjectContext.TemplateType`),   which help you create the appropriate project context for your template.
+They are useful if your template should generate projects that produce Maven-compatible artifacts (jar, war, ear etc.).
+
+In general, your template needs one or more specific properties that are not provided by the existing ProjectContext subclasses.
+Therefore, you need to create a custom project context class for your template.
+This involves the following steps:
+
+- create one or more custom traits that provide the additional properties needed by your template.
+- choose a suitable base class for your project context class.
+- create your custom project context class that extends the chosen base class and implements your custom traits.
+
+The above mentioned traits and classes must be implemented in Groovy and placed in the `script` directory.
+
+TIP: The http://meta-template.boothub.org[Meta-Template] does a good job in choosing a suitable base class for your project context depending on the
+options you choose during the template skeleton generation. It also creates a custom project context class implementing a sample trait with a sample property.
+
+
+Each trait implemented by your project context class must have an associated
+https://github.com/boothub-org/boothub/blob/master/boothub-core/src/main/groovy/org/boothub/context/Configurator.groovy[configurator] class,
+which you specify using the
+https://github.com/boothub-org/boothub/blob/master/boothub-core/src/main/groovy/org/boothub/context/ConfiguredBy.groovy[ConfiguredBy] annotation.
+
+To exemplify, let's look at the project context of the http://java-groovy.boothub.org[Java/Groovy template],
+which is implemented by the `JavaGroovyProjectContext` class, as specified in the
+https://github.com/boothub-org/boothub-template-java-groovy/blob/master/skeleton/template/config.yml[configuration file]:
+
+.template/config.yml
+```
+contextClass: org.boothub.context.JavaGroovyProjectContext
+```
+
+In order to be properly configured, some of the features provided by the Java/Groovy template require additional properties.
+These properties are provided by a series of feature-specific traits implemented by the
+https://github.com/boothub-org/boothub-template-java-groovy/blob/master/skeleton/template/script/org/boothub/context/JavaGroovyProjectContext.groovy[JavaGroovyProjectContext] class:
+
+.template/script/org/boothub/context/JavaGroovyProjectContext.groovy
+```
+package org.boothub.context
+
+class JavaGroovyProjectContext
+    extends StandardProjectContext.Generic
+    implements LanguageContext,
+               TestFrameworkContext,
+               DocPublishing,
+               AsciiDocSupport,
+               LicenseCheckSupport,
+               FindbugsSupport,
+               CloverSupport {
+}
+```
+
+The https://github.com/boothub-org/boothub-template-java-groovy/blob/master/skeleton/template/script/org/boothub/context/CloverSupport.groovy[CloverSupport]
+trait provides a boolean property that indicates whether the Gradle script of the generated project should add support for
+code coverage with https://www.atlassian.com/software/clover[Clover].
+
+.template/script/org/boothub/context/CloverSupport.groovy
+```
+package org.boothub.context
+
+import groovy.transform.SelfType
+import org.beryx.textio.TextIO
+
+@SelfType(ProjectContext)
+@ConfiguredBy(CloverSupport.Configurator)
+trait CloverSupport {
+    boolean useClover = true
+
+    static class Configurator extends TextIOConfigurator  {
+        @Override
+        void configureWithTextIO(ProjectContext context, TextIO textIO) {
+            def ctx = context as CloverSupport
+            ctx.useClover = textIO.newBooleanInputReader()
+                    .withDefaultValue(ctx.useClover)
+                    .read("Use Clover?")
+        }
+    }
+}
+```
+Note how the `@ConfiguredBy` annotation is used to specify the configurator class associated with this trait.
+
+The configurator class provides the code necessary to configure the trait properties.
+Usually, the properties values are obtained interactively from the user.
+In order to allow BootHub to run the configurator code both in the CLI and the web interface,
+all input/output operations required by a configurator should be implemented using the https://github.com/beryx/text-io[Text-IO] library.
+
+== Template processing
+
+BootHub uses the https://github.com/jknack/handlebars.java[handlebars.java] template engine to process the following files:
+
+- regular files and their control file `files.yml`
+- module source files and their control file `sources.yml`
+- the usage instructions file `instructions.md`
+
+The tags in the above mentioned documents are expanded using the values of the properties provided by the project context.
+
+Additionally, for each module source file BootHub creates a
+https://github.com/boothub-org/boothub/blob/master/boothub-core/src/main/groovy/org/boothub/context/SourceFileContext.groovy[SourceFileContext]
+whose properties are also used during tag expansion. See <<mod-src-files>> for more details.
+
+
+
+The following helpers can be accessed in the documents processed by the handlebars template engine:
+http://handlebars-java-helpers.beryx.org[Handlebars.java Helpers],
+https://github.com/jknack/handlebars.java/blob/master/handlebars/src/main/java/com/github/jknack/handlebars/helper/StringHelpers.java[StringHelpers]
+and
+https://github.com/boothub-org/boothub/blob/master/boothub-core/src/main/groovy/org/boothub/hbs/Helpers.groovy[BootHub's Helpers].
+
+
+
+== Regular files
+
+Regular files reside in the `files` directory (or in its subdirectories) and are controlled by the `files.yml` file, which configures a list of
+https://github.com/boothub-org/boothub/blob/master/boothub-core/src/main/groovy/org/boothub/context/FileContext.groovy[FileContext]s.
+
+A FileContext instance is characterized by three properties that tell BootHub how to handle a particular file:
+
+- `String filePath` (mandatory) - the path of the source file relative to the `template` directory.
+If the file is located directly under the `template` directory, the filePath contains only the file name.
+Otherwise, it has the format `subdirectory/fileName`.
+- `String targetPath` (optional) - the destination path relative to the target directory. If missing, the `filePath` value will be used.
+- `boolean enabled` (optional) - whether this file should appear in the generated project skeleton. Default value: `true`.
+
+
+For example, the following entry can be found in the
+https://github.com/boothub-org/boothub-template-java-groovy/blob/master/skeleton/template/files.yml[files.yml] of the Java/Groovy template:
+
+```
+--- !!org.boothub.context.FileContext
+filePath: settings.gradle
+enabled: {{multiModule}}
+```
+
+This means that the file `settings.gradle` located directly under the `template` directory should appear in the generated skeleton only if
+a multi-module project is desired. Since no `targetPath` is specified, the file will retain its original name and relative location.
+
+
+The content of https://github.com/boothub-org/boothub-template-java-groovy/blob/master/skeleton/template/files/settings.gradle[settings.gradle] is shown below:
+
+```
+rootProject.name = '{{ghProjectId}}-root'
+
+String[] modules = [
+    {{~#each modules}}
+    '{{artifact}}',
+    {{~/each}}
+]
+
+include modules
+```
+
+If a regular file doesn't have a corresponding FileContext entry in `files.yml`, it will appear unconditionally in the generated project,
+retaining its original name and relative location.
+
+
+[[mod-src-files]]
+== Module source files
+
+Module source files reside in the `files-src` directory.
+They are needed for Maven-compatible project skeletons, which consist of one or many modules, where each module usually produces an artifact.
+
+Each module is described by a
+https://github.com/boothub-org/boothub/blob/master/boothub-core/src/main/groovy/org/boothub/context/SourceContext.groovy[SourceContext]
+configured in the `sources.yml` file.
+Each SourceContext contains the name of the artifact produced by its corresponding module and a list of
+https://github.com/boothub-org/boothub/blob/master/boothub-core/src/main/groovy/org/boothub/context/SourceFileContext.groovy[SourceFileContext]s
+associated with this module.
+
+A SourceFileContext instance is characterized by the following properties that tell BootHub how to handle a particular source file:
+
+- `String fileName` (mandatory) - the name of the source file.
+- `String targetBaseDir` (optional) - the base directory of the target file relative to the module path. Default value: empty string.
+- `String targetPackage` (optional) - the https://en.wikipedia.org/wiki/Java_package[package] of this source file. Default value: empty string.
+BootHub will place the target file in a subdirectory corresponding to the `targetPackage` in the `targetBaseDir`.
+- `String targetFileClass` (optional) - the name of the class defined by this source file. If missing, the class name is set in accordance with the `fileName`.
+- `boolean enabled` (optional) - whether this source file should appear in the current module. Default value: `true`.
+
+Below you can see a fragment of the
+https://github.com/boothub-org/boothub-template-java-groovy/blob/master/skeleton/template/sources.yml[sources.yml] file of the Java/Groovy template:
+
+```
+{{#each modules}}
+--- !!org.boothub.context.SourceContext
+artifact: {{artifact}}
+fileContexts:
+    - !!org.boothub.context.SourceFileContext
+      fileName: JavaMain.java
+      targetBaseDir: src/main/java
+      targetPackage: {{basePackage}}
+      targetFileClass: {{appMainClass}}
+      enabled: {{and useJava (not useGroovy) appMainClass (compare artifact '==' appModule.artifact)}}
+
+    - !!org.boothub.context.SourceFileContext
+      fileName: JavaUtil.java
+      targetBaseDir: src/main/java
+      targetPackage: {{basePackage}}
+      targetFileClass: {{artifactAsClassName}}JavaUtil
+      enabled: {{and useJava (or useGroovy (not appMainClass) (compare artifact '!=' appModule.artifact))}}
+
+    # ...
+    # more SourceFileContext entries...
+    # ...
+
+{{/each}}
+```
+
+For simplicity, the example above contains only two of the SourceFileContext entries present in the actual `sources.yml` file.
+
+The handlebars tags will be replaced with the values of their corresponding project context properties during the template processing.
+The `useJava` and `useGroovy` are specific to the Java/Groovy template, while the other ones are common properties you can find in the
+<<project-context-diagram,project context diagram>>.
+
+Note that the handlebars processing of the above `sources.yml` file will produce a SourceContext for each module present in the project context.
+For pure Java projects the `JavaMain.java` source file is enabled only for the application module, while `JavaUtil.java` is enabled for the other modules.
+
+Note also that these two source files will have custom names in the generated project, since a `targetFileClass` is specified for them.
+
+
+The content of `JavaMain.java` is shown below:
+
+```
+\{{javaComment 'license-header.txt'~}}
+package {{targetPackage}};
+
+public class {{targetFileClass}} {
+    public static void main(String[] args) {
+        System.out.println("Hello from {{targetFileClass}}!");
+    }
+}
+```
+
+Source files are processed twice by Handlebars: first time using their corresponding
+https://github.com/boothub-org/boothub/blob/master/boothub-core/src/main/groovy/org/boothub/context/SourceFileContext.groovy[SourceFileContext]
+and then using the project context.
+
+CAUTION: Note the `\{{` at the beginning of the first line in the `JavaMain.java` template.
+The `\` prevents Handlebars from handling the `javaComment` tag during the first processing step (with the SourceFileContext).
+Instead, it will be handled during the second processing step (with the project context).
+
+
+== Usage instructions
+
+After generating a project, the BootHub web interface processes the markdown content found in the file `instructions.md`
+in order to display usage information related to this project:
+
+image::java-groovy-instructions.png[role="related thumb"]
+
+The markdown description uses the http://commonmark.org/[CommonMark] format and should contain only 'safe' elements.
+Raw HTML and potentially unsafe URLs in links and images (those beginning with javascript:, vbscript:, file: etc.) are not rendered.
+
+
+== License files
+By default, BootHub provides 13 https://github.com/boothub-org/boothub/blob/master/boothub-core/src/main/resources/licenses.zip[software licenses] to choose from.
+
+You can provide additional licenses for your template in the `template/licenses` directory.
+For each additional license you need to create a subdirectory whose name represents the `licenseId`.
+In this subdirectory you should place three files:
+
+- `LICENSE` - contains a plain-text copy of the license
+- `license-header.txt` - contains a short license header that should usually be included at the top of each source file.
+- `license.yml` - a YAML file that configures the license name and, optionally, a URL to the license text.
+
+For example, if your template additionally provides the http://www.perlfoundation.org/artistic_license_2_0[Artistic license 2.0],
+the following `license.yml` file should be present in the `template/licenses/Artistic-2.0` directory:
+
+.template/licenses/Artistic-2.0/license.yml
+```
+licenseName: The Artistic License 2.0
+licenseUrl: http://www.perlfoundation.org/attachment/legal/artistic-2_0.txt
+```

@@ -1,5 +1,5 @@
 [[dev_guide]]
-= Developer Guide
+= Developer guide
 
 
 CAUTION: You need Java 8 or newer in order to use BootHub.
