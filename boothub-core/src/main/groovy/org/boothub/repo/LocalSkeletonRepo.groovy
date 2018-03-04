@@ -23,7 +23,13 @@ class LocalSkeletonRepo implements SkeletonRepo {
 
     LocalSkeletonRepo(String baseRepoDir = '.') {
         this.baseRepoDir = baseRepoDir
-        ['template-simple-java', 'template-simple-groovy', 'template-java-groovy', 'meta-template'].each { addSkeleton(it) }
+        [
+                'template-simple-java',
+                'template-simple-groovy',
+                'template-simple-kotlin',
+                'template-java-groovy',
+                'meta-template'
+        ].each { addSkeleton(it) }
     }
 
     private final void addSkeleton(String name) {
