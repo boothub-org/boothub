@@ -7,6 +7,7 @@ Instead of writing a BootHub template from scratch, it is recommended to use one
 - copy an existing template that is somewhat similar to the one you want to write and then adjust it to your needs.
 
 
+[[template-structure]]
 == Template structure
 
 The structure of a BootHub template is shown in the figure below:
@@ -17,6 +18,7 @@ The directories `files` and `files-src` contain file templates that will be proc
 The generation is guided by a series of control files in accordance with the project context.
 The next sections describe this process in detail.
 
+[[template-info]]
 == Template info
 
 Each template provides information about itself. The file `info.yml` contains structured information (such as name, id, version, homepage),
@@ -29,6 +31,7 @@ image::java-groovy-info.png[]
 The markdown description uses the http://commonmark.org/[CommonMark] format and should contain only 'safe' elements.
 Raw HTML and potentially unsafe URLs in links and images (those beginning with javascript:, vbscript:, file: etc.) are not rendered.
 
+[[project-context]]
 == Project context
 
 Before generating a project skeleton, BootHub collects link:#template-independent-data[template-independent] and template-specific data.
@@ -133,6 +136,7 @@ Usually, the properties values are obtained interactively from the user.
 In order to allow BootHub to run the configurator code both in the CLI and the web interface,
 all input/output operations required by a configurator should be implemented using the https://github.com/beryx/text-io[Text-IO] library.
 
+[[template-processing]]
 == Template processing
 
 BootHub uses the https://github.com/jknack/handlebars.java[handlebars.java] template engine to process the following files:
@@ -157,6 +161,7 @@ https://github.com/boothub-org/boothub/blob/master/boothub-core/src/main/groovy/
 
 
 
+[[reguar-files]]
 == Regular files
 
 Regular files reside in the `files` directory (or in its subdirectories) and are controlled by the `files.yml` file, which configures a list of
@@ -317,3 +322,13 @@ the following `license.yml` file should be present in the `template/licenses/Art
 licenseName: The Artistic License 2.0
 licenseUrl: http://www.perlfoundation.org/attachment/legal/artistic-2_0.txt
 ```
+
+BootHub adds the properties configured in `license.yml` to the project context.
+
+BootHub configures the values specified in `license.yml` to the project context.
+
+
+BootHub reads the content of the `license.yml` file associated with the license type chosen by the user
+and adds each entry to the `ext` property of the project context.
+Therefore, you can include these values in any file processed by the <<template-processing,template engine>>
+by using the tags `{{ext.licenseName}}` and `{{ext.licenseUrl}}`.
