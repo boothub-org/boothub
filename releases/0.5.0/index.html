@@ -27,11 +27,11 @@
 <li><a href="#dev_guide">Developer guide</a></li>
 <li><a href="#Templates">Writing BootHub templates</a>
 <ul class="sectlevel2">
-<li><a href="#_template_structure">Template structure</a></li>
-<li><a href="#_template_info">Template info</a></li>
-<li><a href="#_project_context">Project context</a></li>
-<li><a href="#_template_processing">Template processing</a></li>
-<li><a href="#_regular_files">Regular files</a></li>
+<li><a href="#template-structure">Template structure</a></li>
+<li><a href="#template-info">Template info</a></li>
+<li><a href="#project-context">Project context</a></li>
+<li><a href="#template-processing">Template processing</a></li>
+<li><a href="#reguar-files">Regular files</a></li>
 <li><a href="#mod-src-files">Module source files</a></li>
 <li><a href="#_usage_instructions">Usage instructions</a></li>
 <li><a href="#_license_files">License files</a></li>
@@ -294,7 +294,7 @@ You can use <a href="https://github.com/boothub-org/boothub/blob/v0.5.0/gradle-l
 </ul>
 </div>
 <div class="sect2">
-<h3 id="_template_structure">Template structure</h3>
+<h3 id="template-structure">Template structure</h3>
 <div class="paragraph">
 <p>The structure of a BootHub template is shown in the figure below:</p>
 </div>
@@ -310,7 +310,7 @@ The next sections describe this process in detail.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_template_info">Template info</h3>
+<h3 id="template-info">Template info</h3>
 <div class="paragraph">
 <p>Each template provides information about itself. The file <code>info.yml</code> contains structured information (such as name, id, version, homepage),
 while <code>description.md</code> provides a markdown description of the template&#8217;s purpose and capabilities.</p>
@@ -329,7 +329,7 @@ Raw HTML and potentially unsafe URLs in links and images (those beginning with j
 </div>
 </div>
 <div class="sect2">
-<h3 id="_project_context">Project context</h3>
+<h3 id="project-context">Project context</h3>
 <div class="paragraph">
 <p>Before generating a project skeleton, BootHub collects <a href="#template-independent-data">template-independent</a> and template-specific data.
 These are used to populate the project context, which contains properties needed to customize the project skeleton.</p>
@@ -471,7 +471,7 @@ all input/output operations required by a configurator should be implemented usi
 </div>
 </div>
 <div class="sect2">
-<h3 id="_template_processing">Template processing</h3>
+<h3 id="template-processing">Template processing</h3>
 <div class="paragraph">
 <p>BootHub uses the <a href="https://github.com/jknack/handlebars.java">handlebars.java</a> template engine to process the following files:</p>
 </div>
@@ -505,7 +505,7 @@ and
 </div>
 </div>
 <div class="sect2">
-<h3 id="_regular_files">Regular files</h3>
+<h3 id="reguar-files">Regular files</h3>
 <div class="paragraph">
 <p>Regular files reside in the <code>files</code> directory (or in its subdirectories) and are controlled by the <code>files.yml</code> file, which configures a list of
 <a href="https://github.com/boothub-org/boothub/blob/master/boothub-core/src/main/groovy/org/boothub/context/FileContext.groovy">FileContext</a>s.</p>
@@ -731,6 +731,18 @@ the following <code>license.yml</code> file should be present in the <code>templ
 <pre class="CodeRay highlight"><code>licenseName: The Artistic License 2.0
 licenseUrl: http://www.perlfoundation.org/attachment/legal/artistic-2_0.txt</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>BootHub adds the properties configured in <code>license.yml</code> to the project context.</p>
+</div>
+<div class="paragraph">
+<p>BootHub configures the values specified in <code>license.yml</code> to the project context.</p>
+</div>
+<div class="paragraph">
+<p>BootHub reads the content of the <code>license.yml</code> file associated with the license type chosen by the user
+and adds each entry to the <code>ext</code> property of the project context.
+Therefore, you can include these values in any file processed by the <a href="#template-processing">template engine</a>
+by using the tags <code>{{ext.licenseName}}</code> and <code>{{ext.licenseUrl}}</code>.</p>
 </div>
 </div>
 </div>
