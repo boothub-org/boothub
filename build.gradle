@@ -530,6 +530,8 @@ def isPublishTask(task) {
 
 gradle.taskGraph.whenReady { taskGraph ->
     if (gradle.taskGraph.allTasks.findAll {task -> isPublishTask(task)}) {
+        if(!project.hasProperty('signingKeyId') || !project.hasProperty('signingSecretKeyRingFile'))
+            throw new InvalidUserDataException("Please configure your signing credentials in gradle-local.properties.")
         def password = readPasswordFromConsole('Please enter your signing credentials:', 'PGP Private Key Password')
         allprojects { ext."signing.keyId" = signingKeyId }
         allprojects { ext."signing.secretKeyRingFile" = signingSecretKeyRingFile }
