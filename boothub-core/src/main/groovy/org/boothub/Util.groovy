@@ -39,8 +39,11 @@ import java.util.zip.ZipInputStream
 import static org.boothub.Constants.*
 
 class Util {
-    public static final String MAVEN_ID_REGEX = '[A-Za-z0-9_\\-.]+'
-    public static final String GITHUB_USERNAME_REGEX = '\\p{Alnum}(?:\\p{Alnum}|-(?=\\p{Alnum})){0,38}'
+    static final String MAVEN_ID_REGEX = '[A-Za-z0-9_\\-.]+'
+    static final String GITHUB_USERNAME_REGEX = '\\p{Alnum}(?:\\p{Alnum}|-(?=\\p{Alnum})){0,38}'
+
+    static final String ENV_DISABLE_TEMP_CLEANUP = "BOOTHUB_DISABLE_TEMP_CLEANUP"
+    static boolean tempCleanupDisabled = System.getenv(ENV_DISABLE_TEMP_CLEANUP) == 'true'
 
     static InputReader.ValueChecker<String> mavenIdChecker = {id, prop ->
         isValidMavenId(id) ? null : ['Not a valid Maven ID']
@@ -62,10 +65,12 @@ class Util {
     }
 
     static deletePathOnExit(Path path) {
-        addShutdownHook {
-            def f = path.toFile()
-            if(f.isFile()) f.delete()
-            if(f.isDirectory()) f.deleteDir()
+        if(!tempCleanupDisabled) {
+            addShutdownHook {
+                def f = path.toFile()
+                if(f.isFile()) f.delete()
+                if(f.isDirectory()) f.deleteDir()
+            }
         }
     }
 
