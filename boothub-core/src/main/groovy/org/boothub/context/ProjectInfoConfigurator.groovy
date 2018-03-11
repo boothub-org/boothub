@@ -37,7 +37,7 @@ class ProjectInfoConfigurator extends TextIOConfigurator {
                 ctx.ghProjectOwner = ctx.ghUserId
             } else {
                 def ownerOptions = [ctx.ghUserId]
-                ownerOptions.addAll(organizations)
+                ownerOptions.addAll(new ArrayList<>(organizations).sort())
                 ctx.ghProjectOwner = textIO.newStringInputReader()
                         .withDefaultValue(ctx.ghUserId)
                         .withNumberedPossibleValues(ownerOptions)
