@@ -3,9 +3,7 @@
     <table border="0" width="100%">
       <tr>
       <td>
-        <el-badge value="BETA" style="margin-right: 10px;">
-          <img height="60" src="./assets/logo-text.png">
-        </el-badge>
+        <img height="60" src="./assets/logo-text.png">
       </td>
       <td><div style="width: 20px;">&nbsp;</div></td>
       <td style="width: 60%; white-space: nowrap;">
