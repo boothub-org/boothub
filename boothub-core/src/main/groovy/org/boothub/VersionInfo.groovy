@@ -17,9 +17,9 @@ package org.boothub
 
 class VersionInfo {
     // Do not edit the values below. They are configured by gradle before the execution of the compile task, based on the values found in gradle.properties.
-    static final int MAJOR = 0
-    static final int MINOR = 5
-    static final int PATCH = 1
+    static final int MAJOR = 1
+    static final int MINOR = 0
+    static final int PATCH = 0
     static final String LABEL = ''
     static final boolean RELEASE_BUILD = true
 }
