@@ -5,6 +5,10 @@
 - [documentation](http://doc.boothub.org/snapshots/latest)
 - [javadoc](http://doc.boothub.org/snapshots/latest/groovydoc)
 
+**Release 1.0.0**
+  - [documentation](http://doc.boothub.org/releases/1.0.0)
+  - [javadoc](http://doc.boothub.org/releases/1.0.0/groovydoc)
+
 **Release 0.5.1**
   - [documentation](http://doc.boothub.org/releases/0.5.1)
   - [javadoc](http://doc.boothub.org/releases/0.5.1/groovydoc)
