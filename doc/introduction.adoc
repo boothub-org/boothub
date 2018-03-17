@@ -5,9 +5,4 @@ With BootHub you can bootstrap your projects by generating skeletons based on va
 
 BootHub provides both a https://boothub.org[web interface, role="external"] and a https://boothub.org/app#/cli[command-line interface (CLI), role="external"].
 
-NOTE: The source code is available on https://github.com/boothub-org/boothub[GitHub].
-
-BootHub is licensed under the Apache-2.0 license.
-Click on the icon below to read the license file:
-
-image::license.png[role="thumb" link="{blob-root}/LICENSE"]
+NOTE: The source code is available on https://github.com/boothub-org/boothub[GitHub] and is licensed under the {blob-root}/LICENSE[Apache-2.0 license].
