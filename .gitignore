@@ -3,7 +3,7 @@
 **/node_modules/
 **/resources/static/
 gradle-local.properties
-boothub-oauth.cfg
+*-oauth.cfg
 gpg/
 .gradle/
 build/

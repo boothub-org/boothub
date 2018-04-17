@@ -42,3 +42,25 @@
     text-decoration:none;
     cursor:not-allowed;
 }
+
+.logged-repo {
+  opacity: 1.0;
+}
+.logged-info {
+  opacity: 0.6;
+}
+
+
+.left-margin-1 {
+  margin-left: 10px;
+}
+.left-margin-2 {
+  margin-left: 20px;
+}
+
+.right-margin-1 {
+  margin-right: 10px;
+}
+.right-margin-2 {
+  margin-right: 20px;
+}

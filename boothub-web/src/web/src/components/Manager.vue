@@ -1,13 +1,26 @@
 <template>
-  <div class="manager">
+  <div class="manager left-margin-2">
     <h2>Template Manager</h2>
-    <el-alert v-if="!loggedInUserId"
-              type="info"
-              :closable="false"
-              title="Sign in required"
-              description="Please sign in with GitHub in order to manage your project templates."
-              show-icon>
-    </el-alert>
+    <div v-if="!loggedInUserId">
+      <el-alert type="info" :closable="false" title="Sign in required" show-icon
+        description="You need to sign in with GitHub in order to manage your project templates. You can either use the below button or the one in the right-upper corner.">
+      </el-alert>
+      <el-collapse>
+        <el-collapse-item title="Why two types of sign in?">
+          <div class="left-margin-1">
+            In BootHub there are two actions that require authentication: generating a project skeleton on GitHub and managing templates.
+            <br/>In the first case, BootHub needs read/write access to your repositories and organizations.
+            If you feel uncomfortable granting BootHub these rights, you may proceed without signing in and you will get your skeletons as zip files.
+            <br/>In contrast, sign in is mandatory for managing templates, but in this case BootHub only needs to check your GitHub identity.
+            You don't grant any access to your repositories or organizations.
+            <br/>Therefore, if you want to be able to both manage templates and generate project skeletons on GitHub,
+            you should use the <em>Sign In</em> button in the right-upper corner.
+            <br/>If you only want want to manage templates, use the button below.
+          </div>
+        </el-collapse-item>
+      </el-collapse>
+      <p/><el-button type="primary" plain v-loading="busyLogin" @click="loginInfo">Sign In for template management only</el-button></p>
+    </div>
     <div v-if="loggedInUserId && skeletonRowsLoaded && skeletonRows.length === 0">
       <el-alert v-if="!skeletonRowsError"
                 type="info"
@@ -463,9 +476,9 @@
         this.getOwners();
         this.busyAddOwner = false;
       },
-      login() {
+      loginInfo() {
         this.busyLogin = true;
-        window.location.href = '/auth/login/home?exec=true&skeletonUrl=' + encodeURIComponent(this.skeletonUrl);
+        window.location.href = '/info/auth/login/manager';
       },
       handleResult(result) {
         if(result.message) {

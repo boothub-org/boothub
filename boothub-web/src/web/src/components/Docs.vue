@@ -1,5 +1,5 @@
 <template>
-  <div class="docs">
+  <div class="docs left-margin-2">
     <h3>About BootHub</h3>
     <p/>With BootHub you can bootstrap your projects by generating skeletons based on various templates.
     <br>BootHub provides both a web interface and a command-line interface (CLI).

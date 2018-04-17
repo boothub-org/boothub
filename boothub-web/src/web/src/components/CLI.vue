@@ -1,5 +1,5 @@
 <template>
-  <div class="cli">
+  <div class="cli left-margin-2">
     <h3 class="space-top">The Command Line Interface <el-button type="success" @click="downloadCLI" style="margin-left:20px;">Download CLI</el-button></h3>
     <div class="space-top">
       <p/>With the BootHub CLI you can generate projects directly in the terminal.

@@ -1,5 +1,5 @@
 <template>
-  <div class="generate">
+  <div class="generate left-margin-2">
     <h1>NOT IMPLEMENTED</h1>
     <p>&nbsp;</p>
   </div>

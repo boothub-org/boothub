@@ -29,11 +29,13 @@ import org.boothub.GitHubUtil
 import org.boothub.Result
 import org.boothub.Result.Type
 import org.boothub.Version
-import org.boothub.repo.*
+import org.boothub.repo.DBRepoManager
+import org.boothub.repo.DefaultRepoCache
+import org.boothub.repo.RepoManager
+import org.boothub.repo.SkeletonSearchOptions
 import org.boothub.repo.heroku.HerokuDBApi
 import org.boothub.repo.postgresql.PGJobDAO
 import org.kohsuke.github.GitHub
-import org.pac4j.core.context.Pac4jConstants
 import org.pac4j.core.profile.UserProfile
 import org.pac4j.oauth.client.GitHubClient
 import org.pac4j.oauth.profile.OAuth20Profile
@@ -42,8 +44,11 @@ import ratpack.exec.Promise
 import ratpack.func.Action
 import ratpack.func.Factory
 import ratpack.handlebars.HandlebarsModule
+import ratpack.handling.Chain
 import ratpack.handling.Context
 import ratpack.pac4j.RatpackPac4j
+import ratpack.pac4j.internal.Pac4jSessionKeys
+import ratpack.pac4j.internal.RatpackWebContext
 import ratpack.session.Session
 import ratpack.session.SessionData
 
@@ -71,6 +76,12 @@ class BootHubWebApp {
     static final String ENV_OAUTH_KEY = "BOOTHUB_OAUTH_KEY"
     static final String ENV_OAUTH_SECRET = "BOOTHUB_OAUTH_SECRET"
 
+    static final String OAUTH_INFO_CFG = "boothub-info-oauth.cfg"
+    static final String ENV_OAUTH_INFO_NAME = "BOOTHUB_OAUTH_INFO_NAME"
+    static final String ENV_OAUTH_INFO_CALLBACK_URL = "BOOTHUB_OAUTH_INFO_CALLBACK_URL"
+    static final String ENV_OAUTH_INFO_KEY = "BOOTHUB_OAUTH_INFO_KEY"
+    static final String ENV_OAUTH_INFO_SECRET = "BOOTHUB_OAUTH_INFO_SECRET"
+
     static final String ROOT_REDIRECT = (System.getenv('BOOTHUB_ROOT_REDIRECT') ?: 'app')
     static final long CLI_URL_DELAY_MINUTES = (System.getenv('BOOTHUB_CLI_URL_DELAY_MINUTES') ?: '11') as long
     static final long BOT_DELAY_MINUTES = (System.getenv('BOOTHUB_BOT_DELAY_MINUTES') ?: '10') as long
@@ -96,8 +107,8 @@ class BootHubWebApp {
             .setPrettyPrinting()
             .create()
 
-
-    final GitHubClient gitHubClient = createGitHubClient()
+    private static final GitHubClient gitHubClientRepo = createGitHubClientRepo()
+    private static final GitHubClient gitHubClientInfo = createGitHubClientInfo()
 
     BootHubWebApp(RepoManager repoManager) {
         this.repoManager = repoManager
@@ -195,7 +206,7 @@ class BootHubWebApp {
         }, webTextTerminal)
         .withSessionDataProvider{session ->
             def sessionData = [:]
-            session.get(Pac4jConstants.USER_PROFILE)
+            session.get(Pac4jSessionKeys.PAC4J_USER_PROFILE)
                     .then {
                         it.ifPresent { UserProfile profile ->
                             sessionData.accessToken = profile.attributes.access_token
@@ -215,8 +226,6 @@ class BootHubWebApp {
 
         app.server.handlers << ({ chain ->
             chain
-                .all(RatpackPac4j.authenticator("callback", gitHubClient))
-
                 .path("") {ctx ->
                     ctx.redirect(ROOT_REDIRECT)
                 }
@@ -225,12 +234,37 @@ class BootHubWebApp {
                     ctx.redirect(ROOT_REDIRECT)
                 }
 
-                .path("app") {ctx ->
-                    Session session = ctx.get(Session)
-                    session.data.then{sessionData ->
-                        def model = getModel(sessionData)
-                        sessionData.set("autoRun", false)
-                        ctx.render(Paths.get(BootHubWebApp.getClass().getResource("/static/app.html").toURI()))
+                .prefix("info") { appChain ->
+                    appChain.all(RatpackPac4j.authenticator("callback", gitHubClientInfo))
+                    .prefix("auth/login/:route", loginAction(gitHubClientInfo))
+                }
+                .prefix("app") { appChain ->
+                    appChain.all(RatpackPac4j.authenticator("callback", gitHubClientRepo))
+                    .path("") {ctx ->
+                        Session session = ctx.get(Session)
+                        session.data.then{sessionData ->
+                            def model = getModel(sessionData)
+                            sessionData.set("autoRun", false)
+                            ctx.render(Paths.get(BootHubWebApp.getClass().getResource("/static/app.html").toURI()))
+                        }
+                    }
+                    .prefix("auth") { authChain ->
+                        authChain.path("logout") { ctx ->
+                            def route = ctx.pathTokens.route ?: 'home'
+                            log.debug("route: $route")
+                            ctx.get(Session).data.then { sessionData ->
+                                log.info("sessionData before: $sessionData.keys")
+                                sessionData.clear()
+                                log.info("sessionData after: $sessionData.keys")
+                            }
+                            RatpackWebContext.from(ctx, false).then{ webContext ->
+                                log.info("webContext.session before: $webContext.session.keys")
+                                webContext.session.clear()
+                                log.info("webContext.session after: $webContext.session.keys")
+                            }
+                            RatpackPac4j.logout(ctx).then { -> ctx.render("You have been signed out") }
+                        }
+                        .prefix("login/:route", loginAction(gitHubClientRepo))
                     }
                 }
                 .prefix("zip/:fName") { zipChain ->
@@ -252,39 +286,6 @@ class BootHubWebApp {
                     session.data.then { sessionData ->
                         def stateMap = getModel(sessionData)
                         ctx.render(gson.toJson(stateMap))
-                    }
-                }
-
-                .prefix("auth") { authChain ->
-                    authChain
-                    .path("logout") { ctx ->
-                        def route = ctx.pathTokens.route ?: 'home'
-                        log.debug("route: $route")
-                        RatpackPac4j.logout(ctx).then { -> ctx.render("You have been signed out") }
-                    }
-                    .prefix("login/:route") { loginChain ->
-                        loginChain
-                                .all(RatpackPac4j.requireAuth(GitHubClient))
-                                .all{ ctx ->
-                                    def route = ctx.pathTokens.route ?: 'home'
-                                    log.info("### initial route: $route")
-                                    switch(route) {
-                                        case 'home':
-                                            def skeletonUrl = ctx.request.queryParams.skeletonUrl
-                                            def exec = Boolean.parseBoolean(ctx.request.queryParams.exec)
-                                            if(skeletonUrl || exec) {
-                                                route += "/$exec"
-                                                if(skeletonUrl) {
-                                                    route += "/${URLEncoder.encode(skeletonUrl, StandardCharsets.UTF_8.name())}"
-                                                }
-                                            }
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                    log.debug("Redirecting login to: $route")
-                                    ctx.redirect("/app#/$route")
-                                }
                     }
                 }
 
@@ -321,6 +322,32 @@ class BootHubWebApp {
         webTextIoExecutor.execute(app)
     }
 
+
+    private Action<Chain> loginAction(GitHubClient gitHubClient) {
+        return { loginChain ->
+            loginChain.all(RatpackPac4j.requireAuth(GitHubClient))
+            .all { ctx ->
+                def route = ctx.pathTokens.route ?: 'home'
+                log.info("initial route: $route")
+                switch(route) {
+                    case 'home':
+                        def skeletonUrl = ctx.request.queryParams.skeletonUrl
+                        def exec = Boolean.parseBoolean(ctx.request.queryParams.exec)
+                        if(skeletonUrl || exec) {
+                            route += "/$exec"
+                            if(skeletonUrl) {
+                                route += "/${URLEncoder.encode(skeletonUrl, StandardCharsets.UTF_8.name())}"
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                log.debug("Redirecting login to: $route")
+                ctx.redirect("/app#/$route")
+            }
+        }
+    }
 
     private void updateJsonRepo() {
         try {
@@ -523,7 +550,7 @@ class BootHubWebApp {
         }
     }
 
-    private static void withAuthenticatedUser(Context ctx,
+    private void withAuthenticatedUser(Context ctx,
                           @ClosureParams(value=SimpleType, options="java.util.Map, java.lang.String") Closure<Void> handler) {
         ctx.get(Session).data.then { sessionData ->
             def userId = getModel(sessionData)?.loggedInUserId
@@ -574,19 +601,20 @@ class BootHubWebApp {
         renderResult(ctx, ERROR, message, null)
     }
 
-    private static Map<String,?> getModel(SessionData sessionData) {
+    private Map<String,?> getModel(SessionData sessionData) {
         Map<String,?> model = [:]
-        sessionData.get(Pac4jConstants.USER_PROFILE).ifPresent { UserProfile profile ->
+        sessionData.get(Pac4jSessionKeys.PAC4J_USER_PROFILE).ifPresent { UserProfile profile ->
             if(profile instanceof OAuth20Profile) {
                 OAuth20Profile oAuth20Profile = profile;
                 model.loggedInUserId = oAuth20Profile.username
                 model.loggedInDisplayName = oAuth20Profile.displayName
                 model.loggedInPictureUrl = oAuth20Profile.pictureUrl
                 model.loggedInProfileUrl = oAuth20Profile.profileUrl
+                model.loggedInInfoOnly = profile.clientName != gitHubClientRepo.name
             }
         }
         model += sessionData.keys
-                .findAll {key -> !(key.name in [Pac4jConstants.USER_PROFILE])}
+                .findAll {key -> !(key.name in [Pac4jSessionKeys.PAC4J_USER_PROFILE])}
                 .collectEntries {key ->
                     def value = sessionData.get(key)
                     if(value instanceof Optional) {
@@ -599,16 +627,29 @@ class BootHubWebApp {
         model
     }
 
-    private static GitHubClient createGitHubClient() {
+    private static GitHubClient createGitHubClientRepo() {
         def oauthCfg = BootHubWebApp.getClass().getResource("/$OAUTH_CFG")
         ConfigObject cfg = oauthCfg ? new ConfigSlurper().parse(oauthCfg) : null
 
         def ghClient = new GitHubClient()
         ghClient.name = System.getenv(ENV_OAUTH_NAME) ?: cfg?.name ?: 'BootHub'
-        ghClient.scope = System.getenv(ENV_OAUTH_SCOPE) ?: cfg?.scope ?: 'repo'
+        ghClient.scope = System.getenv(ENV_OAUTH_SCOPE) ?: cfg?.scope ?: 'public_repo'
         ghClient.callbackUrl = System.getenv(ENV_OAUTH_CALLBACK_URL) ?: cfg?.callbackUrl
         ghClient.key = System.getenv(ENV_OAUTH_KEY) ?: cfg?.key
         ghClient.secret = System.getenv(ENV_OAUTH_SECRET) ?: cfg?.secret
+        ghClient
+    }
+
+    private static GitHubClient createGitHubClientInfo() {
+        def oauthCfg = BootHubWebApp.getClass().getResource("/$OAUTH_INFO_CFG")
+        ConfigObject cfg = oauthCfg ? new ConfigSlurper().parse(oauthCfg) : null
+
+        def ghClient = new GitHubClient()
+        ghClient.name = System.getenv(ENV_OAUTH_INFO_NAME) ?: cfg?.name ?: 'BootHub'
+        ghClient.scope = ''
+        ghClient.callbackUrl = System.getenv(ENV_OAUTH_INFO_CALLBACK_URL) ?: cfg?.callbackUrl
+        ghClient.key = System.getenv(ENV_OAUTH_INFO_KEY) ?: cfg?.key
+        ghClient.secret = System.getenv(ENV_OAUTH_INFO_SECRET) ?: cfg?.secret
         ghClient
     }
 

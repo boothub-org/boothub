@@ -1,5 +1,5 @@
 <template>
-  <div class="home" style="margin-left:10px;margin-right:10px;">
+  <div class="home left-margin-1 right-margin-1">
     <div v-show="page == 'init'">
       <p>&nbsp;</p>
       <p><b>Choose a template from the table below.</b></p>
@@ -45,7 +45,7 @@
                           because the program will no longer ask you to enter information about your account.
                         </td></tr>
                         <tr><td class="dialog-bottom">
-                          <el-button class="button" type="primary" @click="login" v-loading="busyLogin">Sign in and proceed</el-button>
+                          <el-button class="button" type="primary" @click="loginRepo" v-loading="busyLogin">Sign in and proceed</el-button>
                         </td></tr>
                       </table>
                     </td>
@@ -150,7 +150,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['loggedInUserId', 'selectedSkeleton', 'skeletonUrl', 'exec']),
+    ...mapState(['loggedInUserId', 'loggedInInfoOnly', 'selectedSkeleton', 'skeletonUrl', 'exec']),
     skeletonName: function() {
       return this.selectedSkeleton ? this.selectedSkeleton.name : this.skeletonUrl ? this.skeletonUrl : 'Unknown';
     },
@@ -229,9 +229,11 @@ export default {
       }
     },
 
-    login() {
+    loginRepo() {
       this.busyLogin = true;
-      window.location.href = '/auth/login/home?exec=true&skeletonUrl=' + encodeURIComponent(this.skeletonUrl);
+      axios.get('/app/auth/logout')
+          .catch(error => {this.busyLogin = false; this.$message.error('Failed to sign out');})
+          .then(response => window.location.href = '/app/auth/login/home?exec=true&skeletonUrl=' + encodeURIComponent(this.skeletonUrl))
     },
 
     initTextTerm() {
@@ -271,7 +273,7 @@ export default {
 
     getInitData(checkLoggedIn) {
       if(!this.skeletonUrl) return null;
-      if(checkLoggedIn && !this.loggedInUserId) {
+      if(checkLoggedIn && (!this.loggedInUserId || this.loggedInInfoOnly)) {
         this.signInDialogVisible = true;
         return null;
       }

@@ -23,6 +23,7 @@ const store = new Vuex.Store({
     loggedInDisplayName: null,
     loggedInPictureUrl: null,
     loggedInProfileUrl: null,
+    loggedInInfoOnly: true,
   },
   mutations: {
     setSelectedSkeleton (state, skeleton) {
@@ -45,6 +46,7 @@ const store = new Vuex.Store({
       state.loggedInDisplayName = stateObj.loggedInDisplayName
       state.loggedInPictureUrl = stateObj.loggedInPictureUrl
       state.loggedInProfileUrl = stateObj.loggedInProfileUrl
+      state.loggedInInfoOnly = stateObj.loggedInInfoOnly
     },
   }
 })

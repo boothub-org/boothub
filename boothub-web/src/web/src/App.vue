@@ -18,14 +18,16 @@
         <td style="vertical-align: middle; white-space: nowrap;"><div style="white-space: nowrap; width: 130px;"><gh-btns-star slug="boothub-org/boothub" show-count></gh-btns-star></div></td>
       <td><div style="width: 10px;">&nbsp;</div></td>
       <td align="right" style="vertical-align: middle; alignment: right; white-space: nowrap; width: 30%;">
-        <el-button type="primary" v-if="!loggedInUserId" @click="login" v-loading="busyLogin">Sign In with GitHub</el-button>
-        <img v-if="loggedInPictureUrl" :src="loggedInPictureUrl" style="height: 32px;"/>
+        <el-button type="primary" v-if="!loggedInUserId" @click="loginRepo" v-loading="busyLogin">Sign In with GitHub</el-button>
+        <img v-if="loggedInPictureUrl" :src="loggedInPictureUrl" style="height: 32px;" :class="usernameStyle"/>
         <el-dropdown v-if="loggedInUserId" @command="handleLoggedInCommand">
           <span class="el-dropdown-link" style="font-weight: bold;vertical-align: 10px;">
-            {{loggedInDisplayName || loggedInUserId}}<i class="el-icon-caret-bottom el-icon--right"></i>
+            <span :class="usernameStyle">{{loggedInDisplayName || loggedInUserId}}</span>
+            <i class="el-icon-caret-bottom el-icon--right"></i>
           </span>
           <el-dropdown-menu  class="el-dropdown-link" slot="dropdown">
             <el-dropdown-item command="logout" v-loading="busyLogout">Sign Out</el-dropdown-item>
+            <el-dropdown-item v-if="loggedInInfoOnly" command="loginRepo" v-loading="busyLogout">Repo Sign In</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </td>
@@ -54,38 +56,50 @@ export default {
       busyLogout: false,
     }
   },
-  computed: mapState(['loggedInUserId', 'loggedInDisplayName', 'loggedInPictureUrl', 'loggedInProfileUrl', 'skeletonUrl', 'exec']),
+  computed: {
+    ...mapState(['loggedInUserId', 'loggedInDisplayName', 'loggedInPictureUrl', 'loggedInProfileUrl', 'loggedInInfoOnly', 'skeletonUrl', 'exec']),
+    usernameStyle: function() {
+      return this.loggedInInfoOnly ? 'logged-info' : 'logged-repo';
+    },
+
+  },
   methods: {
-    login() {
+    loginRepo() {
       this.busyLogin = true;
-      var route = this.$router.history.current.name || 'home';
-      var loc = '/auth/login/' + route;
-      if(route === 'home') {
-        if(this.exec || this.skeletonUrl) {
-          var delim = '?';
-          if(this.exec) {
-            loc += delim + 'exec=' + this.exec;
-            delim = '&';
-          }
-          if(this.skeletonUrl) {
-            loc += delim + 'skeletonUrl=' + encodeURIComponent(this.skeletonUrl);
-          }
-        }
-      }
-      window.location.href = loc;
+      axios.get('/app/auth/logout')
+          .catch(error => {this.busyLogout = false; this.$message.error('Failed to sign out');})
+          .then(response => {
+            var route = this.$router.history.current.name || 'home';
+            var loc = '/app/auth/login/' + route;
+            if(route === 'home') {
+              if(this.exec || this.skeletonUrl) {
+                var delim = '?';
+                if(this.exec) {
+                  loc += delim + 'exec=' + this.exec;
+                  delim = '&';
+                }
+                if(this.skeletonUrl) {
+                  loc += delim + 'skeletonUrl=' + encodeURIComponent(this.skeletonUrl);
+                }
+              }
+            }
+            window.location.href = loc;
+            this.busyLogout = false;
+          });
     },
     handleLoggedInCommand(command) {
       switch(command) {
         case 'logout':
           this.busyLogout = true;
-          axios.get('/auth/logout')
+          axios.get('/app/auth/logout')
               //.then(response => this.$message(response.data)})
-              .catch(error => this.$message.error('Failed to sign out'))
+              .catch(error => {this.busyLogout = false; this.$message.error('Failed to sign out');})
               .then(response => {
                 this.updateState();
                 this.busyLogout = false;
               });
           break;
+        case 'loginRepo': this.loginRepo(); break;
         default: this.$message.error('Unknown command: ' + command);
       }
     },
