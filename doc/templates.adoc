@@ -326,10 +326,21 @@ licenseUrl: http://www.perlfoundation.org/attachment/legal/artistic-2_0.txt
 
 BootHub adds the properties configured in `license.yml` to the project context.
 
-BootHub configures the values specified in `license.yml` to the project context.
-
-
 BootHub reads the content of the `license.yml` file associated with the license type chosen by the user
 and adds each entry to the `ext` property of the project context.
 Therefore, you can include these values in any file processed by the <<template-processing,template engine>>
 by using the tags `{{ext.licenseName}}` and `{{ext.licenseUrl}}`.
+
+== Publishing your templates
+- create a zip file with the content of the `skeleton` directory.
+- put this zip file on a location that is directly accessible by http or https.
+- go to the https://boothub.org/app#/manager[Template Manager] tab of the web interface, enter the URL of your zipped template and click the `Add template` button.
+
+Example:
+
+The https://github.com/boothub-org/boothub-template-java-groovy[Java/Groovy template] is hosted on GitHub.
+A zip file of its https://github.com/boothub-org/boothub-template-java-groovy/tree/master/skeleton[skeleton directory] is attached to each
+https://github.com/boothub-org/boothub-template-java-groovy/releases[release], therefore it is directly accessible via http(s).
+
+The Java/Groovy template with version 1.0.0 has been published by entering the following URL in the https://boothub.org/app#/manager[Template Manager] tab of the web interface: +
+https://github.com/boothub-org/boothub-template-java-groovy/releases/download/v1.0.0/java-groovy-1.0.0.zip
