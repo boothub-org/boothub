@@ -110,9 +110,7 @@ class BootHubWebApp {
     private static final GitHubClient gitHubClientRepo = createGitHubClientRepo()
     private static final GitHubClient gitHubClientInfo = createGitHubClientInfo()
 
-    BootHubWebApp(RepoManager repoManager) {
-        this.repoManager = repoManager
-
+    BootHubWebApp() {
         String cfgFileName = System.getenv(ENV_APP_CFG) ?: DEFAULT_APP_CFG
         def cfgFile = new File(cfgFileName)
         ConfigObject cfg = null
@@ -133,6 +131,7 @@ class BootHubWebApp {
             if(cfg.zipFilesBasePath) withZipFilesBasePath(cfg.zipFilesBasePath)
             if(cfg.browserAutoStart) withBrowserAutoStart(cfg.browserAutoStart)
         }
+        this.repoManager = cfg?.repoManager ?: getDefaultRepoManager()
         log.info("""
             Starting BootHubWebApp with:
                 port = $port
@@ -653,13 +652,15 @@ class BootHubWebApp {
         ghClient
     }
 
-    static void main(String[] args) {
-        new BootHubWebApp(
-            new DBRepoManager(
+    private static RepoManager getDefaultRepoManager() {
+        new DBRepoManager(
                 new HerokuDBApi(),
                 new PGJobDAO(),
                 new DefaultRepoCache()
-            )
-        ).execute()
+        )
+    }
+
+    static void main(String[] args) {
+        new BootHubWebApp().execute()
     }
 }
