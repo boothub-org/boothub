@@ -35,6 +35,7 @@
 <li><a href="#mod-src-files">Module source files</a></li>
 <li><a href="#_usage_instructions">Usage instructions</a></li>
 <li><a href="#_license_files">License files</a></li>
+<li><a href="#_publishing_your_templates">Publishing your templates</a></li>
 </ul>
 </li>
 </ul>
@@ -728,13 +729,38 @@ licenseUrl: http://www.perlfoundation.org/attachment/legal/artistic-2_0.txt</cod
 <p>BootHub adds the properties configured in <code>license.yml</code> to the project context.</p>
 </div>
 <div class="paragraph">
-<p>BootHub configures the values specified in <code>license.yml</code> to the project context.</p>
-</div>
-<div class="paragraph">
 <p>BootHub reads the content of the <code>license.yml</code> file associated with the license type chosen by the user
 and adds each entry to the <code>ext</code> property of the project context.
 Therefore, you can include these values in any file processed by the <a href="#template-processing">template engine</a>
 by using the tags <code>{{ext.licenseName}}</code> and <code>{{ext.licenseUrl}}</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_publishing_your_templates">Publishing your templates</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>create a zip file with the content of the <code>skeleton</code> directory.</p>
+</li>
+<li>
+<p>put this zip file on a location that is directly accessible by http or https.</p>
+</li>
+<li>
+<p>go to the <a href="https://boothub.org/app#/manager">Template Manager</a> tab of the web interface, enter the URL of your zipped template and click the <code>Add template</code> button.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Example:</p>
+</div>
+<div class="paragraph">
+<p>The <a href="https://github.com/boothub-org/boothub-template-java-groovy">Java/Groovy template</a> is hosted on GitHub.
+A zip file of its <a href="https://github.com/boothub-org/boothub-template-java-groovy/tree/master/skeleton">skeleton directory</a> is attached to each
+<a href="https://github.com/boothub-org/boothub-template-java-groovy/releases">release</a>, therefore it is directly accessible via http(s).</p>
+</div>
+<div class="paragraph">
+<p>The Java/Groovy template with version 1.0.0 has been published by entering the following URL in the <a href="https://boothub.org/app#/manager">Template Manager</a> tab of the web interface:<br>
+<a href="https://github.com/boothub-org/boothub-template-java-groovy/releases/download/v1.0.0/java-groovy-1.0.0.zip" class="bare">https://github.com/boothub-org/boothub-template-java-groovy/releases/download/v1.0.0/java-groovy-1.0.0.zip</a></p>
 </div>
 </div>
 </div>
