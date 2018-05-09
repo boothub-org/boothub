@@ -2,4 +2,9 @@
   <Match>
       <Rank value="16" />
   </Match>
+
+    <Match>
+        <Class name="org.boothub.repo.table.RepoTable$DefaultTable"/>
+    </Match>
+
 </FindBugsFilter>

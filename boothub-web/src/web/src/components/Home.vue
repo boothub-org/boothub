@@ -8,7 +8,7 @@
           <el-table
               ref="skeletonTable"
               :data="skeletons"
-              v-loading="skeletons.length === 0"
+              v-loading="!skeletonsLoaded"
               element-loading-text="Loading project templates..."
               highlight-current-row
               @current-change="setSelectedRow"
@@ -138,6 +138,7 @@ export default {
   data () {
     return {
       skeletons: [],
+      skeletonsLoaded: false,
       textTerm: null,
       page: 'init',
       signInDialogVisible: false,
@@ -213,11 +214,12 @@ export default {
           .then(response => {
               this.handleResult(response.data)
               this.skeletons = _.flatMap(_.toArray(response.data.value), item => _.toArray(item.entries));
+              this.skeletonsLoaded = true
               console.log('Successfully loaded ' + this.skeletons.length + ' templates.');
             }
           )
           .then(response => this.selectSkeletonUrl(this.skeletonUrl))
-          .catch(error => {console.log('Error loading templates: ' + error); this.skeletons = [];});
+          .catch(error => {console.log('Error loading templates: ' + error); this.skeletons = []; this.skeletonsLoaded = true; });
     },
 
     handleResult(result) {

@@ -29,12 +29,9 @@ import org.boothub.GitHubUtil
 import org.boothub.Result
 import org.boothub.Result.Type
 import org.boothub.Version
-import org.boothub.repo.DBRepoManager
-import org.boothub.repo.DefaultRepoCache
+import org.boothub.repo.HSQLDBRepoManager
 import org.boothub.repo.RepoManager
 import org.boothub.repo.SkeletonSearchOptions
-import org.boothub.repo.heroku.HerokuDBApi
-import org.boothub.repo.postgresql.PGJobDAO
 import org.kohsuke.github.GitHub
 import org.pac4j.core.profile.UserProfile
 import org.pac4j.oauth.client.GitHubClient
@@ -131,7 +128,7 @@ class BootHubWebApp {
             if(cfg.zipFilesBasePath) withZipFilesBasePath(cfg.zipFilesBasePath)
             if(cfg.browserAutoStart) withBrowserAutoStart(cfg.browserAutoStart)
         }
-        this.repoManager = cfg?.repoManager ?: getDefaultRepoManager()
+        this.repoManager = cfg?.repoManager ?: new HSQLDBRepoManager.Builder().create()
         log.info("""
             Starting BootHubWebApp with:
                 port = $port
@@ -632,7 +629,7 @@ class BootHubWebApp {
 
         def ghClient = new GitHubClient()
         ghClient.name = System.getenv(ENV_OAUTH_NAME) ?: cfg?.name ?: 'BootHub'
-        ghClient.scope = System.getenv(ENV_OAUTH_SCOPE) ?: cfg?.scope ?: 'public_repo'
+        ghClient.scope = System.getenv(ENV_OAUTH_SCOPE) ?: cfg?.scope ?: 'public_repo read:org'
         ghClient.callbackUrl = System.getenv(ENV_OAUTH_CALLBACK_URL) ?: cfg?.callbackUrl
         ghClient.key = System.getenv(ENV_OAUTH_KEY) ?: cfg?.key
         ghClient.secret = System.getenv(ENV_OAUTH_SECRET) ?: cfg?.secret
@@ -650,14 +647,6 @@ class BootHubWebApp {
         ghClient.key = System.getenv(ENV_OAUTH_INFO_KEY) ?: cfg?.key
         ghClient.secret = System.getenv(ENV_OAUTH_INFO_SECRET) ?: cfg?.secret
         ghClient
-    }
-
-    private static RepoManager getDefaultRepoManager() {
-        new DBRepoManager(
-                new HerokuDBApi(),
-                new PGJobDAO(),
-                new DefaultRepoCache()
-        )
     }
 
     static void main(String[] args) {

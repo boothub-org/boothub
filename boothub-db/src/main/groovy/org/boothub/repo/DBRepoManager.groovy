@@ -17,137 +17,113 @@ package org.boothub.repo
 
 import groovy.util.logging.Slf4j
 import org.boothub.Result
-import org.boothub.Util
-import org.codehaus.groovy.runtime.IOGroovyMethods
-
-import java.nio.file.Files
-import java.sql.Connection
+import org.jooq.DSLContext
 
 import static org.boothub.Result.Type.ERROR
 import static org.boothub.Result.Type.SUCCESS
 
 @Slf4j
 class DBRepoManager extends DBSkeletonRepo implements RepoManager {
-    DBRepoManager(DBApi dbApi, DBJobDAO dbJobDAO, RepoCache repoCache) {
-        super(dbApi, dbJobDAO, repoCache)
+    DBRepoManager(DSLContext dsl, RepoCache repoCache) {
+        super(dsl, repoCache)
     }
 
     @Override
-    Result<RepoEntry> addSkeleton(String url, String userId) {
-        if(!userId) return new Result(type: ERROR, message: "userId not set")
+    Result addEntry(RepoEntry repoEntry, String userId) {
         try {
-            def path = Files.createTempFile("boothub-", ".zip")
-            def file = path.toFile()
-            IOGroovyMethods.withCloseable(dbApi.createConnection() as Closeable) { closeable ->
-                def connection = closeable as Connection
-                connection.setAutoCommit(false)
-                try {
-                    Util.downloadFile(url, path)
-                    RepoEntry repoEntry = RepoEntry.fromZipFile(file)
-                    def skeletonId = repoEntry.id
-                    def version = repoEntry.version.toString()
+            def skeletonId = repoEntry.id
+            def version = repoEntry.version.toString()
 
-                    def ownersResult = getOwners(skeletonId)
-                    if(!ownersResult.successful) return new Result(type: ownersResult.type, message: ownersResult.message, value: repoEntry)
-                    def owners = ownersResult.value
-                    if (owners && !(userId in owners)) return new Result(type: ERROR, message: "$userId is not an owner of $skeletonId", value: repoEntry)
-                    def newestEntryResult = getNewestEntry(skeletonId)
-                    if(!newestEntryResult.successful) return new Result(type: newestEntryResult.type, message: newestEntryResult.message, value: repoEntry)
-                    def newestEntry = newestEntryResult.value
-                    if (!newestEntry || newestEntry.version < repoEntry.version) {
-                        dbApi.dbExecute(dbJobDAO.addOrReplaceSkeleton(skeletonId, repoEntry.name, repoEntry.caption))
-                    }
-                    if (!newestEntry) {
-                        def addResult = addOwner(skeletonId, userId)
-                        if(!addResult.successful) return new Result(type: addResult.type, message: addResult.message, value: repoEntry)
-                    }
-                    dbApi.dbExecute(dbJobDAO.addOrReplaceEntry(skeletonId, version, url, repoEntry.size, repoEntry.sha))
-                    repoEntry.tags.each {tag -> dbApi.dbExecute(dbJobDAO.addTag(skeletonId, tag))}
-                    connection.commit()
-                    return new Result(type: SUCCESS, value: repoEntry)
-                } catch(Exception e) {
-                    connection.rollback()
-                    throw e
-                } finally {
-                    file.delete()
-                }
+            def ownersResult = getOwners(skeletonId)
+            if (!ownersResult.successful) return new Result(type: ownersResult.type, message: ownersResult.message, value: repoEntry)
+            def owners = ownersResult.value
+            if (owners && !(userId in owners)) return new Result(type: ERROR, message: "$userId is not an owner of $skeletonId", value: repoEntry)
+            def newestEntryResult = getNewestEntry(skeletonId)
+            if (!newestEntryResult.successful) return new Result(type: newestEntryResult.type, message: newestEntryResult.message, value: repoEntry)
+            def newestEntry = newestEntryResult.value
+            if (!newestEntry || newestEntry.version < repoEntry.version) {
+                skeletonTable.addOrReplace(skeletonId, repoEntry.name, repoEntry.caption)
             }
+            if (!newestEntry) {
+                def addResult = addOwner(skeletonId, userId)
+                if (!addResult.successful) return new Result(type: addResult.type, message: addResult.message, value: repoEntry)
+            }
+            entryTable.addOrReplace(skeletonId, version, repoEntry.url, repoEntry.size, repoEntry.sha)
+            repoEntry.tags.each { tag -> tagTable.add(skeletonId, tag) }
         } catch (Exception e) {
-            def errMsg = "Failed to add skeleton from url '$url'"
-            log.error(errMsg, e)
-            return new Result(type: ERROR, message: errMsg)
+            log.error("Failed to insert $repoEntry.id", e)
+            return new Result(type: ERROR, message: e.message, value: repoEntry)
         }
+        return new Result(type: SUCCESS, value: repoEntry)
     }
 
     @Override
     Result<Integer> deleteSkeleton(String skeletonId) {
         Result.onFailure("Cannot delete skeleton $skeletonId") {
-            dbApi.dbExecute(dbJobDAO.deleteSkeleton(skeletonId))
+            skeletonTable.delete(skeletonId)
         }
     }
 
     @Override
     Result<Integer> deleteEntry(String skeletonId, String version) {
         Result.onFailure("Cannot delete skeleton $skeletonId version $version") {
-            dbApi.dbExecute(dbJobDAO.deleteEntry(skeletonId, version))
+            entryTable.delete(skeletonId, version)
         }
     }
 
     @Override
     Result<Integer> incrementUsageCounter(String skeletonId, String version) {
         Result.onFailure("Cannot increment the usage counter of skeleton $skeletonId version $version") {
-            dbApi.dbExecute(dbJobDAO.incrementUsageCounter(skeletonId, version))
+            entryTable.incrementUsageCounter(skeletonId, version)
         }
     }
 
     @Override
     Result<Integer> addRating(String skeletonId, String version, long rating) {
         Result.onFailure("Cannot add rating $rating to skeleton $skeletonId version $version") {
-            dbApi.dbExecute(dbJobDAO.addRating(skeletonId, version, rating))
+            entryTable.addRating(skeletonId, version, rating)
         }
     }
 
     @Override
     Result<Integer> addOwner(String skeletonId, String ownerId) {
         Result.onFailure("Cannot add owner $ownerId to skeleton $skeletonId") {
-            dbApi.dbExecute(dbJobDAO.addOwner(skeletonId, ownerId))
+            ownerTable.add(skeletonId, ownerId)
         }
     }
 
     @Override
     Result<Integer> deleteOwner(String skeletonId, String ownerId) {
         Result.onFailure("Cannot delete owner $ownerId of skeleton $skeletonId") {
-            dbApi.dbExecute(dbJobDAO.deleteOwner(skeletonId, ownerId))
+            ownerTable.delete(skeletonId, ownerId)
         }
     }
 
     @Override
     Result<List<String>> getOwners(String skeletonId) {
         Result.onFailure("Cannot retrieve the owners of skeleton $skeletonId") {
-            def rs = dbApi.dbExecute(dbJobDAO.getOwnerIds(skeletonId))
-            dbJobDAO.getStrings(rs)
+            ownerTable.getOwnerIds(skeletonId)
         }
     }
 
     @Override
     Result<Integer> addTag(String skeletonId, String tag) {
         Result.onFailure("Cannot add tag $tag to skeleton $skeletonId") {
-            dbApi.dbExecute(dbJobDAO.addTag(skeletonId, tag))
+            tagTable.add(skeletonId, tag)
         }
     }
 
     @Override
     Result<Integer> deleteTag(String skeletonId, String tag) {
         Result.onFailure("Cannot delete tag $tag of skeleton $skeletonId") {
-            dbApi.dbExecute(dbJobDAO.deleteTag(skeletonId, tag))
+            tagTable.delete(skeletonId, tag)
         }
     }
 
     @Override
     Result<List<String>> getTags(String skeletonId) {
         Result.onFailure("Cannot retrieve the tags of skeleton $skeletonId") {
-            def rs = dbApi.dbExecute(dbJobDAO.getTags(skeletonId))
-            dbJobDAO.getStrings(rs)
+            tagTable.getTags(skeletonId)
         }
     }
 }

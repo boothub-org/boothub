@@ -15,13 +15,41 @@
  */
 package org.boothub.repo
 
+import groovy.util.logging.Slf4j
 import org.boothub.Result
+import org.boothub.Util
 import org.boothub.Version
 
+import java.nio.file.Files
+
+import static org.boothub.Result.Type.ERROR
+
+@Slf4j
 abstract trait RepoManager implements SkeletonRepo {
     abstract RepoCache getRepoCache()
 
-    abstract Result<RepoEntry> addSkeleton(String url, String userId)
+    abstract Result addEntry(RepoEntry repoEntry, String userId)
+    Result<RepoEntry> addSkeleton(String url, String userId) {
+        if(!userId) return new Result(type: ERROR, message: "userId not set")
+        try {
+            def path = Files.createTempFile("boothub-", ".zip")
+            def file = path.toFile()
+            try {
+                Util.downloadFile(url, path)
+                RepoEntry repoEntry = RepoEntry.fromZipFile(file)
+                repoEntry.url = url
+                return addEntry(repoEntry, userId)
+            } finally {
+                file.delete()
+            }
+        } catch(Exception e) {
+            def errMsg = "Failed to add skeleton from url '$url'"
+            log.error(errMsg, e)
+            return new Result(type: ERROR, message: errMsg)
+        }
+    }
+
+
     abstract Result<Integer> deleteSkeleton(String skeletonId)
 
     abstract Result<Integer> deleteEntry(String skeletonId, String version)

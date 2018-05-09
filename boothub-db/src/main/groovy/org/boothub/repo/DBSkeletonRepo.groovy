@@ -17,33 +17,51 @@ package org.boothub.repo
 
 import groovy.util.logging.Slf4j
 import org.boothub.Result
+import org.boothub.Version
+import org.boothub.repo.table.EntryTable
+import org.boothub.repo.table.OwnerTable
+import org.boothub.repo.table.SkeletonTable
+import org.boothub.repo.table.TagTable
+import org.jooq.DSLContext
+import org.jooq.impl.TrueCondition
 
 import static org.boothub.Result.Type.ERROR
 import static org.boothub.Result.Type.SUCCESS
+import static org.jooq.impl.DSL.exists
+import static org.jooq.impl.DSL.selectOne
 
 @Slf4j
 class DBSkeletonRepo implements SkeletonRepo {
-    final DBApi dbApi
-    final DBJobDAO dbJobDAO
+    final DSLContext dsl
     final RepoCache repoCache
 
-    DBSkeletonRepo(DBApi dbApi, DBJobDAO dbJobDAO, RepoCache repoCache) {
-        this.dbApi = dbApi
-        this.dbJobDAO = dbJobDAO
+    final SkeletonTable skeletonTable
+    final EntryTable entryTable
+    final OwnerTable ownerTable
+    final TagTable tagTable
+
+    DBSkeletonRepo(DSLContext dsl, RepoCache repoCache) {
+        this.dsl = dsl
         this.repoCache = repoCache
+
+        this.skeletonTable = new SkeletonTable(dsl)
+        this.entryTable = new EntryTable(dsl)
+        this.ownerTable = new OwnerTable(dsl)
+        this.tagTable = new TagTable(dsl)
+
         initDB()
     }
 
     private final void initDB() {
-        dbApi.dbExecuteAll(dbJobDAO.initTables())
+        [skeletonTable, entryTable, ownerTable, tagTable].each {it.createIfNotExists()}
     }
 
     Result<Map<String, SkeletonGroup>> getSkeletons(SkeletonSearchOptions options) {
         Map<String, SkeletonGroup> skeletons = [:]
 
         try {
-            def rs = dbApi.dbExecute(dbJobDAO.getSkeletons(skeletonId: options.skeletonId, ownerId: options.ownerId, version: options.version))
-            dbJobDAO.getRepoEntries(rs).each { repoEntry ->
+            def entries = getSkeletons(skeletonId: options.skeletonId, ownerId: options.ownerId, version: options.version)
+            entries.each { repoEntry ->
                 def group = skeletons.computeIfAbsent(repoEntry.id, {id -> new SkeletonGroup()})
                 group.addRepoEntry(repoEntry)
             }
@@ -69,7 +87,7 @@ class DBSkeletonRepo implements SkeletonRepo {
                             }
                             return false
                         } catch (Exception e) {
-                            log.error("Cannot retrieve skeleton", e)
+                            log.error("Cannot retrieve skeleton $repoEntry.id", e)
                             if(options.includeInvalidEntries) {
                                 entry.value.validationError = e.getMessage()
                                 return false
@@ -83,7 +101,47 @@ class DBSkeletonRepo implements SkeletonRepo {
             def sortedSkeletons = skeletons.sort{a, b -> a.value.name <=> b.value.name}
             new Result(type: SUCCESS, value: sortedSkeletons)
         } catch (Exception e) {
+            log.error("getSkeletons($options) failed", e)
             new Result(type: ERROR, message: "Cannot retrieve skeletons", value: skeletons)
         }
+    }
+    List<RepoEntry> getSkeletons(Map filterOptions = [:]) {
+        getSkeletonsResult(filterOptions).map{ r ->
+            RepoEntry entry = new RepoEntry()
+            entry.id = r.getValue(SkeletonTable.COL_SKELETON_ID)
+            entry.name = r.getValue(SkeletonTable.COL_NAME)
+            entry.caption = r.getValue(SkeletonTable.COL_CAPTION)
+            entry.version = Version.fromString(r.getValue(EntryTable.COL_VERSION))
+            entry.url = r.getValue(EntryTable.COL_URL)
+            entry.size = r.getValue(EntryTable.COL_SIZE)
+            entry.sha = r.getValue(EntryTable.COL_SHA)
+            entry
+        }
+    }
+
+    private org.jooq.Result getSkeletonsResult(Map filterOptions = [:]) {
+        def query = dsl.select(SkeletonTable.COL_SKELETON_ID, SkeletonTable.COL_NAME, SkeletonTable.COL_CAPTION,
+                EntryTable.COL_VERSION, EntryTable.COL_URL, EntryTable.COL_SIZE, EntryTable.COL_SHA)
+                .from(SkeletonTable.TA_SKELETON)
+                .join(EntryTable.TA_ENTRY)
+                .on(SkeletonTable.COL_SKELETON_ID.equal(EntryTable.COL_SKELETON_ID))
+                .where(TrueCondition.INSTANCE)
+
+        if(filterOptions.skeletonId) {
+            query = query.and(SkeletonTable.COL_SKELETON_ID.equal(filterOptions.skeletonId))
+        }
+        if(filterOptions.ownerId) {
+            query = query.and(exists(selectOne()
+                    .from(OwnerTable.TA_OWNER)
+                    .where(OwnerTable.COL_SKELETON_ID.equal(SkeletonTable.COL_SKELETON_ID))
+                    .and(OwnerTable.COL_OWNER.equal(filterOptions.ownerId))
+            ))
+        }
+        if(filterOptions.version) {
+            query = query.and(EntryTable.COL_VERSION.equal(filterOptions.version))
+        }
+        def result = query.fetch()
+        println "result:\n$result"
+        result
     }
 }

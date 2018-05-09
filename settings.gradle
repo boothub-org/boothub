@@ -5,8 +5,6 @@ String[] modules = [
     'boothub-gradle-test',
     'boothub-web',
     'boothub-db',
-    'boothub-postgres',
-    'boothub-heroku',
 ]
 
 include modules
