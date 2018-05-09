@@ -75,6 +75,7 @@ class HSQLDBRepoManager extends DBRepoManager {
         }
 
         HSQLDBRepoManager create() {
+            Class.forName('org.hsqldb.jdbc.JDBCDriver').getConstructor().newInstance()
             Server server = null
             if(serverStart) {
                 server = startServer()

@@ -47,6 +47,12 @@ project.version.with {
 ext.boothubVersion = project.version as String
 ext.boothubTag = Boolean.valueOf(boothubReleaseBuild) ? "v$ext.boothubVersion" : 'master'
 
+if(!hasProperty('dbDialect')) {
+    ext.dbDialect = 'HSQLDB'
+}
+ext.dbDialect = System.getenv("BOOTHUB_DB_DIALECT") ?: ext.dbDialect
+println "using dbDialect: $dbDialect"
+
 repositories {
     jcenter()
     mavenCentral()
@@ -197,9 +203,9 @@ subprojects {
 
     task "create-dirs" {
         doLast {
-          sourceSets*.java.srcDirs*.each { it.mkdirs() }
-          sourceSets*.groovy.srcDirs*.each { it.mkdirs() }
-          sourceSets*.resources.srcDirs*.each { it.mkdirs() }
+            sourceSets*.java.srcDirs*.each { it.mkdirs() }
+            sourceSets*.groovy.srcDirs*.each { it.mkdirs() }
+            sourceSets*.resources.srcDirs*.each { it.mkdirs() }
         }
     }
 
@@ -226,14 +232,14 @@ asciidoctor {
     sources {include 'index.adoc'}
     logDocuments = true
     attributes 'source-highlighter': 'coderay',
-               'coderay-linenums-mode': 'table',
-               icons: 'font',
-               imagesdir: 'img',
-               'data-uri': '',
-               linkattrs: true,
-               linkcss: true,
-               'git-tag': boothubTag,
-               'blob-root': "https://github.com/boothub-org/boothub/blob/$boothubTag"
+            'coderay-linenums-mode': 'table',
+            icons: 'font',
+            imagesdir: 'img',
+            'data-uri': '',
+            linkattrs: true,
+            linkcss: true,
+            'git-tag': boothubTag,
+            'blob-root': "https://github.com/boothub-org/boothub/blob/$boothubTag"
 }
 
 gitPublish {
@@ -345,9 +351,11 @@ project('boothub-db') {
         compile(project(':boothub-core'))
         compile 'org.jooq:jooq:3.10.6'
         compile 'org.hsqldb:hsqldb:2.4.0'
-        runtime 'org.postgresql:postgresql:42.1.4'
-//        runtime 'org.mariadb.jdbc:mariadb-java-client:2.2.3'
-//        runtime 'mysql:mysql-connector-java:8.0.11'
+        switch(dbDialect) {
+            case 'POSTGRES': runtime 'org.postgresql:postgresql:42.1.4'; break
+            case 'MARIADB': runtime 'org.mariadb.jdbc:mariadb-java-client:2.2.3'; break
+            case 'MYSQL': runtime 'mysql:mysql-connector-java:8.0.11'; break
+        }
     }
 }
 
@@ -539,13 +547,13 @@ bintray {
         vcsUrl = 'https://github.com/boothub/boothub.git'
 
         version {
-                name = boothubVersion
-                desc = "BootHub $boothubVersion"
-                released  = new Date().format("yyyy-MM-dd'T'HH:mm:ss.SSSZZ")
-                vcsTag = boothubVersion
-                gpg {
-                    sign = true
-                }
+            name = boothubVersion
+            desc = "BootHub $boothubVersion"
+            released  = new Date().format("yyyy-MM-dd'T'HH:mm:ss.SSSZZ")
+            vcsTag = boothubVersion
+            gpg {
+                sign = true
+            }
         }
     }
 }

@@ -47,6 +47,7 @@ class HerokuPostgresDBRepoManager extends DBRepoManager {
         }
 
         HerokuPostgresDBRepoManager create() {
+            Class.forName('org.postgresql.Driver').getConstructor().newInstance()
             if(!herokuDbUrl) throw new IllegalStateException("Missing environment variable 'DATABASE_URL'")
             def dbUri = new URI(herokuDbUrl)
             def userTokens = dbUri.getUserInfo().split(':')
