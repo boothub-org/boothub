@@ -47,12 +47,6 @@ project.version.with {
 ext.boothubVersion = project.version as String
 ext.boothubTag = Boolean.valueOf(boothubReleaseBuild) ? "v$ext.boothubVersion" : 'master'
 
-if(!hasProperty('dbDialect')) {
-    ext.dbDialect = 'HSQLDB'
-}
-ext.dbDialect = System.getenv("BOOTHUB_DB_DIALECT") ?: ext.dbDialect
-println "using dbDialect: $dbDialect"
-
 repositories {
     jcenter()
     mavenCentral()
@@ -351,11 +345,7 @@ project('boothub-db') {
         compile(project(':boothub-core'))
         compile 'org.jooq:jooq:3.10.6'
         compile 'org.hsqldb:hsqldb:2.4.0'
-        switch(dbDialect) {
-            case 'POSTGRES': runtime 'org.postgresql:postgresql:42.1.4'; break
-            case 'MARIADB': runtime 'org.mariadb.jdbc:mariadb-java-client:2.2.3'; break
-            case 'MYSQL': runtime 'mysql:mysql-connector-java:8.0.11'; break
-        }
+        runtime 'org.postgresql:postgresql:42.1.4'
     }
 }
 

@@ -18,10 +18,10 @@ package org.boothub.repo
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 
-class HerokuPostgresDBRepoManager extends DBRepoManager {
+class HerokuPostgresRepoManager extends DBRepoManager {
     final boolean local
 
-    private HerokuPostgresDBRepoManager(DSLContext dsl, RepoCache repoCache, boolean local) {
+    private HerokuPostgresRepoManager(DSLContext dsl, RepoCache repoCache, boolean local) {
         super(dsl, repoCache)
         this.local = local
     }
@@ -46,7 +46,7 @@ class HerokuPostgresDBRepoManager extends DBRepoManager {
             this
         }
 
-        HerokuPostgresDBRepoManager create() {
+        HerokuPostgresRepoManager create() {
             Class.forName('org.postgresql.Driver').getConstructor().newInstance()
             if(!herokuDbUrl) throw new IllegalStateException("Missing environment variable 'DATABASE_URL'")
             def dbUri = new URI(herokuDbUrl)
@@ -58,7 +58,7 @@ class HerokuPostgresDBRepoManager extends DBRepoManager {
                 dbUrl += '?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory'
             }
             def dsl = DSL.using(dbUrl, username, password)
-            new HerokuPostgresDBRepoManager(dsl, repoCache ?: new DefaultRepoCache(), local)
+            new HerokuPostgresRepoManager(dsl, repoCache ?: new DefaultRepoCache(), local)
         }
     }
 }
