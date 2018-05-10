@@ -641,7 +641,7 @@ class BootHubWebApp {
         ConfigObject cfg = oauthCfg ? new ConfigSlurper().parse(oauthCfg) : null
 
         def ghClient = new GitHubClient()
-        ghClient.name = System.getenv(ENV_OAUTH_INFO_NAME) ?: cfg?.name ?: 'BootHub'
+        ghClient.name = System.getenv(ENV_OAUTH_INFO_NAME) ?: cfg?.name ?: 'BootHubInfo'
         ghClient.scope = ''
         ghClient.callbackUrl = System.getenv(ENV_OAUTH_INFO_CALLBACK_URL) ?: cfg?.callbackUrl
         ghClient.key = System.getenv(ENV_OAUTH_INFO_KEY) ?: cfg?.key
