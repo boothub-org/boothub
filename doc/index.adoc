@@ -21,4 +21,6 @@ include::dev_guide.adoc[]
 
 include::templates.adoc[]
 
+include::on_premises.adoc[]
+
 :leveloffset: -1

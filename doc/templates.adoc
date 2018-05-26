@@ -331,6 +331,7 @@ and adds each entry to the `ext` property of the project context.
 Therefore, you can include these values in any file processed by the <<template-processing,template engine>>
 by using the tags `{{ext.licenseName}}` and `{{ext.licenseUrl}}`.
 
+[[template_publishing]]
 == Publishing your templates
 - create a zip file with the content of the `skeleton` directory.
 - put this zip file on a location that is directly accessible by http or https.

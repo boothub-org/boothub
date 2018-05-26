@@ -1,0 +1,167 @@
+
+= Installing BootHub on-premises
+
+Some of the reasons to install your own BootHub web server are:
+
+- you want to use your own template repository, which may include proprietary / closed-source templates.
+- you want to be able to generate project skeletons on your private GitHub organizations.
+- you are behind a firewall and cannot use the standard BootHub web interface.
+
+== Installing the binaries
+
+From the https://github.com/boothub-org/boothub/releases[releases page] download the https://github.com/boothub-org/boothub/releases/download/v{project-version}/boothub-web-{project-version}.zip[boothub-web-{project-version}.zip] file and unpack it into a directory of your choice.
+
+Before starting the server, you need to setup the GitHub authentication and to configure your BootHub server.
+
+
+== OAuth configuration
+
+In BootHub there are two actions that require authentication:
+
+- generating a project skeleton on GitHub:
+this requires read/write access to your repositories and organizations.
+We denote this scenario as _repo authentication_.
+
+- managing templates: in this case, BootHub only needs to check your GitHub identity.
+You don't grant any access to your repositories or organizations.
+We denote this scenario as _info authentication_.
+
+For each of the two use cases you need to create an https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/[OAuth App] on GitHub.
+Sample values for the properties of your OAuth apps are given in the table below:
+
+[cols="4,4,4"]
+|===
+1.2+.^s| OAuth property 2+^s| Sample value
+s| Repo authentication s| Info authentication
+|Application name |MyBootHub | MyBootHubInfo
+|Homepage URL |http://myboothub.example.org |http://myboothub.example.org
+|Application description |Skeleton generation |Template management
+|Authorization callback URL | http://localhost:8080/app/callback | http://localhost:8080/info/callback
+|===
+
+After creating an OAuth app, GitHub displays the generated _Client ID_  and _Client Secret_:
+
+[subs=+quotes]
+----
+*Client ID*
+1a2b3c4d5e6f1a2b3c4d
+
+*Client Secret*
+1a2b3c4d5e6f1a2b3c4d5e6f1a2b3c4d5e6f1a2b
+----
+
+The BootHub server needs to know the details of your OAuth apps.
+You can provide this information via configuration files and/or environment variables.
+Environment variables take precedence over properties specified in configuration files.
+
+=== Repo OAuth configuration
+
+If a file called `boothub-oauth.cfg` exists in the current directory, BootHub reads its content
+(you can use link:{blob-root}/boothub-web/src/main/resources/boothub-oauth.template.cfg[boothub-oauth.template.cfg] as template).
+The table below shows the available configuration properties and their corresponding environment variables:
+
+[cols="4,4,4,5",options="header"]
+|===
+|Property |Environment variable | Sample value| Description
+|name | BOOTHUB_OAUTH_NAME | MyBootHub | The application name of your Repo-OAuth app.
+|scope | BOOTHUB_OAUTH_SCOPE | public_repo read:org | One or more https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/#available-scopes[OAuth scopes] separated by blanks.
+|callbackUrl | BOOTHUB_OAUTH_CALLBACK_URL | http://localhost:8080/app/callback | The callback URL of your Repo-OAuth app.
+|key | BOOTHUB_OAUTH_KEY | 1a2b3c4d5e6f1a2b3c4d | The client ID you received from GitHub for your Repo-OAuth app.
+|secret | BOOTHUB_OAUTH_SECRET | 1a2b3c4d5e6f1a2b3c4d5e6f1a2b3c4d5e6f1a2b | The client secret you received from GitHub for your Repo-OAuth app.
+|===
+
+=== Info OAuth configuration
+
+If a file called `boothub-info-oauth.cfg` exists in the current directory, BootHub reads its content
+(you can use link:{blob-root}/boothub-web/src/main/resources/boothub-info-oauth.template.cfg[boothub-info-oauth.template.cfg] as template).
+The table below shows the available configuration properties and their corresponding environment variables:
+
+[cols="4,4,4,5",options="header"]
+|===
+|Property |Environment variable | Sample value| Description
+|name | BOOTHUB_OAUTH_INFO_NAME | MyBootHubInfo | The application name of your Info-OAuth app.
+|callbackUrl | BOOTHUB_OAUTH_INFO_CALLBACK_URL | http://localhost:8080/info/callback | The callback URL of your Info-OAuth app.
+|key | BOOTHUB_OAUTH_INFO_KEY | 1a2b3c4d5e6f1a2b3c4d | The client ID you received from GitHub for your Info-OAuth app.
+|secret | BOOTHUB_OAUTH_INFO_SECRET | 1a2b3c4d5e6f1a2b3c4d5e6f1a2b3c4d5e6f1a2b | The client secret you received from GitHub for your Info-OAuth app.
+|===
+
+
+
+
+== Server configuration
+
+The BootHub server supports configuration files defined in the form of Groovy scripts
+accepted by a http://docs.groovy-lang.org/docs/latest/html/documentation/#_configslurper[ConfigSlurper].
+
+The following steps are performed in order to read the configuration:
+
+- if the environment variable `BOOTHUB_WEB_APP_CFG` is set, then its value is taken to be the configuration location.
+- otherwise, the configuration location takes the default value `boothub-web-app.cfg`.
+- if a file exists on the file system at the configuration location, its content is read.
+- otherwise, if a Java resource is available at the configuration location, its content is read.
+- otherwise, BootHub uses default values for all properties.
+
+The table below shows the properties you can provide in a configuration file:
+
+[cols="4,4,4,16",options="header"]
+|===
+|Property |Type | Default value | Description
+|port |int | 8080| The HTTP(S) port on which the server runs.
+|outputDirBasePath |String | the value of the `java.io.tmpdir` system property | the base directory used for generating skeleton files.
+|zipFilesBasePath |String | the value of the `java.io.tmpdir` system property | the base directory used for generating zipped skeletons.
+|browserAutoStart |boolean | false | if true, the main application page will be automatically opened in a browser after the server started.
+
+|repoManager
+|link:{blob-root}/boothub-core/src/main/groovy/org/boothub/repo/RepoManager.groovy[RepoManager]
+|link:{blob-root}/boothub-core/src/main/groovy/org/boothub/repo/HSQLDBRepoManager.groovy[HSQLDBRepoManager]
+|the repository manager (see details below).
+|===
+
+
+=== The repository manager
+
+Your server uses its own template repository, which is usually backed by a database.
+In order to access this template repository, a repository manager is needed.
+BootHub offers a few implementations of link:{blob-root}/boothub-core/src/main/groovy/org/boothub/repo/RepoManager.groovy[RepoManager],
+which are shown in the table below.
+You can also write your own implementation, if none of the existing ones meet your needs.
+
+
+
+[cols="4,4,16",options="header"]
+|===
+|Class | Sample configuration| Comments
+|link:{blob-root}/boothub-db/src/main/groovy/org/boothub/repo/HSQLDBRepoManager.groovy[HSQLDBRepoManager]
+|link:{blob-root}/boothub-web/src/main/resources/boothub-web-app.hsqldb.cfg[boothub-web-app.hsqldb.cfg]
+|Manages a HSQLDB template repository. +
+Typically used when running a single-user BootHub server.
+
+|link:{blob-root}/boothub-db/src/main/groovy/org/boothub/repo/PostgresRepoManager.groovy[PostgresRepoManager]
+|link:{blob-root}/boothub-web/src/main/resources/boothub-web-app.postgres.cfg[boothub-web-app.postgres.cfg]
+|Manages a PostgreSQL template repository. +
+Best suited when the BootHub server is used by a group of developers.
+
+|link:{blob-root}/boothub-db/src/main/groovy/org/boothub/repo/HerokuPostgresRepoManager.groovy[HerokuPostgresRepoManager]
+|link:{blob-root}/boothub-web/src/main/resources/boothub-web-app.heroku.cfg[boothub-web-app.heroku.cfg]
+|Manages a PostgreSQL template repository on Heroku. +
+Used when the BootHub server is hosted on Heroku and uses the Postgres add-on.
+
+|link:{blob-root}/boothub-core/src/main/groovy/org/boothub/repo/ReadOnlyJsonRepoManager.groovy[ReadOnlyJsonRepoManager]
+|link:{blob-root}/boothub-web/src/main/resources/boothub-web-app.json.cfg[boothub-web-app.json.cfg]
+|Can read BootHub templates from a JSON template repository but cannot perform any changes on it
+(all operations under the _Template Management_ tab will fail). +
+Typically used with the
+https://raw.githubusercontent.com/boothub-org/boothub-repo/master/repo.json[standard template repository]
+when you don't have your own templates but you need your own BootHub server
+because you want to access your private GitHub organizations
+or because you don't trust the https://boothub.org[publicly available BootHub server].
+|===
+
+If you use a repository manager for a database-backed template repository and the repository does not yet exist, an empty one will be created.
+Then, you can publish your templates to this repository.
+See <<template_publishing>> for more details.
+
+
+== Starting the server
+
+Run the `boothub-web` script in the `bin` directory of your unpacked binaries.
