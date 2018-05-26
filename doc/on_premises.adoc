@@ -1,4 +1,4 @@
-
+[[on_premises]]
 = Installing BootHub on-premises
 
 Some of the reasons to install your own BootHub web server are:

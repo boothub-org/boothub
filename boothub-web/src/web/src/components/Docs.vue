@@ -10,6 +10,7 @@
     <ul>
       <li><a href="http://doc.boothub.org/releases/latest/#user_guide" target="_blank">User guide</a></li>
       <li><a href="http://doc.boothub.org/releases/latest/#Templates" target="_blank">Writing BootHub templates</a></li>
+      <li><a href="http://doc.boothub.org/releases/latest/#on_premises" target="_blank">Installing BootHub on-premises</a></li>
       <li><a href="http://doc.boothub.org/releases/latest/#dev_guide" target="_blank">Developer guide</a></li>
     </ul>
     <p/>
