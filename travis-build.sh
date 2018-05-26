@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ev
 if [ "${DOC_ONLY}" == "true" ]; then
-  ./gradlew --no-daemon -i -s groovydoc asciidoc
+  ./gradlew --no-daemon -i -s groovydoc asciidoc -x processResources
 else
   ./gradlew --no-daemon -i -s build groovydoc asciidoc
 fi
