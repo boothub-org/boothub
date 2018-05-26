@@ -1,6 +1,10 @@
 #!/bin/bash
 set -ev
-./gradlew --no-daemon -i -s build groovydoc asciidoc
+if [ "${DOC_ONLY}" == "true" ]; then
+  ./gradlew --no-daemon -i -s groovydoc asciidoc
+else
+  ./gradlew --no-daemon -i -s build groovydoc asciidoc
+fi
 
 
 if [ "${TRAVIS_PULL_REQUEST}" == "false" -a "${TRAVIS_BRANCH}" == "master" ]; then
