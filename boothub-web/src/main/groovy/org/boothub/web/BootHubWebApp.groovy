@@ -21,7 +21,6 @@ import groovy.json.JsonParserType
 import groovy.json.JsonSlurper
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
-import groovy.util.logging.Slf4j
 import org.beryx.textio.web.RatpackTextIoApp
 import org.beryx.textio.web.WebTextTerminal
 import org.boothub.BootHub
@@ -36,6 +35,8 @@ import org.kohsuke.github.GitHub
 import org.pac4j.core.profile.UserProfile
 import org.pac4j.oauth.client.GitHubClient
 import org.pac4j.oauth.profile.OAuth20Profile
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import ratpack.exec.Blocking
 import ratpack.exec.Promise
 import ratpack.func.Action
@@ -57,8 +58,9 @@ import java.util.function.Function
 
 import static org.boothub.Result.Type.*
 
-@Slf4j
 class BootHubWebApp {
+    static Logger log = LoggerFactory.getLogger(BootHubWebApp)
+
     static final String DEFAULT_BASE_PATH = System.properties["java.io.tmpdir"]
 
     static final int DEFAULT_PORT = 4567
@@ -405,14 +407,14 @@ class BootHubWebApp {
         try {
             def github = GitHub.connectAnonymously()
             def repo = github.getRepository('boothub-org/boothub')
-            def zipAsset = {it.name.matches("boothub-.+\\.zip")}
+            def zipAsset = {it.name.matches("boothub-cli-.+\\.zip")}
 
             def asset = repo.latestRelease.assets.find(zipAsset)
             if(asset) return asset.browserDownloadUrl
 
             log.warn("Latest release has no downloadable zip.")
 
-            repo.listReleases().find {it.assets.find {it.name.matches("boothub-.+\\.zip")}}
+            repo.listReleases().find {it.assets.find {it.name.matches("boothub-cli-.+\\.zip")}}
             for(def rel : repo.listReleases()) {
                 asset = rel.assets.find(zipAsset)
                 if(asset) return asset.browserDownloadUrl
@@ -623,9 +625,26 @@ class BootHubWebApp {
         model
     }
 
+    private static ConfigObject getOAuthConfig(String cfgName) {
+        def f = new File(cfgName)
+        def cfgUrl = f.isFile() ? f.toURI().toURL() : BootHubWebApp.getClass().getResource("/$cfgName")
+        if(cfgUrl) {
+            log.info("Reading OAuth configuration from $cfgUrl")
+            return new ConfigSlurper().parse(cfgUrl)
+        } else {
+            log.info("OAuth configuration file $cfgName not found in classpath or ${f.getAbsoluteFile().getParent()}")
+            return null;
+        }
+    }
+
+    private static void checkGitHubClient(GitHubClient ghClient, String cfgType) {
+        ['callbackUrl', 'key', 'secret'].each {
+            if(!ghClient."$it") throw new IllegalArgumentException("Missing $it for GitHub $cfgType OAuth")
+        }
+    }
+
     private static GitHubClient createGitHubClientRepo() {
-        def oauthCfg = BootHubWebApp.getClass().getResource("/$OAUTH_CFG")
-        ConfigObject cfg = oauthCfg ? new ConfigSlurper().parse(oauthCfg) : null
+        ConfigObject cfg = getOAuthConfig(OAUTH_CFG)
 
         def ghClient = new GitHubClient()
         ghClient.name = System.getenv(ENV_OAUTH_NAME) ?: cfg?.name ?: 'BootHub'
@@ -633,12 +652,13 @@ class BootHubWebApp {
         ghClient.callbackUrl = System.getenv(ENV_OAUTH_CALLBACK_URL) ?: cfg?.callbackUrl
         ghClient.key = System.getenv(ENV_OAUTH_KEY) ?: cfg?.key
         ghClient.secret = System.getenv(ENV_OAUTH_SECRET) ?: cfg?.secret
+
+        checkGitHubClient(ghClient, "repo")
         ghClient
     }
 
     private static GitHubClient createGitHubClientInfo() {
-        def oauthCfg = BootHubWebApp.getClass().getResource("/$OAUTH_INFO_CFG")
-        ConfigObject cfg = oauthCfg ? new ConfigSlurper().parse(oauthCfg) : null
+        ConfigObject cfg = getOAuthConfig(OAUTH_INFO_CFG)
 
         def ghClient = new GitHubClient()
         ghClient.name = System.getenv(ENV_OAUTH_INFO_NAME) ?: cfg?.name ?: 'BootHubInfo'
@@ -646,6 +666,8 @@ class BootHubWebApp {
         ghClient.callbackUrl = System.getenv(ENV_OAUTH_INFO_CALLBACK_URL) ?: cfg?.callbackUrl
         ghClient.key = System.getenv(ENV_OAUTH_INFO_KEY) ?: cfg?.key
         ghClient.secret = System.getenv(ENV_OAUTH_INFO_SECRET) ?: cfg?.secret
+
+        checkGitHubClient(ghClient, "info")
         ghClient
     }
 

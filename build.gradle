@@ -304,8 +304,7 @@ project('boothub-core') {
         }
     }
     mainClassName = 'org.boothub.BootHubCli'
-
-    applicationName = "boothub"
+    applicationName = "boothub-cli"
 
     task configureVersionFile {
         doLast {
@@ -367,6 +366,17 @@ project('boothub-web') {
     }
 
     mainClassName = "org.boothub.web.BootHubWebApp"
+    applicationName = "boothub-web"
+    jar {
+        manifest {
+            attributes 'Main-Class': 'org.boothub.web.BootHubWebApp'
+        }
+        exclude '**/*oauth.cfg'
+    }
+
+    shadowJar {
+        exclude '**/*oauth.cfg'
+    }
 
     node {
         version = '7.8.0'
@@ -398,7 +408,7 @@ project('boothub-web') {
         }
     }
 
-    task runLocal(type:Exec) {
+    task runLocalHeroku(type:Exec) {
         workingDir '..'
         dependsOn installShadowDist, getDbUrl
 
@@ -413,6 +423,11 @@ project('boothub-web') {
             commandLine 'heroku', 'local', 'web'
         }
     }
+
+//    task runLocal(type:Exec) {
+//        workingDir '..'
+//        dependsOn installDist
+//    }
 
     task stage {
         dependsOn clean, installShadowDist
