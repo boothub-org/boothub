@@ -23,13 +23,16 @@ import com.github.jknack.handlebars.io.TemplateLoader
 import com.github.jknack.handlebars.io.TemplateSource
 import org.yaml.snakeyaml.Yaml
 
+import java.nio.charset.Charset
+
 import static org.boothub.Util.stripAll
 
 trait HandlebarsUtil {
     static class StringTemplateLoader implements TemplateLoader {
+        Charset charset
         @Override TemplateSource sourceAt(String location) {
             new TemplateSource() {
-                @Override String content() { location }
+                @Override String content(Charset charset) { location }
                 @Override String filename() { "N/A" }
                 @Override long lastModified() { 0 }
             }

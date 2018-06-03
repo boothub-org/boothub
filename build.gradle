@@ -13,9 +13,9 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.3'
         classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
-        classpath 'org.kohsuke:github-api:1.90'
+        classpath 'org.kohsuke:github-api:1.93'
     }
 }
 plugins {
@@ -26,12 +26,12 @@ plugins {
     id 'maven-publish'
     id "com.github.ethankhall.semantic-versioning" version "1.1.0"
     id "com.github.ben-manes.versions" version "0.17.0"
-    id "com.jfrog.bintray" version "1.7.3"
-    id "org.asciidoctor.convert" version "1.5.6"
-    id "org.ajoberstar.git-publish" version "0.3.2"
+    id "com.jfrog.bintray" version "1.8.0"
+    id "org.asciidoctor.convert" version "1.5.7"
+    id "org.ajoberstar.git-publish" version "1.0.0"
     id "com.github.hierynomus.license" version "0.14.0"
     id "net.saliman.properties" version "1.4.6"
-    id 'com.github.jk1.dependency-license-report' version '0.3.17'
+    id 'com.github.jk1.dependency-license-report' version '0.9'
     id "com.dorongold.task-tree" version "1.3"
 }
 
@@ -69,7 +69,7 @@ def pomConfig = {
 
 // should be in sync with with the groovy version used by the gradle distribution configured in gradle/wrapper/gradle-wrapper.properties
 ext.groovyVersion = '2.4.12'
-ext.ratpackVersion = '1.5.0'
+ext.ratpackVersion = '1.5.4'
 
 allprojects {
     tasks.withType(Javadoc) {
@@ -284,15 +284,15 @@ gitPublish {
 project('boothub-core') {
     apply plugin: 'application'
     dependencies {
-        compile 'com.google.code.gson:gson:2.8.2'
-        compile 'org.apache.ant:ant:1.10.1'
-        compile 'com.github.jknack:handlebars:4.0.6'
+        compile 'com.google.code.gson:gson:2.8.5'
+        compile 'org.apache.ant:ant:1.10.3'
+        compile 'com.github.jknack:handlebars:4.0.7'
         compile ('org.beryx:handlebars-java-helpers:0.4.0') {
             exclude module: 'groovy-all'
         }
-        compile 'org.yaml:snakeyaml:1.19'
+        compile 'org.yaml:snakeyaml:1.21'
         compile 'org.beryx:text-io:3.1.3'
-        compile 'org.kohsuke:github-api:1.90'
+        compile 'org.kohsuke:github-api:1.93'
         compile 'org.ajoberstar:grgit:2.1.0'
         runtime ('ch.qos.logback:logback-classic:1.2.3')
         testCompile('ch.qos.logback:logback-classic:1.2.3')
@@ -342,9 +342,9 @@ project('boothub-core') {
 project('boothub-db') {
     dependencies {
         compile(project(':boothub-core'))
-        compile 'org.jooq:jooq:3.10.6'
-        compile 'org.hsqldb:hsqldb:2.4.0'
-        runtime 'org.postgresql:postgresql:42.1.4'
+        compile 'org.jooq:jooq:3.10.7'
+        compile 'org.hsqldb:hsqldb:2.4.1'
+        runtime 'org.postgresql:postgresql:42.2.2'
     }
 }
 
@@ -423,11 +423,6 @@ project('boothub-web') {
             commandLine 'heroku', 'local', 'web'
         }
     }
-
-//    task runLocal(type:Exec) {
-//        workingDir '..'
-//        dependsOn installDist
-//    }
 
     task stage {
         dependsOn clean, installShadowDist
