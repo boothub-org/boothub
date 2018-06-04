@@ -21,5 +21,5 @@ class VersionInfo {
     static final int MINOR = 1
     static final int PATCH = 1
     static final String LABEL = ''
-    static final boolean RELEASE_BUILD = false
+    static final boolean RELEASE_BUILD = true
 }
