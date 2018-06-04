@@ -6,7 +6,8 @@ else
   ./gradlew --no-daemon -i -s build groovydoc asciidoc
 fi
 
-
+echo PULL_REQUEST = $PULL_REQUEST
+echo TRAVIS_BRANCH = $TRAVIS_BRANCH
 if [ "${TRAVIS_PULL_REQUEST}" == "false" -a "${TRAVIS_BRANCH}" == "master" ]; then
   if [ "`git ls-remote origin gh-pages`" == "" ]; then
     echo Start gitPublishPush with ghPageType=init
