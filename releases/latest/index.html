@@ -17,7 +17,7 @@
 <h1>BootHub</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 1.1.0</span>
+<span id="revnumber">version 1.1.1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -75,7 +75,7 @@
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/boothub-org/boothub">GitHub</a> and is licensed under the <a href="https://github.com/boothub-org/boothub/blob/v1.1.0/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/boothub-org/boothub">GitHub</a> and is licensed under the <a href="https://github.com/boothub-org/boothub/blob/v1.1.1/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -188,44 +188,44 @@ You need Java 8 or newer in order to use BootHub.
 <pre class="nowrap">&lt;dependency&gt;
     &lt;groupId&gt;&lt;/groupId&gt;
     &lt;artifactId&gt;boothub-core&lt;/artifactId&gt;
-    &lt;version&gt;1.1.0&lt;/version&gt;
+    &lt;version&gt;1.1.1&lt;/version&gt;
 &lt;/dependency&gt;
 &lt;dependency&gt;
     &lt;groupId&gt;&lt;/groupId&gt;
     &lt;artifactId&gt;boothub-db&lt;/artifactId&gt;
-    &lt;version&gt;1.1.0&lt;/version&gt;
+    &lt;version&gt;1.1.1&lt;/version&gt;
 &lt;/dependency&gt;
 &lt;dependency&gt;
     &lt;groupId&gt;&lt;/groupId&gt;
     &lt;artifactId&gt;boothub-gradle-test&lt;/artifactId&gt;
-    &lt;version&gt;1.1.0&lt;/version&gt;
+    &lt;version&gt;1.1.1&lt;/version&gt;
 &lt;/dependency&gt;
 &lt;dependency&gt;
     &lt;groupId&gt;&lt;/groupId&gt;
     &lt;artifactId&gt;boothub-heroku&lt;/artifactId&gt;
-    &lt;version&gt;1.1.0&lt;/version&gt;
+    &lt;version&gt;1.1.1&lt;/version&gt;
 &lt;/dependency&gt;
 &lt;dependency&gt;
     &lt;groupId&gt;&lt;/groupId&gt;
     &lt;artifactId&gt;boothub-postgres&lt;/artifactId&gt;
-    &lt;version&gt;1.1.0&lt;/version&gt;
+    &lt;version&gt;1.1.1&lt;/version&gt;
 &lt;/dependency&gt;
 &lt;dependency&gt;
     &lt;groupId&gt;&lt;/groupId&gt;
     &lt;artifactId&gt;boothub-web&lt;/artifactId&gt;
-    &lt;version&gt;1.1.0&lt;/version&gt;
+    &lt;version&gt;1.1.1&lt;/version&gt;
 &lt;/dependency&gt;</pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Gradle</div>
 <div class="content">
-<pre class="nowrap">compile ':boothub-core:1.1.0'
-compile ':boothub-db:1.1.0'
-compile ':boothub-gradle-test:1.1.0'
-compile ':boothub-heroku:1.1.0'
-compile ':boothub-postgres:1.1.0'
-compile ':boothub-web:1.1.0'</pre>
+<pre class="nowrap">compile ':boothub-core:1.1.1'
+compile ':boothub-db:1.1.1'
+compile ':boothub-gradle-test:1.1.1'
+compile ':boothub-heroku:1.1.1'
+compile ':boothub-postgres:1.1.1'
+compile ':boothub-web:1.1.1'</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -282,7 +282,7 @@ cd boothub
 </div>
 <div class="paragraph">
 <p>The Bintray credentials must be available in a file called <em>gradle-local.properties</em>.
-You can use <a href="https://github.com/boothub-org/boothub/blob/v1.1.0/gradle-local.template.properties">gradle-local.template.properties</a> as template and adjust it accordingly.</p>
+You can use <a href="https://github.com/boothub-org/boothub/blob/v1.1.1/gradle-local.template.properties">gradle-local.template.properties</a> as template and adjust it accordingly.</p>
 </div>
 </div>
 </div>
@@ -804,7 +804,7 @@ A zip file of its <a href="https://github.com/boothub-org/boothub-template-java-
 <div class="sect2">
 <h3 id="_installing_the_binaries">Installing the binaries</h3>
 <div class="paragraph">
-<p>From the <a href="https://github.com/boothub-org/boothub/releases">releases page</a> download the <a href="https://github.com/boothub-org/boothub/releases/download/v1.1.0/boothub-web-1.1.0.zip">boothub-web-1.1.0.zip</a> file and unpack it into a directory of your choice.</p>
+<p>From the <a href="https://github.com/boothub-org/boothub/releases">releases page</a> download the <a href="https://github.com/boothub-org/boothub/releases/download/v1.1.1/boothub-web-1.1.1.zip">boothub-web-1.1.1.zip</a> file and unpack it into a directory of your choice.</p>
 </div>
 <div class="paragraph">
 <p>Before starting the server, you need to setup the GitHub authentication and to configure your BootHub server.</p>
@@ -891,7 +891,7 @@ Environment variables take precedence over properties specified in configuration
 <h4 id="_repo_oauth_configuration">Repo OAuth configuration</h4>
 <div class="paragraph">
 <p>If a file called <code>boothub-oauth.cfg</code> exists in the current directory, BootHub reads its content
-(you can use <a href="https://github.com/boothub-org/boothub/blob/v1.1.0/boothub-web/src/main/resources/boothub-oauth.template.cfg">boothub-oauth.template.cfg</a> as template).
+(you can use <a href="https://github.com/boothub-org/boothub/blob/v1.1.1/boothub-web/src/main/resources/boothub-oauth.template.cfg">boothub-oauth.template.cfg</a> as template).
 The table below shows the available configuration properties and their corresponding environment variables:</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
@@ -947,7 +947,7 @@ The table below shows the available configuration properties and their correspon
 <h4 id="_info_oauth_configuration">Info OAuth configuration</h4>
 <div class="paragraph">
 <p>If a file called <code>boothub-info-oauth.cfg</code> exists in the current directory, BootHub reads its content
-(you can use <a href="https://github.com/boothub-org/boothub/blob/v1.1.0/boothub-web/src/main/resources/boothub-info-oauth.template.cfg">boothub-info-oauth.template.cfg</a> as template).
+(you can use <a href="https://github.com/boothub-org/boothub/blob/v1.1.1/boothub-web/src/main/resources/boothub-info-oauth.template.cfg">boothub-info-oauth.template.cfg</a> as template).
 The table below shows the available configuration properties and their corresponding environment variables:</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
@@ -1067,8 +1067,8 @@ accepted by a <a href="http://docs.groovy-lang.org/docs/latest/html/documentatio
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">repoManager</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.0/boothub-core/src/main/groovy/org/boothub/repo/RepoManager.groovy">RepoManager</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.0/boothub-core/src/main/groovy/org/boothub/repo/HSQLDBRepoManager.groovy">HSQLDBRepoManager</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.1/boothub-core/src/main/groovy/org/boothub/repo/RepoManager.groovy">RepoManager</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.1/boothub-core/src/main/groovy/org/boothub/repo/HSQLDBRepoManager.groovy">HSQLDBRepoManager</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">the repository manager (see details below).</p></td>
 </tr>
 </tbody>
@@ -1078,7 +1078,7 @@ accepted by a <a href="http://docs.groovy-lang.org/docs/latest/html/documentatio
 <div class="paragraph">
 <p>Your server uses its own template repository, which is usually backed by a database.
 In order to access this template repository, a repository manager is needed.
-BootHub offers a few implementations of <a href="https://github.com/boothub-org/boothub/blob/v1.1.0/boothub-core/src/main/groovy/org/boothub/repo/RepoManager.groovy">RepoManager</a>,
+BootHub offers a few implementations of <a href="https://github.com/boothub-org/boothub/blob/v1.1.1/boothub-core/src/main/groovy/org/boothub/repo/RepoManager.groovy">RepoManager</a>,
 which are shown in the table below.
 You can also write your own implementation, if none of the existing ones meet your needs.</p>
 </div>
@@ -1097,26 +1097,26 @@ You can also write your own implementation, if none of the existing ones meet yo
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.0/boothub-db/src/main/groovy/org/boothub/repo/HSQLDBRepoManager.groovy">HSQLDBRepoManager</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.0/boothub-web/src/main/resources/boothub-web-app.hsqldb.cfg">boothub-web-app.hsqldb.cfg</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.1/boothub-db/src/main/groovy/org/boothub/repo/HSQLDBRepoManager.groovy">HSQLDBRepoManager</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.1/boothub-web/src/main/resources/boothub-web-app.hsqldb.cfg">boothub-web-app.hsqldb.cfg</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Manages a HSQLDB template repository.<br>
 Typically used when running a single-user BootHub server.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.0/boothub-db/src/main/groovy/org/boothub/repo/PostgresRepoManager.groovy">PostgresRepoManager</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.0/boothub-web/src/main/resources/boothub-web-app.postgres.cfg">boothub-web-app.postgres.cfg</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.1/boothub-db/src/main/groovy/org/boothub/repo/PostgresRepoManager.groovy">PostgresRepoManager</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.1/boothub-web/src/main/resources/boothub-web-app.postgres.cfg">boothub-web-app.postgres.cfg</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Manages a PostgreSQL template repository.<br>
 Best suited when the BootHub server is used by a group of developers.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.0/boothub-db/src/main/groovy/org/boothub/repo/HerokuPostgresRepoManager.groovy">HerokuPostgresRepoManager</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.0/boothub-web/src/main/resources/boothub-web-app.heroku.cfg">boothub-web-app.heroku.cfg</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.1/boothub-db/src/main/groovy/org/boothub/repo/HerokuPostgresRepoManager.groovy">HerokuPostgresRepoManager</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.1/boothub-web/src/main/resources/boothub-web-app.heroku.cfg">boothub-web-app.heroku.cfg</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Manages a PostgreSQL template repository on Heroku.<br>
 Used when the BootHub server is hosted on Heroku and uses the Postgres add-on.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.0/boothub-core/src/main/groovy/org/boothub/repo/ReadOnlyJsonRepoManager.groovy">ReadOnlyJsonRepoManager</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.0/boothub-web/src/main/resources/boothub-web-app.json.cfg">boothub-web-app.json.cfg</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.1/boothub-core/src/main/groovy/org/boothub/repo/ReadOnlyJsonRepoManager.groovy">ReadOnlyJsonRepoManager</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/boothub-org/boothub/blob/v1.1.1/boothub-web/src/main/resources/boothub-web-app.json.cfg">boothub-web-app.json.cfg</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Can read BootHub templates from a JSON template repository but cannot perform any changes on it
 (all operations under the <em>Template Management</em> tab will fail).<br>
 Typically used with the
@@ -1145,7 +1145,7 @@ See <a href="#template_publishing">Publishing your templates</a> for more detail
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.0<br>
+Version 1.1.1<br>
 </div>
 </div>
 </body>
