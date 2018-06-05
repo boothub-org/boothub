@@ -93,10 +93,23 @@ class DBRepoManagerSpec  extends Specification {
         def entry3 = defaultEntry()
         entry3.version = entry2.version
         entry3.description = "Same id and version as entry2"
-        def result3 = repoManager.addEntry(entry3, 'jsmith')
 
-        then: "the addEntry should fail"
-        result3.type == Result.Type.ERROR
+        entry3.url = 'http://example.org/entries/111'
+        entry3.size = 777
+        entry3.sha= 'ccbbaa0099883333'
+
+        def result3 = repoManager.addEntry(entry3, 'jsmith')
+        skeletons = repoManager.getSkeletons()
+
+        then: "the existing entry should be updated"
+        result3.type == Result.Type.SUCCESS
+        skeletons.size() == 1
+
+        when:
+        skeletons[0].updatedOn = entry3.updatedOn
+
+        then:
+        skeletons[0] == entry3
     }
 
     def "should check ownership"() {

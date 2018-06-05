@@ -87,6 +87,7 @@ class EntryTable extends RepoTable {
                     .set(COL_URL, url)
                     .set(COL_SIZE, size)
                     .set(COL_SHA, sha)
+                    .set(COL_UPDATED_ON, DSL.now())
                     .execute()
         }
     }
