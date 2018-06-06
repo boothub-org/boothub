@@ -57,8 +57,8 @@ abstract trait RepoManager implements SkeletonRepo {
         deleteEntry(skeletonId, version.toString())
     }
 
-    abstract Result<Integer> incrementUsageCounter(String skeletonId, String version)
-    abstract Result<Integer> addRating(String skeletonId, String version, long rating)
+    abstract Result<Integer> incrementUsageCounter(String skeletonId)
+    abstract Result<Integer> addRating(String skeletonId, long rating)
 
     abstract Result<Integer> addOwner(String skeletonId, String ownerId)
     abstract Result<Integer> deleteOwner(String skeletonId, String ownerId)

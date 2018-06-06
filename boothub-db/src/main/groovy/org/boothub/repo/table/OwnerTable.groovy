@@ -59,11 +59,18 @@ class OwnerTable extends RepoTable {
     }
 
     int add(String skeletonId, String ownerId) {
-        dsl.insertInto(TA_OWNER)
-            .columns(COL_ID, COL_SKELETON_ID, COL_OWNER)
-            .values(dsl.nextval(SE_OWNER), skeletonId, ownerId)
-            .onDuplicateKeyIgnore()
-        .execute()
+        def colId = -1
+        dsl.select(COL_ID)
+                .from(TA_OWNER)
+                .where(COL_SKELETON_ID.equal(skeletonId).and(COL_OWNER.equal(ownerId)))
+                .fetch()
+                .map { r -> colId = r.getValue(COL_ID)}
+        if(colId < 0) {
+            dsl.insertInto(TA_OWNER)
+                    .columns(COL_ID, COL_SKELETON_ID, COL_OWNER)
+                    .values(dsl.nextval(SE_OWNER), skeletonId, ownerId)
+                    .execute()
+        } else 0
     }
 
     int delete(String skeletonId, String ownerId) {

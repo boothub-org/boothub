@@ -32,9 +32,6 @@ class EntryTable extends RepoTable {
     final static Field<String> COL_SHA = TA_ENTRY.createField("sha", String.class)
     final static Field<Timestamp> COL_CREATED_ON = TA_ENTRY.createField("created_on", Timestamp.class)
     final static Field<Timestamp> COL_UPDATED_ON = TA_ENTRY.createField("updated_on", Timestamp.class)
-    final static Field<Integer> COL_USAGE_COUNT = TA_ENTRY.createField("usage_count", int.class)
-    final static Field<Integer> COL_RATING_COUNT = TA_ENTRY.createField("rating_count", int.class)
-    final static Field<Integer> COL_RATING_SUM = TA_ENTRY.createField("rating_sum", int.class)
 
     final static Sequence<Integer> SE_ENTRY = DSL.sequence(DSL.name("se_entry"), int.class)
 
@@ -52,9 +49,6 @@ class EntryTable extends RepoTable {
                 .column(COL_SHA, COL_SHA.getDataType().nullable(false))
                 .column(COL_CREATED_ON, COL_CREATED_ON.getDataType().nullable(false).defaultValue(DSL.now()))
                 .column(COL_UPDATED_ON, COL_UPDATED_ON.getDataType().nullable(false).defaultValue(DSL.now()))
-                .column(COL_USAGE_COUNT, COL_USAGE_COUNT.getDataType().nullable(false).defaultValue(0))
-                .column(COL_RATING_COUNT, COL_RATING_COUNT.getDataType().nullable(false).defaultValue(0))
-                .column(COL_RATING_SUM, COL_RATING_SUM.getDataType().nullable(false).defaultValue(0))
                 .execute()
 
         dsl.alterTable(TA_ENTRY).add(primaryKeyConstraint("pk_entry", TA_ENTRY, COL_ID)).execute()
@@ -76,37 +70,29 @@ class EntryTable extends RepoTable {
         dsl.createSequence(SE_ENTRY).execute()
     }
 
-
     int addOrReplace(String skeletonId, String version, String url, long size, String sha) {
-        dsl.insertInto(TA_ENTRY)
-            .columns(COL_ID, COL_SKELETON_ID, COL_VERSION, COL_URL, COL_SIZE, COL_SHA)
-            .values(dsl.nextval(SE_ENTRY), skeletonId, version, url, size, sha)
-            .onDuplicateKeyUpdate()
-                .set(COL_URL, url)
-                .set(COL_SIZE, size)
-                .set(COL_SHA, sha)
-        .execute()
+        def colId = -1
+        dsl.select(COL_ID)
+                .from(TA_ENTRY)
+                .where(COL_SKELETON_ID.equal(skeletonId).and(COL_VERSION.equal(version)))
+            .fetch()
+            .map { r -> colId = r.getValue(COL_ID)}
+        if(colId < 0) {
+            dsl.insertInto(TA_ENTRY)
+                    .columns(COL_ID, COL_SKELETON_ID, COL_VERSION, COL_URL, COL_SIZE, COL_SHA)
+                    .values(dsl.nextval(SE_ENTRY), skeletonId, version, url, size, sha)
+                    .execute()
+        } else {
+            dsl.update(TA_ENTRY)
+                    .set(COL_URL, url)
+                    .set(COL_SIZE, size)
+                    .set(COL_SHA, sha)
+                    .execute()
+        }
     }
 
     int delete(String skeletonId, String version) {
         dsl.delete(TA_ENTRY)
-            .where(COL_SKELETON_ID.equal(skeletonId))
-            .and(COL_VERSION.equal(version))
-        .execute()
-    }
-
-    int incrementUsageCounter(String skeletonId, String version) {
-        dsl.update(TA_ENTRY)
-            .set(COL_USAGE_COUNT, COL_USAGE_COUNT.add(1))
-            .where(COL_SKELETON_ID.equal(skeletonId))
-            .and(COL_VERSION.equal(version))
-        .execute()
-    }
-
-    int addRating(String skeletonId, String version, long rating) {
-        dsl.update(TA_ENTRY)
-            .set(COL_RATING_COUNT, COL_RATING_COUNT.add(1))
-            .set(COL_RATING_SUM, COL_RATING_SUM.add(rating))
             .where(COL_SKELETON_ID.equal(skeletonId))
             .and(COL_VERSION.equal(version))
         .execute()

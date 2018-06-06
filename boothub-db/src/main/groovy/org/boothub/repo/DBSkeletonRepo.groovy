@@ -40,6 +40,13 @@ class DBSkeletonRepo implements SkeletonRepo {
     final OwnerTable ownerTable
     final TagTable tagTable
 
+    private static class RepoEntryExtended extends RepoEntry {
+        int usageCount
+        int ratingCount
+        int ratingSum
+        int sortingWeight = 1
+    }
+
     DBSkeletonRepo(DSLContext dsl, RepoCache repoCache) {
         this.dsl = dsl
         this.repoCache = repoCache
@@ -62,7 +69,14 @@ class DBSkeletonRepo implements SkeletonRepo {
         try {
             def entries = getSkeletons(skeletonId: options.skeletonId, ownerId: options.ownerId, version: options.version)
             entries.each { repoEntry ->
-                def group = skeletons.computeIfAbsent(repoEntry.id, {id -> new SkeletonGroup()})
+                def group = skeletons.computeIfAbsent(repoEntry.id, {id ->
+                    def group = new SkeletonGroup()
+                    group.usageCount = repoEntry.usageCount
+                    group.ratingCount = repoEntry.ratingCount
+                    group.ratingSum = repoEntry.ratingSum
+                    group.sortingWeight = repoEntry.sortingWeight
+                    group
+                })
                 group.addRepoEntry(repoEntry)
             }
             if(options.lastVersionOnly) {
@@ -98,16 +112,16 @@ class DBSkeletonRepo implements SkeletonRepo {
                     return group.entries.isEmpty()
                 }
             }
-            def sortedSkeletons = skeletons.sort{a, b -> a.value.name <=> b.value.name}
+            def sortedSkeletons = skeletons.sort{a, b -> b.value.sortingWeight <=> a.value.sortingWeight ?: a.value.name <=> b.value.name}
             new Result(type: SUCCESS, value: sortedSkeletons)
         } catch (Exception e) {
             log.error("getSkeletons($options) failed", e)
             new Result(type: ERROR, message: "Cannot retrieve skeletons", value: skeletons)
         }
     }
-    List<RepoEntry> getSkeletons(Map filterOptions = [:]) {
+    List<RepoEntryExtended> getSkeletons(Map filterOptions = [:]) {
         getSkeletonsResult(filterOptions).map{ r ->
-            RepoEntry entry = new RepoEntry()
+            def entry = new RepoEntryExtended()
             entry.id = r.getValue(SkeletonTable.COL_SKELETON_ID)
             entry.name = r.getValue(SkeletonTable.COL_NAME)
             entry.caption = r.getValue(SkeletonTable.COL_CAPTION)
@@ -115,12 +129,17 @@ class DBSkeletonRepo implements SkeletonRepo {
             entry.url = r.getValue(EntryTable.COL_URL)
             entry.size = r.getValue(EntryTable.COL_SIZE)
             entry.sha = r.getValue(EntryTable.COL_SHA)
+            entry.usageCount = r.getValue(SkeletonTable.COL_USAGE_COUNT)
+            entry.ratingCount = r.getValue(SkeletonTable.COL_RATING_COUNT)
+            entry.ratingSum = r.getValue(SkeletonTable.COL_RATING_SUM)
+            entry.sortingWeight = r.getValue(SkeletonTable.COL_SORTING_WEIGHT)
             entry
         }
     }
 
     private org.jooq.Result getSkeletonsResult(Map filterOptions = [:]) {
         def query = dsl.select(SkeletonTable.COL_SKELETON_ID, SkeletonTable.COL_NAME, SkeletonTable.COL_CAPTION,
+                SkeletonTable.COL_USAGE_COUNT, SkeletonTable.COL_RATING_COUNT, SkeletonTable.COL_RATING_SUM, SkeletonTable.COL_SORTING_WEIGHT,
                 EntryTable.COL_VERSION, EntryTable.COL_URL, EntryTable.COL_SIZE, EntryTable.COL_SHA)
                 .from(SkeletonTable.TA_SKELETON)
                 .join(EntryTable.TA_ENTRY)
@@ -141,7 +160,6 @@ class DBSkeletonRepo implements SkeletonRepo {
             query = query.and(EntryTable.COL_VERSION.equal(filterOptions.version))
         }
         def result = query.fetch()
-        println "result:\n$result"
         result
     }
 }

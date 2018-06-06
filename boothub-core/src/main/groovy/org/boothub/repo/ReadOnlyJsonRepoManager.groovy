@@ -41,12 +41,12 @@ class ReadOnlyJsonRepoManager extends JsonSkeletonRepo implements RepoManager {
     }
 
     @Override
-    Result<Integer> incrementUsageCounter(String skeletonId, String version) {
+    Result<Integer> incrementUsageCounter(String skeletonId) {
         throw new UnsupportedOperationException()
     }
 
     @Override
-    Result<Integer> addRating(String skeletonId, String version, long rating) {
+    Result<Integer> addRating(String skeletonId, long rating) {
         throw new UnsupportedOperationException()
     }
 

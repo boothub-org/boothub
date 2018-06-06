@@ -22,6 +22,10 @@ import org.boothub.Version
 class SkeletonGroup {
     String name
     String caption
+    int usageCount
+    int ratingCount
+    int ratingSum
+    int sortingWeight = 1
     TreeMap<Version, RepoEntry> entries = new TreeMap<>({ v1, v2 -> v2 <=> v1})
 
     void addRepoEntry(RepoEntry entry) {

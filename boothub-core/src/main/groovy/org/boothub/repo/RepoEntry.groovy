@@ -31,9 +31,6 @@ class RepoEntry extends SkeletonInfo implements RepoKey {
     String sha
     Date createdOn
     Date updatedOn
-    int ratingCount
-    int usageCount
-    int ratingSum
     String validationError
 
     /**

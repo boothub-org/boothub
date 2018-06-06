@@ -55,9 +55,6 @@ class DBRepoManagerSpec  extends Specification {
         entry.sha= 'ccbbaa0099887766'
         entry.createdOn = new Date(1667700077661L)
         entry.updatedOn = new Date(1667789877661L)
-        entry.ratingCount = 111
-        entry.usageCount = 222
-        entry.ratingSum = 333
         entry
     }
 

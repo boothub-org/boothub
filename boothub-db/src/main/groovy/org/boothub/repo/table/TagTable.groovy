@@ -59,11 +59,18 @@ class TagTable extends RepoTable {
     }
 
     int add(String skeletonId, String tag) {
-        dsl.insertInto(TA_TAG)
-            .columns(COL_ID, COL_SKELETON_ID, COL_TAG)
-            .values(dsl.nextval(SE_TAG), skeletonId, tag)
-            .onDuplicateKeyIgnore()
-        .execute()
+        def colId = -1
+        dsl.select(COL_ID)
+                .from(TA_TAG)
+                .where(COL_SKELETON_ID.equal(skeletonId).and(COL_TAG.equal(tag)))
+                .fetch()
+                .map { r -> colId = r.getValue(COL_ID)}
+        if(colId < 0) {
+            dsl.insertInto(TA_TAG)
+                    .columns(COL_ID, COL_SKELETON_ID, COL_TAG)
+                    .values(dsl.nextval(SE_TAG), skeletonId, tag)
+                    .execute()
+        } else 0
     }
 
     int delete(String skeletonId, String tag) {
