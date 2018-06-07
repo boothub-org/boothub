@@ -18,6 +18,7 @@ package org.boothub.repo
 import groovy.transform.ToString
 import groovy.transform.TupleConstructor
 import org.boothub.Util
+import org.boothub.Version
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -78,10 +79,20 @@ class RepoEntry extends SkeletonInfo implements RepoKey {
 
     static RepoEntry copyOf(RepoEntry sourceRepo) {
         def targetRepo = new RepoEntry()
-        sourceRepo.properties.each { key, value ->
-            if (targetRepo.hasProperty(key) && !(key in ['class', 'metaClass']))
-                targetRepo[key] = value
-        }
+        targetRepo.id = sourceRepo.id
+        targetRepo.version = sourceRepo.version
+        targetRepo.name = sourceRepo.name
+        targetRepo.caption = sourceRepo.caption
+        targetRepo.minimumRequiredBootHub = sourceRepo.minimumRequiredBootHub
+        targetRepo.homepage = sourceRepo.homepage
+        targetRepo.description = sourceRepo.description
+        targetRepo.url = sourceRepo.url
+        targetRepo.size = sourceRepo.size
+        targetRepo.sha = sourceRepo.sha
+        targetRepo.createdOn = sourceRepo.createdOn
+        targetRepo.updatedOn = sourceRepo.updatedOn
+        targetRepo.validationError = sourceRepo.validationError
+        targetRepo
     }
 
 }
