@@ -54,9 +54,6 @@ class DBRepoManagerSpec  extends Specification {
         entry.createdOn = new Date(1667700077661L)
         entry.updatedOn = new Date(1667789877661L)
 
-        entry.authors = ['jsmith', 'mbrown']
-        entry.tags = ['good', 'bad', 'ugly']
-
         entry
     }
 
