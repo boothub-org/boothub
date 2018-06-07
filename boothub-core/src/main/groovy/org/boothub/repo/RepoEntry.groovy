@@ -33,13 +33,24 @@ class RepoEntry extends SkeletonInfo implements RepoKey {
     Date updatedOn
     String validationError
 
+
+    static class Extended extends RepoEntry {
+        transient int usageCount
+        transient int ratingCount
+        transient int ratingSum
+        transient int sortingWeight = 1
+        transient String[] authors = []
+        transient String[] tags = []
+    }
+
+
     /**
      * This method does not set the {@code size} and {@code sha} attributes. It is your responsibility to subsequently set them.
      */
-    static RepoEntry fromDir(File dir) {
+    static RepoEntry.Extended fromDir(File dir) {
         if(!dir.directory) throw new IllegalArgumentException("Directory not found: $dir.absolutePath")
         def infoUrl = new File(dir, "info.yml").toURI().toURL()
-        def repoEntry = (RepoEntry)new Yaml(new Constructor(RepoEntry)).load(infoUrl.openStream())
+        def repoEntry = (RepoEntry.Extended)new Yaml(new Constructor(RepoEntry.Extended)).load(infoUrl.openStream())
         repoEntry.url = dir.toURI().toURL().toString()
         repoEntry.description = new File(dir, "description.md").text
         repoEntry
@@ -48,12 +59,12 @@ class RepoEntry extends SkeletonInfo implements RepoKey {
     /**
      * This method does not set the {@code url}. It is your responsibility to subsequently set it.
      */
-    static RepoEntry fromZipFile(File file) {
+    static RepoEntry.Extended fromZipFile(File file) {
         ZipFile zipFile = new ZipFile(file)
         if(!zipFile) throw new IllegalArgumentException("zipFile is null")
         def infoEntry = zipFile.getEntry("info.yml")
         if(!infoEntry) throw new IllegalArgumentException("Cannot find 'info.yml' inside of $zipFile")
-        def repoEntry = (RepoEntry)new Yaml(new Constructor(RepoEntry)).load(zipFile.getInputStream(infoEntry))
+        def repoEntry = (RepoEntry.Extended)new Yaml(new Constructor(RepoEntry.Extended)).load(zipFile.getInputStream(infoEntry))
 
         def descrEntry = zipFile.getEntry("description.md")
         if(!descrEntry) throw new IllegalArgumentException("Cannot find 'description.md' inside of $zipFile")
@@ -64,4 +75,13 @@ class RepoEntry extends SkeletonInfo implements RepoKey {
 
         repoEntry
     }
+
+    static RepoEntry copyOf(RepoEntry sourceRepo) {
+        def targetRepo = new RepoEntry()
+        sourceRepo.properties.each { key, value ->
+            if (targetRepo.hasProperty(key) && !(key in ['class', 'metaClass']))
+                targetRepo[key] = value
+        }
+    }
+
 }

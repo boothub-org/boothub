@@ -29,7 +29,7 @@ class DBRepoManager extends DBSkeletonRepo implements RepoManager {
     }
 
     @Override
-    Result addEntry(RepoEntry repoEntry, String userId) {
+    Result addEntry(RepoEntry.Extended repoEntry, String userId) {
         try {
             def skeletonId = repoEntry.id
             def version = repoEntry.version.toString()
@@ -43,6 +43,8 @@ class DBRepoManager extends DBSkeletonRepo implements RepoManager {
             def newestEntry = newestEntryResult.value
             if (!newestEntry || newestEntry.version < repoEntry.version) {
                 skeletonTable.addOrReplace(skeletonId, repoEntry.name, repoEntry.caption)
+                tagTable.update(skeletonId, repoEntry.tags)
+                ownerTable.update(skeletonId, repoEntry.authors)
             }
             if (!newestEntry) {
                 def addResult = addOwner(skeletonId, userId)

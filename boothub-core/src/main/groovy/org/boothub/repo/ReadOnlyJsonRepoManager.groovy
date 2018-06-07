@@ -26,7 +26,7 @@ class ReadOnlyJsonRepoManager extends JsonSkeletonRepo implements RepoManager {
     }
 
     @Override
-    Result addEntry(RepoEntry repoEntry, String userId) {
+    Result addEntry(RepoEntry.Extended repoEntry, String userId) {
         throw new UnsupportedOperationException()
     }
 

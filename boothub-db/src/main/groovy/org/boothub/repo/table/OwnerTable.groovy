@@ -86,4 +86,18 @@ class OwnerTable extends RepoTable {
             .where(COL_SKELETON_ID.equal(skeletonId))
         .fetch(COL_OWNER)
     }
+
+    void update(String skeletonId, String[] currOwners) {
+        def oldOwners = getOwnerIds(skeletonId)
+        oldOwners.each { oldOwner ->
+            if(!currOwners.contains(oldOwner)) {
+                delete(skeletonId, oldOwner)
+            }
+        }
+        currOwners.each { currOwner ->
+            if(!oldOwners.contains(currOwner)) {
+                add(skeletonId, currOwner)
+            }
+        }
+    }
 }

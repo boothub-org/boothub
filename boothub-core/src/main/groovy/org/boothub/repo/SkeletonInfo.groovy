@@ -28,7 +28,5 @@ class SkeletonInfo implements SkeletonKey {
     String caption
     Version minimumRequiredBootHub = new Version()
     String homepage
-    String[] authors = []
-    String[] tags = []
     String description
 }

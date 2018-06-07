@@ -64,6 +64,7 @@ class SkeletonTable extends RepoTable {
             dsl.update(TA_SKELETON)
                     .set(COL_NAME, name as String)
                     .set(COL_CAPTION, caption as String)
+                    .where(COL_SKELETON_ID.equal(skeletonId))
                     .execute()
         }
     }

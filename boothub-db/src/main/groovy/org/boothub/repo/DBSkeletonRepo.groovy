@@ -40,13 +40,6 @@ class DBSkeletonRepo implements SkeletonRepo {
     final OwnerTable ownerTable
     final TagTable tagTable
 
-    private static class RepoEntryExtended extends RepoEntry {
-        int usageCount
-        int ratingCount
-        int ratingSum
-        int sortingWeight = 1
-    }
-
     DBSkeletonRepo(DSLContext dsl, RepoCache repoCache) {
         this.dsl = dsl
         this.repoCache = repoCache
@@ -70,12 +63,14 @@ class DBSkeletonRepo implements SkeletonRepo {
             def entries = getSkeletons(skeletonId: options.skeletonId, ownerId: options.ownerId, version: options.version)
             entries.each { repoEntry ->
                 def group = skeletons.computeIfAbsent(repoEntry.id, {id ->
-                    def group = new SkeletonGroup()
-                    group.usageCount = repoEntry.usageCount
-                    group.ratingCount = repoEntry.ratingCount
-                    group.ratingSum = repoEntry.ratingSum
-                    group.sortingWeight = repoEntry.sortingWeight
-                    group
+                    def newGroup = new SkeletonGroup()
+                    newGroup.usageCount = repoEntry.usageCount
+                    newGroup.ratingCount = repoEntry.ratingCount
+                    newGroup.ratingSum = repoEntry.ratingSum
+                    newGroup.sortingWeight = repoEntry.sortingWeight
+                    newGroup.tags = repoEntry.tags
+                    newGroup.authors = repoEntry.authors
+                    newGroup
                 })
                 group.addRepoEntry(repoEntry)
             }
@@ -91,7 +86,8 @@ class DBSkeletonRepo implements SkeletonRepo {
                         def repoEntry = entry.value
                         try {
                             def entryPath = repoCache.get(repoEntry, repoEntry.size, repoEntry.sha)
-                            entry.value = RepoEntry.fromZipFile(entryPath.toFile())
+                            def repoEntryExt = RepoEntry.fromZipFile(entryPath.toFile())
+                            entry.value = RepoEntry.copyOf(repoEntryExt)
                             entry.value.url = repoEntry.url
                             if(repoEntry.id != entry.value.id) {
                                 throw new IOException("Invalid skeleton id in $repoEntry.url: $entry.value.id. Expected: $repoEntry.id")
@@ -119,9 +115,9 @@ class DBSkeletonRepo implements SkeletonRepo {
             new Result(type: ERROR, message: "Cannot retrieve skeletons", value: skeletons)
         }
     }
-    List<RepoEntryExtended> getSkeletons(Map filterOptions = [:]) {
+    List<RepoEntry.Extended> getSkeletons(Map filterOptions = [:]) {
         getSkeletonsResult(filterOptions).map{ r ->
-            def entry = new RepoEntryExtended()
+            def entry = new RepoEntry.Extended()
             entry.id = r.getValue(SkeletonTable.COL_SKELETON_ID)
             entry.name = r.getValue(SkeletonTable.COL_NAME)
             entry.caption = r.getValue(SkeletonTable.COL_CAPTION)

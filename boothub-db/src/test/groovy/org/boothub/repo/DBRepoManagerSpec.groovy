@@ -37,8 +37,8 @@ class DBRepoManagerSpec  extends Specification {
         server.shutdown()
     }
 
-    private RepoEntry defaultEntry() {
-        def entry = new RepoEntry()
+    private RepoEntry.Extended defaultEntry() {
+        def entry = new RepoEntry.Extended()
 
         entry.id = 'org.example.mytemplate'
         entry.version = new Version(2, 3, 4)
@@ -46,8 +46,6 @@ class DBRepoManagerSpec  extends Specification {
         entry.caption = 'A very useful template'
         entry.minimumRequiredBootHub = new Version(1, 2, 3)
         entry.homepage = 'http://mytemplate.example.org'
-        entry.authors = ['jsmith', 'mbrown']
-        entry.tags = ['good', 'bad', 'ugly']
         entry.description = 'No description'
 
         entry.url = 'http://example.org/entries/1'
@@ -55,6 +53,10 @@ class DBRepoManagerSpec  extends Specification {
         entry.sha= 'ccbbaa0099887766'
         entry.createdOn = new Date(1667700077661L)
         entry.updatedOn = new Date(1667789877661L)
+
+        entry.authors = ['jsmith', 'mbrown']
+        entry.tags = ['good', 'bad', 'ugly']
+
         entry
     }
 

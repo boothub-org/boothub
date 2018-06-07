@@ -28,7 +28,7 @@ import static org.boothub.Result.Type.ERROR
 abstract trait RepoManager implements SkeletonRepo {
     abstract RepoCache getRepoCache()
 
-    abstract Result addEntry(RepoEntry repoEntry, String userId)
+    abstract Result addEntry(RepoEntry.Extended repoEntry, String userId)
     Result<RepoEntry> addSkeleton(String url, String userId) {
         if(!userId) return new Result(type: ERROR, message: "userId not set")
         try {
@@ -36,7 +36,7 @@ abstract trait RepoManager implements SkeletonRepo {
             def file = path.toFile()
             try {
                 Util.downloadFile(url, path)
-                RepoEntry repoEntry = RepoEntry.fromZipFile(file)
+                RepoEntry.Extended repoEntry = RepoEntry.fromZipFile(file)
                 repoEntry.url = url
                 return addEntry(repoEntry, userId)
             } finally {

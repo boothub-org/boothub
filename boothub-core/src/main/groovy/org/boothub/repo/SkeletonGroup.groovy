@@ -26,6 +26,8 @@ class SkeletonGroup {
     int ratingCount
     int ratingSum
     int sortingWeight = 1
+    String[] authors = []
+    String[] tags = []
     TreeMap<Version, RepoEntry> entries = new TreeMap<>({ v1, v2 -> v2 <=> v1})
 
     void addRepoEntry(RepoEntry entry) {

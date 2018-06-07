@@ -19,6 +19,8 @@ import groovy.transform.InheritConstructors
 import org.jooq.*
 import org.jooq.impl.DSL
 
+import java.time.Year
+
 @InheritConstructors
 class TagTable extends RepoTable {
     final static DefaultTable TA_TAG = createTable("ta_tag")
@@ -78,6 +80,20 @@ class TagTable extends RepoTable {
             .where(COL_SKELETON_ID.equal(skeletonId))
             .and(COL_TAG.equal(tag))
         .execute()
+    }
+
+    void update(String skeletonId, String[] currTags) {
+        def oldTags = getTags(skeletonId)
+        oldTags.each { oldTag ->
+            if(!currTags.contains(oldTag)) {
+                delete(skeletonId, oldTag)
+            }
+        }
+        currTags.each { currTag ->
+            if(!oldTags.contains(currTag)) {
+                add(skeletonId, currTag)
+            }
+        }
     }
 
     List<String> getTags(String skeletonId) {

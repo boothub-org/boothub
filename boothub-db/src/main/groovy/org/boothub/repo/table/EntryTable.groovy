@@ -88,6 +88,7 @@ class EntryTable extends RepoTable {
                     .set(COL_SIZE, size)
                     .set(COL_SHA, sha)
                     .set(COL_UPDATED_ON, DSL.now())
+                    .where(COL_SKELETON_ID.equal(skeletonId).and(COL_VERSION.equal(version)))
                     .execute()
         }
     }
