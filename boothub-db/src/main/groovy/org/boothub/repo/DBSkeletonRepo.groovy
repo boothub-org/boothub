@@ -129,6 +129,12 @@ class DBSkeletonRepo implements SkeletonRepo {
             entry.ratingCount = r.getValue(SkeletonTable.COL_RATING_COUNT)
             entry.ratingSum = r.getValue(SkeletonTable.COL_RATING_SUM)
             entry.sortingWeight = r.getValue(SkeletonTable.COL_SORTING_WEIGHT)
+            try {
+                entry.tags = tagTable.getTags(entry.id)
+                entry.authors = ownerTable.getOwnerIds(entry.id)
+            } catch (Exception e) {
+                log.error("Cannot retrieve tags and authors of ${entry.id}", e)
+            }
             entry
         }
     }
