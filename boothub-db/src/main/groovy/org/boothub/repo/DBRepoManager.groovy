@@ -44,7 +44,6 @@ class DBRepoManager extends DBSkeletonRepo implements RepoManager {
             if (!newestEntry || newestEntry.version < repoEntry.version) {
                 skeletonTable.addOrReplace(skeletonId, repoEntry.name, repoEntry.caption)
                 tagTable.update(skeletonId, repoEntry.tags)
-                ownerTable.update(skeletonId, repoEntry.authors)
             }
             if (!newestEntry) {
                 def addResult = addOwner(skeletonId, userId)
