@@ -286,8 +286,8 @@ project('boothub-core') {
     dependencies {
         compile 'com.google.code.gson:gson:2.8.5'
         compile 'org.apache.ant:ant:1.10.3'
-        compile 'com.github.jknack:handlebars:4.0.7'
-        compile ('org.beryx:handlebars-java-helpers:0.4.0') {
+        compile 'com.github.jknack:handlebars:4.1.0'
+        compile ('org.beryx:handlebars-java-helpers:0.4.1') {
             exclude module: 'groovy-all'
         }
         compile 'org.yaml:snakeyaml:1.21'
