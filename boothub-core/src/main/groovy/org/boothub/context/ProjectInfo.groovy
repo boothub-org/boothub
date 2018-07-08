@@ -22,6 +22,7 @@ import groovy.transform.ToString
 @ConfiguredBy(ProjectInfoConfigurator)
 @ToString
 trait ProjectInfo {
+    final List<String> noMergePatterns = []
     String boothubVersion
     String ghProjectId
     String projectName

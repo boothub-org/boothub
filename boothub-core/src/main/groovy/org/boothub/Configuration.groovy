@@ -20,6 +20,7 @@ import org.yaml.snakeyaml.Yaml
 
 class Configuration {
     final Class<? extends ProjectContext> contextClass
+    final noMergePatterns = ['**/img/*', '**/*.jar', '**/*.zip']
 
     Configuration(Class<? extends ProjectContext> contextClass) {
         this.contextClass = contextClass
@@ -33,10 +34,16 @@ class Configuration {
         def definer = GroovyClassDefiner.ofTemplateDir(templateDir)
         definer.defineClasses()
         def contextClass = definer.forName(props.contextClass)
-        new Configuration(contextClass)
+        def cfg = new Configuration(contextClass)
+        if(props.noMergePatterns) {
+            cfg.noMergePatterns.addAll(props.noMergePatterns)
+        }
+        cfg
     }
 
     def <T extends ProjectContext> T createProjectContext() {
-        (T)contextClass.newInstance()
+        T ctx = contextClass.newInstance()
+        ctx.noMergePatterns.addAll(noMergePatterns)
+        ctx
     }
 }

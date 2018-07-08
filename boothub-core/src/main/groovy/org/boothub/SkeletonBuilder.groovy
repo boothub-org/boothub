@@ -32,21 +32,10 @@ import static org.boothub.Constants.*
 @Slf4j
 class SkeletonBuilder {
     final Path baseProjectTemplatePath
-    final noMergePatterns = ['**/img/*', '**/*.jar', '**/*.zip']
     Path workPath
 
     SkeletonBuilder(Path baseProjectTemplatePath) {
         this.baseProjectTemplatePath = baseProjectTemplatePath
-    }
-
-    SkeletonBuilder withNoMergePatterns(String... patterns) {
-        patterns.each { noMergePatterns << it }
-        this
-    }
-
-    SkeletonBuilder clearNoMergePatterns() {
-        noMergePatterns.clear()
-        this
     }
 
     SkeletonBuilder withWorkPath(Path workPath) {
@@ -194,7 +183,7 @@ class SkeletonBuilder {
     void mergeTemplates(ProjectContext projectContext, Path outputPath) {
         Handlebars handlebars = Util.createHandlebars(workPath)
         def absTemplatePath = workPath.toFile().canonicalFile.toPath().toAbsolutePath().toRealPath()
-        def mergeables = getMergeableFileNames()
+        def mergeables = getMergeableFileNames(projectContext)
         allFileNames.each { fName ->
             def path = Paths.get(fName).toAbsolutePath().toRealPath()
             def relPath = absTemplatePath.relativize(path)
@@ -218,10 +207,10 @@ class SkeletonBuilder {
         fls
     }
 
-    List<String> getMergeableFileNames() {
+    List<String> getMergeableFileNames(ProjectContext projectContext) {
         def args = [
                 dir: workPath.toString(),
-                excludes: noMergePatterns.join(','),
+                excludes: projectContext.noMergePatterns.join(','),
                 defaultExcludes: false
         ]
         def ant = new AntBuilder()
