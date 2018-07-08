@@ -29,7 +29,8 @@ class LocalSkeletonRepo implements SkeletonRepo {
                 'template-simple-kotlin',
                 'template-java-groovy',
                 'meta-template',
-                'template-gradle-plugin'
+                'template-gradle-plugin',
+                'template-slide-deck'
         ].each { addSkeleton(it) }
     }
 
