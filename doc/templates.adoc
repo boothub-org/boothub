@@ -146,12 +146,26 @@ BootHub uses the https://github.com/jknack/handlebars.java[handlebars.java] temp
 - module source files and their control file `sources.yml`
 - the usage instructions file `instructions.md`
 
-The tags in the above mentioned documents are expanded using the values of the properties provided by the project context.
+By default, the template engine ignores:
+
+- files with the extension `.zip`
+- files with the extension `.jar`
+- all files found in directories named `img`
+
+You can specify additional exclusion patterns in the configuration file:
+
+.template/config.yml
+```
+noMergePatterns:
+  - '**/bin/*'
+  - '**/*.pdf'
+```
+
+The tags in the documents to be processed are expanded using the values of the properties provided by the project context.
 
 Additionally, for each module source file BootHub creates a
 https://github.com/boothub-org/boothub/blob/master/boothub-core/src/main/groovy/org/boothub/context/SourceFileContext.groovy[SourceFileContext]
 whose properties are also used during tag expansion. See <<mod-src-files>> for more details.
-
 
 
 The following helpers can be accessed in the documents processed by the handlebars template engine:
