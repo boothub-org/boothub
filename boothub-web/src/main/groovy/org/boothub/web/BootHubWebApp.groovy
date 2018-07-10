@@ -81,7 +81,7 @@ class BootHubWebApp {
     static final String ENV_OAUTH_INFO_KEY = "BOOTHUB_OAUTH_INFO_KEY"
     static final String ENV_OAUTH_INFO_SECRET = "BOOTHUB_OAUTH_INFO_SECRET"
 
-    static final String ROOT_REDIRECT = (System.getenv('BOOTHUB_ROOT_REDIRECT') ?: 'app')
+    static final String ROOT_REDIRECT = (System.getenv('BOOTHUB_ROOT_REDIRECT') ?: '/app')
     static final long CLI_URL_DELAY_MINUTES = (System.getenv('BOOTHUB_CLI_URL_DELAY_MINUTES') ?: '11') as long
     static final long BOT_DELAY_MINUTES = (System.getenv('BOOTHUB_BOT_DELAY_MINUTES') ?: '10') as long
     static final long HOUSEKEEPING_DELAY_MINUTES = (System.getenv('BOOTHUB_HOUSEKEEPING_DELAY_MINUTES') ?: '17') as long
@@ -232,9 +232,24 @@ class BootHubWebApp {
                     ctx.redirect(ROOT_REDIRECT)
                 }
 
+                .path("goto/:skeletonId") { ctx ->
+                    def skeletonId = ctx.pathTokens.skeletonId
+                    log.debug("goto skeletonId: $skeletonId")
+
+                    def searchOpts = new SkeletonSearchOptions(skeletonId: skeletonId, compact: true, lastVersionOnly: true)
+                    def res = repoManager.getSkeletons(searchOpts)
+                    String url = res.successful ? res.value[skeletonId]?.entries?.firstEntry()?.value?.url : null
+                    if(!url) {
+                        ctx.redirect(ROOT_REDIRECT)
+                    } else {
+                        log.info("goto url: $url")
+                        ctx.redirect("/app#/home/false/${URLEncoder.encode(url, StandardCharsets.UTF_8.name())}")
+                    }
+                }
+
                 .prefix("info") { appChain ->
                     appChain.all(RatpackPac4j.authenticator("callback", gitHubClientInfo))
-                    .prefix("auth/login/:route", loginAction(gitHubClientInfo))
+                            .prefix("auth/login/:route", loginAction(gitHubClientInfo))
                 }
                 .prefix("app") { appChain ->
                     appChain.all(RatpackPac4j.authenticator("callback", gitHubClientRepo))
