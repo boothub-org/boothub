@@ -499,7 +499,34 @@ all input/output operations required by a configurator should be implemented usi
 </ul>
 </div>
 <div class="paragraph">
-<p>The tags in the above mentioned documents are expanded using the values of the properties provided by the project context.</p>
+<p>By default, the template engine ignores:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>files with the extension <code>.zip</code></p>
+</li>
+<li>
+<p>files with the extension <code>.jar</code></p>
+</li>
+<li>
+<p>all files found in directories named <code>img</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can specify additional exclusion patterns in the configuration file:</p>
+</div>
+<div class="listingblock">
+<div class="title">template/config.yml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code>noMergePatterns:
+  - '**/bin/*'
+  - '**/*.pdf'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The tags in the documents to be processed are expanded using the values of the properties provided by the project context.</p>
 </div>
 <div class="paragraph">
 <p>Additionally, for each module source file BootHub creates a
