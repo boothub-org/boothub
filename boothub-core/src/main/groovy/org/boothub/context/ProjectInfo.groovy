@@ -22,7 +22,7 @@ import groovy.transform.ToString
 @ConfiguredBy(ProjectInfoConfigurator)
 @ToString
 trait ProjectInfo {
-    final List<String> noMergePatterns = []
+    final List<String> noMergePatterns = ['**/img/*', '**/*.jar', '**/*.zip']
     String boothubVersion
     String ghProjectId
     String projectName

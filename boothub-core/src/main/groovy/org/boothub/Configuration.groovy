@@ -20,7 +20,7 @@ import org.yaml.snakeyaml.Yaml
 
 class Configuration {
     final Class<? extends ProjectContext> contextClass
-    final noMergePatterns = ['**/img/*', '**/*.jar', '**/*.zip']
+    final noMergePatterns = []
 
     Configuration(Class<? extends ProjectContext> contextClass) {
         this.contextClass = contextClass
