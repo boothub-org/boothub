@@ -28,7 +28,7 @@
     <h3>Articles</h3>
     <ul>
       <li><a href="https://dzone.com/articles/how-to-bootstrap-your-open-source-projects" target="_blank">How to Bootstrap Your Open-Source Projects</a></li>
-      <li><a href="https://beryx.org/blog/2018-08-01-/add-code-snippets-to-your-presentations/" target="_blank">Add code snippets to your technical presentations</a></li>
+      <li><a href="https://beryx.org/blog/2018-07-31-/add-code-snippets-to-your-presentations/" target="_blank">Add code snippets to your technical presentations</a></li>
     </ul>
 
   </div>
